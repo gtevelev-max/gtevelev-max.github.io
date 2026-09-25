@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Triangle groups II · Finite quotients and surfaces</title>
+<meta name="description" content="Animate triangle tessellations into verified finite quotients, explore paired triangulations, and meet the Klein quartic, Wiman sextic, and Fricke–Macbeath curve.">
+<link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div><a href="../">Jenia Tevelev</a><span class="sep">/</span><a href="../triangle-group/">Triangle groups I</a></div><span>Math 611 · Presentation II</span></header>
+<main>
+<div class="title-row"><div><p class="eyebrow">Finite quotients and Riemann surfaces</p><h1>When triangle words close up</h1></div><label class="group-label">Example<select id="example" aria-label="Finite quotient"><option value="klein">168 · Klein quartic</option><option value="a5">A₅ · Icosahedral sphere</option><option value="a6">A₆ · Wiman sextic</option><option value="macbeath">504 · Fricke–Macbeath curve</option><option value="m11">M₁₁ · Smallest Mathieu group</option><option value="torus">C₆ · Hexagonal torus</option><option value="a4">A₄ · Tetrahedral sphere</option><option value="s4">S₄ · Octahedral sphere</option></select></label></div>
+<nav class="chapters" aria-label="Presentation chapters"><button data-slide="0">1. The tiling</button><button data-slide="1">2. A finite quotient</button><button data-slide="2">3. Identification</button><button data-slide="3">4. The surface</button><button data-slide="4">5. Euler characteristic</button><button data-slide="5">6. Words and loops</button></nav>
+<div class="workspace">
+<section class="visual" aria-label="Animated triangle quotient">
+<div class="canvas-top"><span id="geometry-label">Loading exact quotient data…</span><span id="chamber-label"></span></div>
+<canvas id="scene" tabindex="0" aria-label="Triangle tessellation and cut-open quotient triangulation. The paired sides specify the closed Riemann surface."></canvas>
+<div class="visual-bottom"><span id="view-caption"></span><div><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button><button id="reset-view">Reset view</button></div></div>
+<div class="animation-controls"><button id="animate" class="primary">Animate quotient</button><label>Identification<input id="progress" type="range" min="0" max="1" step="0.002" value="0" aria-label="Quotient animation progress"></label><output id="progress-text">Tiling</output></div>
+<p class="diagram-note" id="diagram-note">The cover uses its spherical, Euclidean, or hyperbolic geometry.</p>
+</section>
+<aside aria-label="Presentation explanation"><div class="aside-heading"><span id="chapter-number">01</span><h2 id="chapter-title">The universal tessellation</h2></div><div id="narrative"></div><div class="equation" id="equation"></div><div id="facts" class="facts"></div><div class="slide-nav"><button id="previous">← Previous</button><span id="slide-position">1 / 6</span><button id="next">Next →</button></div></aside>
+</div>
+<section class="exploration" aria-label="Chambers, edge identifications, and words">
+<div><h2>A chamber and its neighbors</h2><label>Chamber <input id="face-number" type="number" min="0" value="0" aria-label="Chamber number"></label><p id="face-info"></p><div class="neighbor-buttons"><button id="side-0">Cross a</button><button id="side-1">Cross b</button><button id="side-2">Cross c</button></div><canvas id="chamber-detail" aria-label="Selected triangle with labeled vertices and its three neighboring chambers"></canvas></div>
+<div><h2>Paired sides</h2><label>Cut pair <input id="seam-number" type="number" min="1" value="1" aria-label="Cut edge pair number"></label><button id="show-seam">Show this identification</button><p id="seam-info"></p><p class="small">Each colored boundary side pairs with exactly one side of the same color and edge number. Matching vertex types determine the gluing. Drag to pan the diagram and scroll to zoom.</p><label class="check"><input id="show-pairs" type="checkbox" checked> Show pairing arcs</label></div>
+<div><h2>A word in the kernel</h2><form id="word-form"><label>Word in x, y, z<input id="word" value="(xyXY)^4" aria-label="Triangle group word" spellcheck="false"></label><button class="primary">Trace word</button></form><p id="word-result" role="status"></p><div id="word-samples" class="word-samples"></div><p class="small">x = bc, y = ca, z = ab. Capitals mean inverses. Read a gallery left to right. A loop in the quotient can lift to an open path in the cover.</p></div>
+</section>
+<section class="comparison"><h2>Eight quotients, eight marked surfaces</h2><div class="table-scroll"><table><thead><tr><th>Group</th><th>(p,q,r)</th><th>Order</th><th>Genus</th><th>Surface</th></tr></thead><tbody id="comparison-body"></tbody></table></div><p class="small">The signature and the chosen generating triple matter. A finite group can act on many different surfaces. M₁₁ here uses a verified (2,4,11) triple and gives genus 631.</p></section>
+<details class="proof"><summary>Why these diagrams define Riemann surfaces</summary><div id="proof-text"></div><h3>Exact data and sources</h3><p>The generators are permutations. Enumeration gives the group order. Every edge has two incident chambers, every vertex link is one circle, and the two chamber colors give a consistent orientation. These checks determine a closed connected orientable surface. Its conformal structure comes from gluing the geometric triangles, not from the distortion of the drawing.</p><ul id="sources"></ul><p><a href="quotient-data.zip" download>Download the verified quotient data and generator script</a></p></details>
+<div id="error" role="alert" hidden></div>
+<footer>Jenia Tevelev · Math 611 · <a href="../triangle-group/">Triangle groups I</a> · <a href="../">All demonstrations</a></footer>
+</main>
+<script src="geometry.js"></script><script src="data.js"></script><script src="cut-net.js"></script><script src="app.js"></script>
+</body></html>

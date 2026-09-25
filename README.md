@@ -27,3 +27,7 @@ Repository: https://github.com/gtevelev-max/gtevelev-max.github.io
 GitHub Pages publishes the root of the `main` branch. Update the HTML or assets and commit to `main` to publish changes.
 
 All internal links are relative. Video files remain hosted on the UMass website; this repository contains the pages, portrait, and interactive demonstrations.
+
+## Triangle groups II
+
+`triangle-quotients/` is an interactive presentation with eight verified finite quotients. It animates the geometric tiling into exact cut-open triangulated surfaces with paired boundary sides. `quotient-data.zip` contains explicit generators, full chamber data, and independent verification scripts. The lecture notes and instructor-only homework solutions are kept separate from the public website.
