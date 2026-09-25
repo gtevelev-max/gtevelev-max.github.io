@@ -1,4 +1,4 @@
-import {curves,geometry,add,sub,mul,dot,cross,norm,unit,planeEquation,circlePoint} from './math.mjs';
+import {curves,geometry,add,sub,mul,dot,cross,norm,unit,planeEquation,circlePoint} from './math.mjs?v=20260925-2';
 const $=id=>document.getElementById(id),canvas=$('scene'),ctx=canvas.getContext('2d');
 let curve=curves[0],t=0,playing=false,view='world',lastFrame=0,uiTime=0,width=800,height=550,dpr=1;
 let cameraDistance=curve.distance,worldOrbit={yaw:-.88,pitch:.47},rideOrbit={yaw:.2,pitch:.48};
