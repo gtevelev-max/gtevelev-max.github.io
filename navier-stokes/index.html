@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Navier–Stokes · Vortex concentration · Jenia Tevelev</title>
+<meta name="description" content="Explore vortex concentration in an interactive inner-core model, with material tracers, flow parameters, and velocity and pressure-force fields.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#fff,#181a1d);--fg:light-dark(#202328,#eef0f4);--sub:light-dark(#60636a,#b0b5bf);--line:light-dark(#dfe1e5,#41444c);--soft:light-dark(#f5f5f4,#23262b);--active:light-dark(#292d33,#eceef2);--on:light-dark(#fff,#202328);--ruby:#b51f48;--gold:#edd18a;--field:light-dark(#9e2442,#ff8fab)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit;color:inherit}button,select{border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:6px 9px}button{cursor:pointer}button:hover{background:var(--soft)}button.primary{background:var(--active);color:var(--on);border-color:var(--active)}button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--field);outline-offset:3px}a{color:var(--field);text-underline-offset:3px}h1,h2,h3,p{margin:0}h1{font-size:21px;line-height:1.2;font-weight:500}h2{font-size:16px;font-weight:500}h3{font-size:15px;font-weight:500}.small{font-size:12px;line-height:1.4;color:var(--sub)}.num{font-variant-numeric:tabular-nums}#openai-core{height:100dvh;min-height:690px;display:flex;flex-direction:column;padding:16px 20px 14px;gap:12px}header{display:flex;align-items:end;justify-content:space-between;gap:14px}header .course{margin-bottom:4px}header .edition{text-align:right}.workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);flex:1;gap:24px;min-height:0}.stage{position:relative;min-height:0;overflow:hidden}.stage canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}.stage canvas.dragging{cursor:grabbing}.stage-tag{position:absolute;left:12px;top:10px;pointer-events:none}.vorticity-label{margin-top:5px}.streamline-toggle{display:flex;align-items:center;gap:5px;margin-top:7px;pointer-events:auto}.streamline-toggle input{accent-color:var(--ruby)}.stage-bottom{position:absolute;left:12px;right:12px;bottom:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}.panel{min-width:0;display:flex;flex-direction:column;gap:10px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.timeline{flex:1;min-width:0}.label{display:flex;align-items:baseline;justify-content:space-between;gap:6px}input[type=range]{display:block;width:100%;margin:7px 0 1px;accent-color:var(--ruby);height:14px}output{font-variant-numeric:tabular-nums}.ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--sub)}.controls{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px}.controls label{min-width:0}.views{display:grid;grid-template-columns:1fr 1fr;gap:8px}.views select{width:100%;min-width:0}.camera{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}.equations{border-top:1px solid var(--line);padding-top:9px;display:flex;flex-direction:column;gap:6px}.formula{font:17px/1.5 "Cambria Math","STIX Two Math",Georgia,serif;overflow-wrap:anywhere}.formula sup,.formula sub{font-size:.72em}.formula .space{display:inline-block;width:14px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-height:146px}.field{display:flex;flex-direction:column;min-width:0;min-height:0}.field canvas{display:block;flex:1;width:100%;height:0;min-height:108px}.scope{border-top:1px solid var(--line);padding-top:8px}.source-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.source-row button{padding:4px 8px;font-size:12px}.status{min-height:17px}.error{color:var(--field)}dialog{max-width:900px;width:calc(100% - 32px);max-height:calc(100dvh - 40px);padding:24px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg)}dialog::backdrop{background:rgb(0 0 0 / .45)}dialog .row{margin-bottom:14px}dialog h3{margin-top:18px;margin-bottom:7px}dialog p{margin:7px 0}dialog .formula{margin:9px 0}dialog .math-grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}dialog .note{background:var(--soft);padding:12px;border-radius:7px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(min-width:1100px){#openai-core{padding:20px 26px}.panel{gap:12px}h1{font-size:23px}.fields{min-height:165px}}
+@media(max-height:740px) and (min-width:761px){#openai-core{padding:10px 15px;gap:8px;min-height:660px}.panel{gap:7px}.fields{min-height:127px}.field canvas{min-height:95px}.formula{font-size:16px}header .edition{display:none}}
+@media(max-width:900px){#openai-core{padding:12px;min-height:750px}.workspace{gap:14px}.panel{gap:9px}.controls{gap:6px 12px}.formula{font-size:16px}.edition{display:none}h1{font-size:19px}.camera{gap:7px}.small{font-size:11px}}
+@media(max-width:760px){#openai-core{height:auto;min-height:0}.workspace{grid-template-columns:1fr}.stage{height:440px}.panel{gap:12px}.fields{height:190px;flex:none}header{align-items:start}.small{font-size:12px}dialog .math-grid{grid-template-columns:1fr;gap:0}}
+@media(max-width:420px){.stage{height:360px}.views{grid-template-columns:1fr}.camera{grid-template-columns:1fr 1fr}.camera>label:first-child{grid-column:1/-1}.source-row{align-items:start}h1{font-size:18px}}
+@media print{#openai-core{display:none}dialog[open]{position:static;max-width:none;max-height:none;border:0;width:100%}dialog button{display:none}}
+
+/* Keep the two desktop panes within one screen; spare height goes to the fields. */
+@media(min-width:761px){.panel{min-height:0;gap:7px}.fields{min-height:120px}.field canvas{min-height:90px}.equations{gap:4px;padding-top:8px}.formula{font-size:16px;line-height:1.35}}
+</style>
+</head>
+<body>
+<main id="openai-core">
+ <header><div><div class="course"><a href="../" style="color:inherit;text-decoration:none">← Jenia Tevelev</a><span class="small"> · Math 233H · Fall 2026</span></div><h1>OpenAI inner-core model · vortex concentration</h1></div><div class="edition small">Equations from the<br>September 2026 paper</div></header>
+ <div class="workspace">
+  <section class="stage" aria-label="Three-dimensional flow">
+   <canvas id="oc-scene" role="img" aria-label="Gold inner-core region with ruby material tracers. Press and drag to rotate.">Three-dimensional core flow with ruby tracers.</canvas>
+   <div class="stage-tag small"><div id="oc-domain"></div><div class="vorticity-label">Axial vorticity at origin: <output id="oc-vorticity" class="num"></output></div><label class="streamline-toggle"><input id="oc-streamlines" type="checkbox" checked> Show instantaneous flow lines</label></div>
+   <div class="stage-bottom small"><span>Press and drag to rotate</span><span id="oc-zoom" class="num">Physical scale · 1×</span></div>
+  </section>
+  <section class="panel" aria-label="Parameters, equations and vector fields">
+   <div class="row"><h2>Flow parameters</h2><button id="oc-reset" type="button">Restart</button></div>
+   <div class="row"><button id="oc-play" class="primary" type="button">Play</button><div class="timeline"><label class="label" for="oc-time"><span>Ordinary time t</span><output id="oc-time-value">0.0000 / 1</output></label><input id="oc-time" type="range" min="0" max="0.9999" step="0.0001" value="0"><div class="ticks"><span>0</span><span>¼</span><span>½</span><span>¾</span><span>T = 1</span></div></div></div>
+   <div class="controls">
+    <label for="oc-h"><span class="label"><span>Concentration h</span><output id="oc-h-value">0.005</output></span><input id="oc-h" type="range" min="0.001" max="0.009" step="0.001" value="0.005"></label>
+    <label for="oc-lambda"><span class="label"><span>Profile parameter Λ</span><output id="oc-lambda-value">12</output></span><input id="oc-lambda" type="range" min="8" max="16" step="1" value="12"></label>
+    <label for="oc-pressure"><span class="label"><span>Axis pressure P</span><output id="oc-pressure-value">1.00</output></span><input id="oc-pressure" type="range" min="0.25" max="2" step="0.25" value="1"></label>
+    <label for="oc-rate"><span class="label"><span>Playback</span><output id="oc-rate-value">2×</output></span><input id="oc-rate" type="range" min="0.25" max="2" step="0.25" value="2"></label>
+   </div>
+   <div class="views"><select id="oc-mode" aria-label="Flow appearance"><option value="volume">Full core volume</option><option value="sheet">Core boundary</option><option value="tracers">Ruby tracers only</option></select><select id="oc-scale" aria-label="Spatial view"><option value="physical">Fixed physical scale</option><option value="follow">Follow shrinking core</option></select></div>
+   <div class="camera">
+    <label for="oc-opacity"><span class="label"><span>Gold opacity</span><output id="oc-opacity-value">55%</output></span><input id="oc-opacity" type="range" min="0.15" max="0.9" step="0.05" value="0.55"></label>
+    <label for="oc-yaw"><span class="label"><span>Azimuth</span><output id="oc-yaw-value">−28°</output></span><input id="oc-yaw" type="range" min="-180" max="180" step="1" value="-28"></label>
+    <label for="oc-pitch"><span class="label"><span>Elevation</span><output id="oc-pitch-value">19°</output></span><input id="oc-pitch" type="range" min="-85" max="85" step="1" value="19"></label>
+   </div>
+   <section class="equations" aria-label="Equations used by this simulation">
+    <div class="row"><h2>Forced Navier–Stokes</h2><span class="small">ν = 1</span></div>
+    <div class="formula">∂<sub>t</sub><b>u</b> + (<b>u</b> · ∇)<b>u</b> = Δ<b>u</b> − ∇p + <b>f</b><span class="space"></span>∇ · <b>u</b> = 0</div>
+    <div class="formula">1 − t = q(1 − η²),<span class="space"></span>z = q<sup>½−h</sup>η,<span class="space"></span>X = r²/(2q)</div>
+    <div class="formula">u<sub>θ</sub> = q<sup>−½−h</sup>√(2X) F,<span class="space"></span>u<sub>z</sub> = q<sup>−½−h</sup>U</div>
+    <div class="small">F, U and pressure are computed from the paper’s inner equations (4.13). Radial velocity enforces incompressibility.</div>
+   </section>
+   <section class="fields" aria-label="Computed vector fields in the central transverse plane">
+    <div class="field"><h3>Velocity <span class="small">(u<sub>x</sub>, u<sub>y</sub>)</span></h3><canvas id="oc-velocity" role="img" aria-label="Computed inward and swirling velocity arrows in the central transverse plane."></canvas></div>
+    <div class="field"><h3>Pressure force <span class="small">−∇<sub>x,y</sub>p</span></h3><canvas id="oc-force" role="img" aria-label="Computed pressure force projected into the central transverse plane."></canvas></div>
+   </section>
+   <div class="scope small">
+    <div>An existing vortex concentrates here; formation from rest is not modeled. Global matching and infinite corrections are omitted. Gold marks the sampled region.</div>
+    <div id="oc-status" class="status num" role="status" aria-live="polite">Computing the core profiles…</div>
+    <div class="source-row"><a href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf#page=24" target="_blank" rel="noopener">OpenAI paper · §4 & Appendix B</a><button id="oc-explain" type="button">Equations &amp; method</button></div>
+   </div>
+  </section>
+ </div>
+</main>
+<dialog id="oc-method" aria-labelledby="oc-method-title">
+ <div class="row"><h2 id="oc-method-title">What the new simulation computes</h2><button id="oc-close" type="button">Close</button></div>
+ <p>This version numerically evaluates the inner-core equations in OpenAI’s September 2026 Navier–Stokes paper. It uses a finite radial Taylor expansion with smooth interpolation in height. The pressure prescribed on the axis is an explicit classroom choice.</p>
+ <div class="note">This is a local approximation to one part of the construction. The complete solution needs the paper’s matched exterior, parameter hierarchy, and infinite correction scheme. The displayed flow is not a numerical realization of that complete solution, and its residual forcing is not certified smooth at t = 1.</div>
+ <div class="math-grid"><section>
+ <h3>1. Coordinates and velocity · (4.1)–(4.7)</h3>
+ <div class="formula">A = ½ + h, &nbsp; D = ½ − h<br>d = 1 − η², &nbsp; L = 1 − 2hη²<br>1 − t = qd, &nbsp; z = q<sup>D</sup>η, &nbsp; X = r²/(2q)</div>
+ <div class="formula">u<sub>θ</sub> = q<sup>−A</sup>√(2X) F<br>u<sub>z</sub> = q<sup>−A</sup>U, &nbsp; r u<sub>r</sub> = Xv<sub>0</sub><br>p = q<sup>−2A</sup>Π</div>
+ <div class="formula">Ū = ∫<sub>0</sub><sup>1</sup> U(sX, η) ds<br>v<sub>0</sub> = (2ηU − 2DηŪ − dŪ<sub>η</sub>)/L</div>
+ <p>The radial-velocity identity preserves ∇·u = 0 for the interpolated finite profiles. At η = 0, the radial scale is proportional to √(1 − t), while the speed prefactor is (1 − t)<sup>−A</sup>.</p>
+ <h3>2. Inner equations · (4.13)</h3>
+ <div class="formula">W = 1 − 2DηŪ − dŪ<sub>η</sub><br>H = Dη + dU<br>ℓ = 1 + XF<sub>X</sub>/F</div>
+ <div class="formula">S<sub>q</sub> = −Wℓ − h(1 − 2ηU) − HF<sub>η</sub>/F</div>
+ <div class="formula">S<sub>n</sub> = −WXU<sub>X</sub> − A(1 − 2ηU)U<br>− HU<sub>η</sub> − dΠ<sub>η</sub> + 4AηΠ + 2ηXΠ<sub>X</sub></div>
+ <div class="formula">−2L(XF<sub>XX</sub> + 2F<sub>X</sub>) = FS<sub>q</sub><br>−2L(XU<sub>XX</sub> + U<sub>X</sub>) = S<sub>n</sub><br>Π<sub>X</sub> = F²</div>
+ <p>These are the equations solved locally by the series. They contain the leading radial viscosity. The full Navier–Stokes momentum residual also involves axial viscosity and higher-order terms.</p>
+ </section><section>
+ <h3>3. Axis data · (B.1)–(B.3)</h3>
+ <div class="formula">U(0,η) = U<sub>*</sub> = 4η + j<sub>0</sub><br>H<sub>*</sub> = Dη + dU<sub>*</sub><br>ζ<sub>*</sub> = −LH<sub>*</sub>/(H<sub>*</sub>² + σ<sub>*</sub>²)<br>F(0,η) = exp(Λ∫<sub>0</sub><sup>η</sup>ζ<sub>*</sub>(w) dw)/C</div>
+ <p>Here j<sub>0</sub> = 0.025 and σ<sub>*</sub> = 0.5. C normalizes the largest axis value of F to 0.5. The h and Λ controls explore local profiles; they are not certified choices satisfying the paper’s full nested parameter restrictions.</p>
+ <div class="formula">Π(0,η) = −P/(1 + η²)²</div>
+ <p><b>This pressure datum is a demo choice.</b> The paper’s Π<sub>0</sub> comes from its globally matched outer profile; the formula above does not reproduce that matching.</p>
+ <h3>4. Tracers, volume and time</h3><p>This view starts with a rotating core already present. It demonstrates its prescribed similarity concentration, not vortex formation from rest. At h = 0.005, height divided by radius grows by only 4.7% before the display cutoff.</p><div class="formula">ω = ∇ × u<br>ω<sub>z</sub>(0,t) = 2(1 − t)<sup>−1−h</sup> F(0,0)</div><p>The vorticity readout measures axial rotation at the spatial origin. The value in parentheses is its ratio to t = 0. Increasing vorticity quantifies the strengthening local rotation as the core concentrates.</p>
+ <div class="formula">dX/dt = XW/(qL)<br>dη/dt = H/(qL)<br>dθ/dt = q<sup>−1−h</sup>F</div>
+ <p>Ruby tracers integrate these material equations with adaptive steps in ordinary time. A tracer that leaves the small displayed region is replaced at its incoming radial boundary. Changing appearance or camera does not change particle speed. Moving the time slider seeds a new sample at the selected time.</p>
+ <p>The ruby curves are instantaneous streamlines: their tangent is parallel to the current velocity field, with arrows in the flow direction. They differ from particle histories because the velocity changes with time. The swirl is weaker than radial inflow with these numerical parameters; the curves show that actual balance.</p><p>The gold region is a window in similarity coordinates, not a free liquid surface. The physical view uses one spatial scale on all axes; “Follow shrinking core” zooms uniformly. The animation stops at t = 0.9999, before the singular limit.</p>
+ <p>The vector diagrams show the central transverse slice with a separate arrow scale for each field. Pressure force is −∇p, not the external forcing f.</p>
+ <h3>5. Numerical checks</h3>
+ <p id="oc-method-checks">Profile residuals and radial series convergence are checked in the displayed domain.</p>
+ <p><a href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf" target="_blank" rel="noopener">Read the original paper</a> · <a href="https://github.com/openai/NavierStokesAndEuler" target="_blank" rel="noopener">Official formalization</a></p>
+ </section></div>
+</dialog>
+<script>
+/*
+ * Numerical inner-core equations from OpenAI, Finite time blowup for
+ * Navier–Stokes, (4.1), (4.3), (4.7)–(4.9), (4.13), (B.1)–(B.3).
+ * This is a truncated numerical solution of the LEADING INNER profile system.
+ * The exploratory datum Pi(0,eta)=-P/(1+eta^2)^2 is not the globally matched
+ * pressure datum of (A.21). No annular waves, higher-order corrections,
+ * exterior matching, localization, or activation from rest are included.
+ */
+(function(global) {
+  'use strict';
+  const DEFAULTS=Object.freeze({h:.005,j:.025,sigma:.5,Lambda:12,P:2,axisSwirl:.5,order:14,etaMax:.7,Xmax:.12,intervals:280});
+  const constant=(value,m)=>{const a=new Float64Array(m);a[0]=value;return a;};
+  function add(a,b,m) {const c=new Float64Array(m);for(let k=0;k<m;k++)c[k]=(a[k]||0)+(b[k]||0);return c;}
+  function scale(a,s,m=a.length) {const c=new Float64Array(m);for(let k=0;k<m;k++)c[k]=(a[k]||0)*s;return c;}
+  function mul(a,b,m) {
+    const c=new Float64Array(m);
+    for(let i=0;i<Math.min(a.length,m);i++)for(let j=0;j<Math.min(b.length,m-i);j++)c[i+j]+=a[i]*b[j];
+    return c;
+  }
+  function deriv(a,m=a.length-1) {const c=new Float64Array(m);for(let k=0;k<m;k++)c[k]=(k+1)*(a[k+1]||0);return c;}
+  function divide(a,b,m) {
+    const c=new Float64Array(m);
+    for(let k=0;k<m;k++){let v=a[k]||0;for(let i=1;i<=k;i++)v-=(b[i]||0)*c[k-i];c[k]=v/b[0];}
+    return c;
+  }
+  function exponential(a,m) {
+    const c=new Float64Array(m);c[0]=Math.exp(a[0]);
+    for(let n=1;n<m;n++){let s=0;for(let k=1;k<=n;k++)s+=k*(a[k]||0)*c[n-k];c[n]=s/n;}
+    return c;
+  }
+  function accumulate(target,a,factor=1) {for(let k=0;k<target.length;k++)target[k]+=factor*(a[k]||0);}
+  function integrate(f,a,b) {
+    // Composite 8-point Gauss–Legendre quadrature. Short fixed panels avoid
+    // accidental error-estimator cancellation in the sharply varying axis datum.
+    const nodes=[.1834346424956498,.5255324099163290,.7966664774136267,.9602898564975363];
+    const weights=[.3626837833783620,.3137066458778873,.2223810344533745,.1012285362903763];
+    const panels=Math.max(1,Math.ceil(Math.abs(b-a)/.0125)),step=(b-a)/panels;
+    let sum=0;
+    for(let k=0;k<panels;k++) {
+      const mid=a+(k+.5)*step,half=step/2;
+      for(let j=0;j<4;j++)sum+=half*weights[j]*(f(mid-half*nodes[j])+f(mid+half*nodes[j]));
+    }
+    return sum;
+  }
+  // A degree-seven Hermite polynomial in s in [0,1], matching eta jets 0..3.
+  function hermite(left,right,step,target,offset) {
+    const a0=left[0],a1=left[1]*step,a2=left[2]*step**2,a3=left[3]*step**3;
+    const r0=right[0]-a0-a1-a2-a3;
+    const r1=right[1]*step-a1-2*a2-3*a3;
+    const r2=2*right[2]*step**2-2*a2-6*a3;
+    const r3=6*right[3]*step**3-6*a3;
+    target.set([a0,a1,a2,a3,35*r0-15*r1+2.5*r2-r3/6,-84*r0+39*r1-7*r2+r3/2,70*r0-34*r1+6.5*r2-r3/2,-20*r0+10*r1-2*r2+r3/6],offset);
+  }
+  function evaluateField(pack,offset,order,s,X,invStep,average=false) {
+    // Layout: [value, X derivative, XX derivative] for each eta derivative 0..3.
+    const out=new Float64Array(12);
+    for(let n=order;n>=0;n--) {
+      let c0=0,c1=0,c2=0,c3=0;
+      for(let k=7;k>=0;k--){c3=c3*s+3*c2;c2=c2*s+2*c1;c1=c1*s+c0;c0=c0*s+pack[offset+8*n+k];}
+      const factor=average?1/(n+1):1;
+      const coefs=[c0*factor,c1*invStep*factor,c2*invStep**2*factor,c3*invStep**3*factor];
+      for(let e=0;e<4;e++){const i=3*e;out[i+2]=out[i+2]*X+2*out[i+1];out[i+1]=out[i+1]*X+out[i];out[i]=out[i]*X+coefs[e];}
+    }
+    return out;
+  }
+  function buildModel(options={}) {
+    const p=Object.assign({},DEFAULTS,options);
+    for(const key of ['h','j','sigma','Lambda','P','axisSwirl','etaMax','Xmax'])if(!Number.isFinite(p[key]))throw new RangeError(key+' must be finite');
+    if(!(p.h>0&&p.h<.01&&p.j>0&&p.j<=.05&&p.sigma>0&&p.Lambda>0&&p.P>0&&p.axisSwirl>0&&p.etaMax>0&&p.etaMax<1&&p.Xmax>0))throw new RangeError('Invalid inner-core parameters');
+    p.order=Math.round(p.order);p.intervals=Math.round(p.intervals);
+    if(p.order<4||p.order>20||p.intervals<20||p.intervals>1600)throw new RangeError('Invalid approximation resolution');
+    const A=.5+p.h,D=.5-p.h,N=p.order,K=N+5,m0=K+1;
+    const Haxis=eta=>D*eta+(1-eta*eta)*(4*eta+p.j);
+    const zeta=eta=>-(1-2*p.h*eta*eta)*Haxis(eta)/(Haxis(eta)**2+p.sigma**2);
+    let lo=-p.etaMax,hi=p.etaMax;
+    for(let k=0;k<60;k++){const mid=(lo+hi)/2;if(Haxis(mid)<0)lo=mid;else hi=mid;}
+    const etaPeak=(lo+hi)/2,logPeak=p.Lambda*integrate(zeta,0,etaPeak);
+    const logC=options.C===undefined?logPeak-Math.log(p.axisSwirl):Math.log(options.C);
+    if(!Number.isFinite(logC))throw new RangeError('C must be positive');
+    p.C=Math.exp(logC);
+    const step=2*p.etaMax/p.intervals,nodes=[];
+    function makeNode(eta) {
+      const e=constant(eta,m0);e[1]=1;
+      const one=constant(1,m0),ee=mul(e,e,m0),d=add(one,scale(ee,-1),m0),L=add(one,scale(ee,-2*p.h),m0);
+      const Uaxis=add(scale(e,4),constant(p.j,m0),m0),H=add(scale(e,D),mul(d,Uaxis,m0),m0);
+      const zetaJet=scale(divide(mul(L,H,m0),add(mul(H,H,m0),constant(p.sigma**2,m0),m0),m0),-1);
+      const logF=constant(p.Lambda*integrate(zeta,0,eta)-logC,m0);
+      for(let k=1;k<m0;k++)logF[k]=p.Lambda*zetaJet[k-1]/k;
+      const F=[exponential(logF,m0)],U=[Uaxis];
+      const den=add(one,ee,m0),Pi=[scale(divide(one,mul(den,den,m0),m0),-p.P)];
+      const W=[],Hc=[];
+      for(let n=0;n<N;n++) {
+        const len=K-n;
+        // W and Hc depend only on the already known axial coefficient U_n.
+        W[n]=add(n===0?one:constant(0,len),scale(add(scale(mul(e,U[n],len),2*D),mul(d,deriv(U[n],len),len),len),-1/(n+1)),len);
+        Hc[n]=add(n===0?scale(e,D,len):constant(0,len),mul(d,U[n],len),len);
+        const sf=new Float64Array(len),su=new Float64Array(len),ff=new Float64Array(len),uf=new Float64Array(len),uu=new Float64Array(len);
+        for(let i=0;i<=n;i++) {
+          const j=n-i;
+          accumulate(sf,mul(W[i],F[j],len),j+1);
+          accumulate(sf,mul(Hc[i],deriv(F[j],len),len));
+          accumulate(su,mul(W[i],U[j],len),j);
+          accumulate(su,mul(Hc[i],deriv(U[j],len),len));
+          accumulate(ff,mul(F[i],F[j],len));
+          accumulate(uf,mul(U[i],F[j],len));
+          accumulate(uu,mul(U[i],U[j],len));
+        }
+        accumulate(sf,F[n],p.h);accumulate(sf,mul(e,uf,len),-2*p.h);
+        accumulate(su,U[n],A);accumulate(su,mul(e,uu,len),-2*A);
+        accumulate(su,mul(d,deriv(Pi[n],len),len));accumulate(su,mul(e,Pi[n],len),-(4*A+2*n));
+        F[n+1]=scale(divide(sf,L,len),1/(2*(n+1)*(n+2)));
+        U[n+1]=scale(divide(su,L,len),1/(2*(n+1)**2));
+        Pi[n+1]=scale(ff,1/(n+1));
+      }
+      return [F,U,Pi];
+    }
+    for(let k=0;k<=p.intervals;k++)nodes.push(makeNode(-p.etaMax+k*step));
+    const stride=8*(N+1),packs=[];
+    for(let k=0;k<p.intervals;k++) {
+      const pack=new Float64Array(3*stride);
+      for(let f=0;f<3;f++)for(let n=0;n<=N;n++)hermite(nodes[k][f][n],nodes[k+1][f][n],step,pack,f*stride+n*8);
+      packs.push(pack);
+    }
+    function inDomain(X,eta) {return Number.isFinite(X)&&Number.isFinite(eta)&&X>=0&&X<=p.Xmax&&Math.abs(eta)<=p.etaMax;}
+    function locate(X,eta) {
+      if(!Number.isFinite(X)||!Number.isFinite(eta)||X< -1e-12||X>p.Xmax+1e-12||Math.abs(eta)>p.etaMax+1e-12)throw new RangeError('Query outside computed inner-core rectangle');
+      X=Math.max(0,Math.min(p.Xmax,X));eta=Math.max(-p.etaMax,Math.min(p.etaMax,eta));
+      const index=Math.min(p.intervals-1,Math.max(0,Math.floor((eta+p.etaMax)/step)));
+      const s=(eta-(-p.etaMax+index*step))/step;
+      return {X,eta,s,pack:packs[index]};
+    }
+    function flow(X,eta) {
+      const at=locate(X,eta);X=at.X;eta=at.eta;
+      const s=at.s,pack=at.pack;
+      let F=0,U=0,Ubar=0,Ubar_eta=0;
+      for(let n=N;n>=0;n--) {
+        let f=0,u=0,ue=0;
+        for(let k=7;k>=0;k--){f=f*s+pack[8*n+k];ue=ue*s+u;u=u*s+pack[stride+8*n+k];}
+        F=F*X+f;U=U*X+u;Ubar=Ubar*X+u/(n+1);Ubar_eta=Ubar_eta*X+ue/(step*(n+1));
+      }
+      const d=1-eta*eta,L=1-2*p.h*eta*eta,W=1-2*D*eta*Ubar-d*Ubar_eta,Hc=D*eta+d*U;
+      return {X,eta,F,U,Ubar,Ubar_eta,d,L,W,Hc,v0:(2*eta*U+W-1)/L,E:Math.sqrt(2*X)*F};
+    }
+    function profile(X,eta) {
+      const at=locate(X,eta);X=at.X;eta=at.eta;
+      const s=at.s,pack=at.pack;
+      const f=evaluateField(pack,0,N,s,X,1/step),u=evaluateField(pack,stride,N,s,X,1/step),pi=evaluateField(pack,2*stride,N,s,X,1/step),bar=evaluateField(pack,stride,N,s,X,1/step,true);
+      const d=1-eta*eta,L=1-2*p.h*eta*eta;
+      const W=1-2*D*eta*bar[0]-d*bar[3],Hc=D*eta+d*u[0];
+      const v0=(2*eta*u[0]+W-1)/L;
+      return {X,eta,F:f[0],F_X:f[1],F_XX:f[2],F_eta:f[3],F_Xeta:f[4],F_etaeta:f[6],F_etaetaeta:f[9],
+        U:u[0],U_X:u[1],U_XX:u[2],U_eta:u[3],U_Xeta:u[4],U_etaeta:u[6],U_etaetaeta:u[9],
+        Ubar:bar[0],Ubar_X:bar[1],Ubar_XX:bar[2],Ubar_eta:bar[3],Ubar_Xeta:bar[4],Ubar_etaeta:bar[6],Ubar_etaetaeta:bar[9],
+        Pi:pi[0],Pi_X:pi[1],Pi_XX:pi[2],Pi_eta:pi[3],Pi_Xeta:pi[4],Pi_etaeta:pi[6],Pi_etaetaeta:pi[9],E:Math.sqrt(2*X)*f[0],d,L,W,Hc,v0,V0:X*v0};
+    }
+    function position(X,eta,theta,t) {
+      if(!(t>=0&&t<1))throw new RangeError('Time must satisfy 0 <= t < 1');
+      const q=(1-t)/(1-eta*eta),r=Math.sqrt(2*q*X);
+      return {x:r*Math.cos(theta),y:r*Math.sin(theta),z:q**D*eta,q,r};
+    }
+    function similarity(z,t) {
+      if(!(t>=0&&t<1)||!Number.isFinite(z))throw new RangeError('Invalid space-time coordinates');
+      const tau=1-t,target=Math.abs(z)/tau**D;
+      let a=0,b=1;
+      for(let k=0;k<55;k++){const mid=(a+b)/2,v=mid/(1-mid*mid)**D;if(v<target)a=mid;else b=mid;}
+      const eta=Math.sign(z)*(a+b)/2,q=tau/(1-eta*eta);
+      return {q,eta,tau};
+    }
+    function velocity(x,y,z,t) {
+      const {q,eta}=similarity(z,t),X=(x*x+y*y)/(2*q),a=profile(X,eta);
+      const radial=a.v0/(2*q),angular=q**(-1-p.h)*a.F;
+      const ux=radial*x-angular*y,uy=radial*y+angular*x,uz=q**(-A)*a.U;
+      const pressure=q**(-2*A)*a.Pi;
+      const pressure_r=q**(-2*A-1)*Math.hypot(x,y)*a.Pi_X;
+      const pressure_z=q**(-2*A-D)*(-4*A*eta*a.Pi+a.d*a.Pi_eta-2*eta*X*a.Pi_X)/a.L;
+      return {ux,uy,uz,speed:Math.hypot(ux,uy,uz),pressure,pressure_r,pressure_z,q,eta,X,profile:a};
+    }
+    function rates(X,eta,t) {
+      if(!(t>=0&&t<1))throw new RangeError('Time must satisfy 0 <= t < 1');
+      const a=flow(X,eta),q=(1-t)/a.d;
+      return {X:X*a.W/(q*a.L),eta:a.Hc/(q*a.L),theta:q**(-1-p.h)*a.F,q};
+    }
+    function residual(X,eta) {
+      const a=profile(X,eta);
+      // Algebraic form avoids division by F in the angular equation.
+      const angularLeft=2*a.L*(X*a.F_XX+2*a.F_X);
+      const angularRight=a.W*(a.F+X*a.F_X)+p.h*(1-2*eta*a.U)*a.F+a.Hc*a.F_eta;
+      const axialLeft=2*a.L*(X*a.U_XX+a.U_X);
+      const axialRight=a.W*X*a.U_X+A*(1-2*eta*a.U)*a.U+a.Hc*a.U_eta+a.d*a.Pi_eta-4*A*eta*a.Pi-2*eta*X*a.Pi_X;
+      const pressure=a.Pi_X-a.F*a.F;
+      return {angular:angularLeft-angularRight,axial:axialLeft-axialRight,pressure,
+        relativeAngular:Math.abs(angularLeft-angularRight)/(1+Math.abs(angularLeft)+Math.abs(angularRight)),
+        relativeAxial:Math.abs(axialLeft-axialRight)/(1+Math.abs(axialLeft)+Math.abs(axialRight)),relativePressure:Math.abs(pressure)/(1+a.F*a.F)};
+    }
+    return Object.freeze({params:Object.freeze(p),A,D,profile,flow,inDomain,position,similarity,velocity,rates,residual,
+      limitations:'Numerical leading inner-core equations; exploratory axis pressure, without global matching, oscillatory or higher-order corrections, or activation from rest.'});
+  }
+  const api=Object.freeze({buildModel,DEFAULTS});
+  if(typeof module!=='undefined'&&module.exports)module.exports=api;
+  global.CoreModel=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+</script>
+<script>
+(function(global){
+  'use strict';
+  const TAU=2*Math.PI;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const fract=v=>v-Math.floor(v);
+  const mixColor=(a,b,t)=>a.map((x,i)=>Math.round(x+(b[i]-x)*t));
+  const cssColor=c=>'rgb('+c.join(',')+')';
+
+  /** Display only: particle positions are supplied by the core integrator. */
+  class CoreRenderer {
+    constructor(canvas,options={}) {
+      this.canvas=canvas;this.ctx=canvas.getContext('2d');this.options=options;
+      this.gold=options.gold||[237,209,138];this.ruby=options.ruby||[181,31,72];
+      this.foreground=options.foreground||'#554c3b';
+      this.metrics={};this.project=()=>({x:0,y:0,depth:0});
+      this.imageCache=null;this.profileCache=null;this.resize();
+    }
+    resize() {
+      const rect=this.canvas.getBoundingClientRect();
+      const w=Math.max(1,rect.width),h=Math.max(1,rect.height);
+      const dpr=Math.min(2,global.devicePixelRatio||1);
+      if(this.width!==w||this.height!==h||this.dpr!==dpr) {
+        this.width=w;this.height=h;this.dpr=dpr;
+        this.canvas.width=Math.round(w*dpr);this.canvas.height=Math.round(h*dpr);
+        this.ctx.setTransform(dpr,0,0,dpr,0,0);
+      }
+    }
+    _profile(h,Xmax,etaMax) {
+      const key=[h,Xmax,etaMax].join(':');
+      if(this.profileCache&&this.profileCache.key===key)return this.profileCache;
+      const D=.5-h,zmax=etaMax/Math.pow(1-etaMax*etaMax,D),r0=Math.sqrt(2*Xmax);
+      const radius2=new Float64Array(257);
+      // z(eta) is monotone on the displayed strip. Tabulate its inverse once,
+      // keeping the actual flared geometry, rather than replacing it by a tube.
+      for(let j=0;j<=256;j++) {
+        const z=zmax*j/256;let lo=0,hi=etaMax;
+        for(let n=0;n<42;n++) {
+          const mid=(lo+hi)/2,value=mid/Math.pow(1-mid*mid,D);
+          if(value<z)lo=mid;else hi=mid;
+        }
+        const eta=(lo+hi)/2;radius2[j]=2*Xmax/(1-eta*eta);
+      }
+      return this.profileCache={key,D,zmax,r0,rmax:r0/Math.sqrt(1-etaMax*etaMax),radius2};
+    }
+    _radiusSquared(z,zmax,profile) {
+      const f=clamp(Math.abs(z)/zmax*256,0,256),i=Math.min(255,Math.floor(f));
+      return profile.radius2[i]+(profile.radius2[i+1]-profile.radius2[i])*(f-i);
+    }
+    _ray(X,V,shape) {
+      const {rmax,zmax,cp,sp}=shape;
+      const delta=rmax*rmax-X*X;
+      if(delta<=0)return null;
+      let lo=-Infinity,hi=Infinity;
+      const rad=Math.sqrt(delta);
+      if(Math.abs(cp)>1e-12) {
+        const a=(V*sp-rad)/cp,b=(V*sp+rad)/cp;
+        lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));
+      } else if(Math.abs(V*sp)>=rad)return null;
+      if(Math.abs(sp)>1e-12) {
+        const a=(-zmax-V*cp)/sp,b=(zmax-V*cp)/sp;
+        lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));
+      } else if(Math.abs(V*cp)>=zmax)return null;
+      return hi>lo?{lo,hi}:null;
+    }
+    _column(X,V,lo,hi,shape,profile,steps=28) {
+      if(hi<=lo)return 0;
+      const dl=(hi-lo)/steps;let integral=0;
+      for(let j=0;j<steps;j++) {
+        const depth=lo+(j+.5)*dl;
+        const y=-V*shape.sp+depth*shape.cp,z=V*shape.cp+depth*shape.sp;
+        if(Math.abs(z)>shape.zmax)continue;
+        const edge=this._radiusSquared(z,shape.zmax,profile),r2=X*X+y*y;
+        if(r2<=edge)integral+=(.65+.35*(1-r2/edge))*dl;
+      }
+      return integral/profile.r0;
+    }
+    _volume(shape,profile,k,sr,opacity,center) {
+      const ctx=this.ctx,{rmax,zmax,cp,sp}=shape;
+      const vertical=rmax*Math.abs(sp)+zmax*Math.abs(cp);
+      // Relative radial/axial scaling changes by only tau^h. Quantization lets
+      // most animation frames reuse this small optical-density image.
+      const ratio=shape.axialFactor;
+      const targetH=280,targetW=clamp(Math.round(targetH*rmax/vertical),64,180);
+      const rasterW=Math.round(targetW),rasterH=Math.round(clamp(targetH,96,300));
+      const key=[profile.key,ratio.toFixed(3),shape.pitch.toFixed(3),opacity.toFixed(3),rasterW,rasterH].join(':');
+      if(!this.imageCache||this.imageCache.key!==key) {
+        const surface=this.canvas.ownerDocument.createElement('canvas');
+        surface.width=rasterW;surface.height=rasterH;
+        const context=surface.getContext('2d'),image=context.createImageData(rasterW,rasterH);
+        for(let j=0;j<rasterH;j++)for(let i=0;i<rasterW;i++) {
+          const X=2*rmax*((i+.5)/rasterW-.5),V=2*vertical*(.5-(j+.5)/rasterH);
+          const ray=this._ray(X,V,shape);if(!ray)continue;
+          const optical=this._column(X,V,ray.lo,ray.hi,shape,profile);
+          const alpha=1-Math.exp(-opacity*.92*optical);
+          const illumination=.1+.12*clamp(.5-X/(4*rmax)+V/(8*vertical),0,1);
+          const color=mixColor(this.gold,[255,252,235],illumination),id=4*(j*rasterW+i);
+          image.data[id]=color[0];image.data[id+1]=color[1];image.data[id+2]=color[2];image.data[id+3]=Math.round(255*alpha);
+        }
+        context.putImageData(image,0,0);this.imageCache={key,surface};
+      }
+      const px=k*sr;
+      ctx.globalAlpha=1;
+      ctx.drawImage(this.imageCache.surface,center.x-px*rmax,center.y-px*vertical,2*px*rmax,2*px*vertical);
+    }
+    _bubble(p,opacity) {
+      const ctx=this.ctx;
+      ctx.globalAlpha=opacity;ctx.fillStyle=cssColor(this.ruby);
+      ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,TAU);ctx.fill();
+      if(p.radius>1) {
+        ctx.globalAlpha=opacity*.52;ctx.fillStyle='#fff0c7';
+        ctx.beginPath();ctx.arc(p.x-p.radius*.29,p.y-p.radius*.33,p.radius*.24,0,TAU);ctx.fill();
+      }
+    }
+    _boundary(profile,sr,sz,opacity,particles) {
+      const primitives=particles.map(p=>({...p,bubble:true})),sectors=40,levels=22;
+      const point=(eta,theta)=>{
+        const den=1-eta*eta,r=sr*profile.r0/Math.sqrt(den),z=sz*eta/Math.pow(den,profile.D);
+        return this.project(r*Math.cos(theta),r*Math.sin(theta),z);
+      };
+      const etaMax=this.current.etaMax;
+      for(let j=0;j<levels;j++) {
+        const a=etaMax*(2*j/levels-1),b=etaMax*(2*(j+1)/levels-1);
+        for(let i=0;i<sectors;i++) {
+          const angle=i*TAU/sectors,next=(i+1)*TAU/sectors;
+          const points=[point(a,angle),point(a,next),point(b,next),point(b,angle)];
+          primitives.push({points,depth:points.reduce((n,p)=>n+p.depth,0)/4,alpha:opacity*.17});
+        }
+      }
+      // Caps close the sampled region in every appearance; they are display
+      // boundaries, not material free surfaces of the fluid.
+      for(const eta of [-etaMax,etaMax]) {
+        const z=sz*eta/Math.pow(1-eta*eta,profile.D),center=this.project(0,0,z);
+        for(let i=0;i<sectors;i++) {
+          const points=[center,point(eta,i*TAU/sectors),point(eta,(i+1)*TAU/sectors)];
+          primitives.push({points,depth:points.reduce((n,p)=>n+p.depth,0)/3,alpha:opacity*.2});
+        }
+      }
+      primitives.sort((a,b)=>a.depth-b.depth);
+      const ctx=this.ctx;ctx.fillStyle=cssColor(this.gold);
+      for(const primitive of primitives) {
+        if(primitive.bubble){this._bubble(primitive,.88);continue;}
+        ctx.globalAlpha=primitive.alpha;ctx.fillStyle=cssColor(this.gold);ctx.beginPath();
+        primitive.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fill();
+      }
+    }
+    _streamlines(curves,shape,profile,k,sr,opacity,center,mode) {
+      // The caller supplies forward-ordered samples of the actual instantaneous
+      // vector field. Project their existing geometry; never add turns or motion.
+      if(!Array.isArray(curves)||!curves.length)return {segments:0,arrows:0};
+      const segments=[],arrows=[];
+      const transmission=p=>{
+        if(mode!=='volume')return 1;
+        const X=(p.x-center.x)/(k*sr),V=(center.y-p.y)/(k*sr),ray=this._ray(X,V,shape);
+        if(!ray)return 1;
+        const column=this._column(X,V,Math.max(ray.lo,p.depth/sr),ray.hi,shape,profile,16);
+        return Math.exp(-opacity*.92*column);
+      };
+      const visible=(a,b)=>!((a.x<0&&b.x<0)||(a.x>this.width&&b.x>this.width)||(a.y<0&&b.y<0)||(a.y>this.height&&b.y>this.height));
+      for(const curve of curves) {
+        if(!Array.isArray(curve)||curve.length<2)continue;
+        const pieces=[];let length=0;
+        for(let j=1;j<curve.length;j++) {
+          const a=curve[j-1],b=curve[j];
+          if(!a||!b||![a.x,a.y,a.z,b.x,b.y,b.z].every(Number.isFinite))continue;
+          const p=this.project(a.x,a.y,a.z),q=this.project(b.x,b.y,b.z);
+          const distance=Math.hypot(q.x-p.x,q.y-p.y);
+          if(distance<1e-7)continue;
+          const start=length;length+=distance;
+          const segment={p,q,start,end:length,distance,depth:(p.depth+q.depth)/2};
+          pieces.push(segment);
+          if(visible(p,q)) {
+            const middle={x:(p.x+q.x)/2,y:(p.y+q.y)/2,depth:segment.depth};
+            segment.alpha=.64*transmission(middle);segments.push(segment);
+          }
+        }
+        // Screen-space spacing keeps the direction legible at different zooms.
+        // Arrowheads are omitted once a physical-scale curve becomes too small.
+        const count=length<40?0:Math.min(3,Math.max(1,Math.floor(length/110)));
+        for(let j=0;j<count;j++) {
+          const target=length*(j+.5)/count;
+          const segment=pieces.find(p=>target>=p.start&&target<=p.end);
+          if(!segment)continue;
+          const f=(target-segment.start)/segment.distance,p=segment.p,q=segment.q;
+          const point={x:p.x+(q.x-p.x)*f,y:p.y+(q.y-p.y)*f,depth:p.depth+(q.depth-p.depth)*f};
+          if(point.x<6||point.x>this.width-6||point.y<6||point.y>this.height-6)continue;
+          const ux=(q.x-p.x)/segment.distance,uy=(q.y-p.y)/segment.distance;
+          arrows.push({...point,ux,uy,alpha:.87*transmission(point)});
+        }
+      }
+      // Back-to-front order and optical attenuation retain spatial depth cues.
+      segments.sort((a,b)=>a.depth-b.depth);arrows.sort((a,b)=>a.depth-b.depth);
+      const ctx=this.ctx;ctx.save();ctx.strokeStyle=cssColor(this.ruby);ctx.fillStyle=cssColor(this.ruby);
+      ctx.lineWidth=1.3;ctx.lineCap='round';ctx.lineJoin='round';
+      for(const segment of segments) {
+        ctx.globalAlpha=segment.alpha;ctx.beginPath();ctx.moveTo(segment.p.x,segment.p.y);ctx.lineTo(segment.q.x,segment.q.y);ctx.stroke();
+      }
+      for(const arrow of arrows) {
+        const {x,y,ux,uy}=arrow,back=6,half=2.7;
+        ctx.globalAlpha=arrow.alpha;ctx.beginPath();ctx.moveTo(x,y);
+        ctx.lineTo(x-back*ux-half*uy,y-back*uy+half*ux);
+        ctx.lineTo(x-back*ux+half*uy,y-back*uy-half*ux);ctx.closePath();ctx.fill();
+      }
+      ctx.restore();return {segments:segments.length,arrows:arrows.length};
+    }
+    _rings(profile,sr,sz,mode) {
+      const ctx=this.ctx,etaMax=this.current.etaMax;
+      ctx.strokeStyle=cssColor(mixColor(this.gold,[125,92,36],.28));ctx.lineWidth=.75;
+      const etas=mode==='tracers'?[-etaMax,0,etaMax]:[-etaMax,etaMax];
+      for(const eta of etas) {
+        const r=sr*profile.r0/Math.sqrt(1-eta*eta),z=sz*eta/Math.pow(1-eta*eta,profile.D);
+        ctx.beginPath();
+        for(let i=0;i<=72;i++) {
+          const angle=i*TAU/72,p=this.project(r*Math.cos(angle),r*Math.sin(angle),z);
+          i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);
+        }
+        ctx.globalAlpha=mode==='tracers'?.28:.2;ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+    }
+    _axes() {
+      if(this.options.showAxes===false)return;
+      const ctx=this.ctx,origin={x:30,y:this.height-35},yaw=this.current.yaw,pitch=this.current.pitch;
+      const axes=[['x',Math.cos(yaw),-Math.sin(yaw)*Math.sin(pitch)],['y',-Math.sin(yaw),-Math.cos(yaw)*Math.sin(pitch)],['z',0,Math.cos(pitch)]];
+      ctx.strokeStyle=this.foreground;ctx.fillStyle=this.foreground;ctx.lineWidth=.85;ctx.font='10px sans-serif';
+      for(const [label,x,y] of axes) {
+        ctx.globalAlpha=.5;ctx.beginPath();ctx.moveTo(origin.x,origin.y);ctx.lineTo(origin.x+22*x,origin.y-22*y);ctx.stroke();
+        ctx.fillText(label,origin.x+27*x-3,origin.y-27*y+3);
+      }
+      ctx.globalAlpha=1;
+    }
+    draw(input) {
+      this.resize();
+      if(!this.options.foreground&&global.getComputedStyle)this.foreground=global.getComputedStyle(this.canvas).color;
+      const suppliedTau=Number(input.tau),tau=Number.isFinite(suppliedTau)?Math.max(1e-12,suppliedTau):1,h=Number(input.h)||.005;
+      const Xmax=Math.max(1e-8,Number(input.Xmax)||.12),etaMax=clamp(Number(input.etaMax)||.4,.001,.98);
+      const yaw=Number(input.yaw)||0,pitch=clamp(Number(input.pitch)||0,-Math.PI/2,Math.PI/2);
+      const opacity=clamp(Number.isFinite(input.opacity)?input.opacity:.5,0,1);
+      const scale=input.scale||'physical',mode=input.mode==='sheet'||input.mode==='sheets'||input.mode==='liquid'?'sheet':input.mode==='tracers'||input.mode==='lines'?'tracers':'volume';
+      const profile=this._profile(h,Xmax,etaMax),sr=Math.sqrt(tau),sz=Math.pow(tau,profile.D);
+      const follow=scale==='follow'||scale==='follow-core',zoom=follow?1/Math.max(sr,sz):1;
+      // A common world scale for x,y,z preserves the actual aspect ratio. The
+      // initial circumscribing sphere fits for every camera angle.
+      const referenceRadius=Math.hypot(profile.rmax,profile.zmax);
+      const frameRadius=Math.min(this.width*.43,Math.max(10,this.height/2-48));
+      const k=frameRadius/referenceRadius*zoom,center={x:this.width/2,y:this.height*.5};
+      const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+      this.current={tau,h,Xmax,etaMax,yaw,pitch,opacity,scale,mode};
+      this.project=(x,y,z)=>{
+        const X=x*cy-y*sy,Y=x*sy+y*cy;
+        return{x:center.x+k*X,y:center.y-k*(z*cp-Y*sp),depth:Y*cp+z*sp};
+      };
+      const shape={rmax:profile.rmax,zmax:profile.zmax*sz/sr,axialFactor:sz/sr,cp,sp,pitch};
+      const ctx=this.ctx;ctx.clearRect(0,0,this.width,this.height);ctx.save();
+      ctx.beginPath();ctx.rect(0,0,this.width,this.height);ctx.clip();
+      const bubbles=[];let rejected=0;
+      for(let i=0;i<(input.particles||[]).length;i++) {
+        const particle=input.particles[i],X=particle.X,eta=particle.eta,theta=particle.theta;
+        if(![X,eta,theta].every(Number.isFinite)||X<0||X>Xmax||Math.abs(eta)>etaMax){rejected++;continue;}
+        const den=1-eta*eta,r=sr*Math.sqrt(2*X/den),z=sz*eta/Math.pow(den,profile.D);
+        const p=this.project(r*Math.cos(theta),r*Math.sin(theta),z);
+        const radius=Math.min(3.6,k*sr*profile.r0*.043)*(.73+.48*fract((i+1)*.61803398875));
+        if(radius<.24||p.x+radius<0||p.x-radius>this.width||p.y+radius<0||p.y-radius>this.height)continue;
+        let alpha=.92;
+        if(mode==='volume') {
+          const sx=(p.x-center.x)/(k*sr),sv=(center.y-p.y)/(k*sr),ray=this._ray(sx,sv,shape);
+          if(ray) {
+            const front=this._column(sx,sv,Math.max(ray.lo,p.depth/sr),ray.hi,shape,profile,20);
+            alpha*=Math.exp(-opacity*.92*front);
+          }
+        }
+        bubbles.push({...p,radius,alpha});
+      }
+      if(mode==='volume')this._volume(shape,profile,k,sr,opacity,center);
+      const flowOverlay=this._streamlines(input.streamlines,shape,profile,k,sr,opacity,center,mode);
+      if(mode==='sheet')this._boundary(profile,sr,sz,opacity,bubbles);
+      else {bubbles.sort((a,b)=>a.depth-b.depth);for(const bubble of bubbles)this._bubble(bubble,bubble.alpha);}
+      this._rings(profile,sr,sz,mode);this._axes();ctx.restore();ctx.globalAlpha=1;
+      this.metrics={tau,h,Xmax,etaMax,mode,scale,zoom,pixelsPerWorldUnit:k,radius:sr*profile.rmax,halfHeight:sz*profile.zmax,axisRadius:sr*profile.r0,visibleParticles:bubbles.length,rejectedParticles:rejected,visibleStreamlineSegments:flowOverlay.segments,streamlineArrows:flowOverlay.arrows};
+      return this.metrics;
+    }
+  }
+  global.CoreRenderer=CoreRenderer;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script>
+<script>
+/* Instantaneous spatial streamlines of the computed velocity, not tracer histories.
+   Time is held fixed. ds=q dλ removes a positive common speed factor. */
+(function(global){
+ 'use strict';
+ function build(model,{Xmax=.12,etaMax=.4,step=.008,spokes=6}={}){
+  const h=model.params.h,D=model.D,outer=Xmax*.995;
+  let lo=-.03,hi=.03;
+  for(let i=0;i<45;i++){const mid=(lo+hi)/2;if(model.flow(outer,mid).U<0)lo=mid;else hi=mid;}
+  const divider=(lo+hi)/2;
+  const seeds=[divider-.12,divider-.022,divider,divider+.022,divider+.12];
+  // At tau=1, theta'=d^h F. All other times multiply its accumulated angle by tau^-h.
+  const rates=v=>{const a=model.flow(v[0],v[1]);return[v[0]*(a.W-1)/a.L,a.d*a.U/a.L,a.d**h*a.F];};
+  const add=(v,k,dt)=>v.map((x,i)=>x+dt*k[i]);
+  const curves=[];
+  for(const eta of seeds){
+   let v=[outer,eta,0];const points=[];
+   for(let n=0;n<430;n++){
+    const [X,e,theta]=v;if(X<1e-7||X>Xmax||Math.abs(e)>etaMax)break;
+    const d=1-e*e;points.push({r:Math.sqrt(2*X/d),z:d**(-D)*e,theta,X,eta:e});
+    const a=rates(v),b=rates(add(v,a,step/2)),c=rates(add(v,b,step/2)),d4=rates(add(v,c,step));
+    v=v.map((x,i)=>x+step*(a[i]+2*b[i]+2*c[i]+d4[i])/6);
+   }
+   curves.push(points);
+  }
+  return {curves,spokes,h,D};
+ }
+ function atTime(data,tau){
+  const sr=Math.sqrt(tau),sz=tau**data.D,spin=tau**(-data.h),out=[];
+  for(let ring=0;ring<data.curves.length;ring++)for(let k=0;k<data.spokes;k++){
+   const angle=2*Math.PI*k/data.spokes+(ring%2)*Math.PI/data.spokes;
+   out.push(data.curves[ring].map(p=>{const theta=angle+spin*p.theta;return{x:sr*p.r*Math.cos(theta),y:sr*p.r*Math.sin(theta),z:sz*p.z};}));
+  }
+  return out;
+ }
+ const api={build,atTime};global.CoreStreamlines=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+</script>
+<script>
+(() => {
+ 'use strict';
+ const root=document.getElementById('openai-core'), $=id=>document.getElementById('oc-'+id);
+ const state={t:0,h:.005,Lambda:12,P:1,rate:2,opacity:.55,yaw:-28*Math.PI/180,pitch:19*Math.PI/180,scale:'physical',mode:'volume',showStreamlines:true,running:false};
+ const Xmax=.12,etaMax=.4,CUTOFF=.9999,COUNT=520;
+ const renderer=new CoreRenderer($('scene'));
+ let model,streamlineData,particles=[],last=0,rebuildTimer=0,drag=null,fieldTick=0,maxResidual=0,seed=233;
+ const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+ const compact=v=>Math.abs(v)>=1000||Math.abs(v)>0&&Math.abs(v)<.001?v.toExponential(2):Number(v.toPrecision(3)).toString();
+ function newParticle(incoming=false){
+  // A visualization sample, not a claim of constant particle number in a material region.
+  return {X:incoming?Xmax*.997:Xmax*(.015+.97*random()),eta:(random()*2-1)*etaMax*.985,theta:random()*2*Math.PI,size:.65+.6*random()};
+ }
+ function reseed(){seed=233;particles=Array.from({length:COUNT},()=>newParticle());}
+ function stop(){state.running=false;$('play').textContent=state.t>=CUTOFF?'Replay':'Play';}
+ function build(){
+  stop();state.t=0;model=CoreModel.buildModel({h:state.h,Lambda:state.Lambda,P:state.P,Xmax,etaMax:.7});
+  maxResidual=0;
+  for(let i=0;i<=12;i++)for(let j=0;j<=12;j++){
+   const r=model.residual(Xmax*i/12,-etaMax+2*etaMax*j/12);
+   maxResidual=Math.max(maxResidual,r.relativeAngular,r.relativeAxial,r.relativePressure);
+  }
+  if(!Number.isFinite(maxResidual)||maxResidual>1e-5)throw Error('The local profile approximation did not pass its residual check.');
+  streamlineData=CoreStreamlines.build(model,{Xmax,etaMax});
+  reseed();
+  $('domain').textContent='Already rotating core · gold shows the sampled region';
+  $('status').textContent='Order '+model.params.order+' · sampled core-equation residual '+maxResidual.toExponential(1);
+  $('method-checks').textContent='The radial Taylor expansion has order '+model.params.order+'. In the displayed domain 0 ≤ X ≤ 0.12, |η| ≤ 0.4, the maximum sampled normalized residual of (4.13) is '+maxResidual.toExponential(2)+'. Each equation’s residual is divided by one plus the magnitudes of its two sides (pressure uses 1 + F²). This measures the inner equations only, not the full Navier–Stokes residual. The C³ interpolation uses '+model.params.intervals+' height intervals; independent checks compare orders 14 and 16 and test incompressibility.';
+  draw(true);
+ }
+ function rebuild(){
+  stop();clearTimeout(rebuildTimer);$('status').textContent='Computing the core profiles…';
+  rebuildTimer=setTimeout(()=>{try{build();}catch(e){$('status').textContent=e.message;$('status').classList.add('error');}},80);
+ }
+ function advance(target){
+  // Midpoint material advection. Steps contract with tau without changing the displayed time clock.
+  target=Math.min(CUTOFF,Math.max(state.t,target));
+  while(state.t<target-1e-13){
+   const dt=Math.min(target-state.t,.006*(1-state.t));
+   for(let i=0;i<particles.length;i++){
+    const p=particles[i],k1=model.rates(p.X,p.eta,state.t);
+    const mx=p.X+.5*dt*k1.X,me=p.eta+.5*dt*k1.eta;
+    if(mx<0||mx>Xmax*1.04||Math.abs(me)>etaMax*1.04){particles[i]=newParticle(true);continue;}
+    const k2=model.rates(mx,me,state.t+.5*dt);
+    p.X+=dt*k2.X;p.eta+=dt*k2.eta;p.theta=(p.theta+dt*k2.theta)%(2*Math.PI);
+    if(p.X<0||p.X>Xmax||Math.abs(p.eta)>etaMax||![p.X,p.eta,p.theta].every(Number.isFinite))particles[i]=newParticle(true);
+   }
+   state.t+=dt;
+  }
+  if(target-state.t<1e-12)state.t=target;
+ }
+ function arrow(c,x,y,dx,dy,color){
+  const endX=x+dx,endY=y+dy,a=Math.atan2(dy,dx),head=3.5;
+  c.strokeStyle=color;c.fillStyle=color;c.lineWidth=1.35;c.beginPath();c.moveTo(x-dx*.3,y-dy*.3);c.lineTo(endX,endY);c.stroke();
+  c.beginPath();c.moveTo(endX,endY);c.lineTo(endX-head*Math.cos(a-.48),endY-head*Math.sin(a-.48));c.lineTo(endX-head*Math.cos(a+.48),endY-head*Math.sin(a+.48));c.closePath();c.fill();
+ }
+ function color(variable){const span=document.createElement('span');span.style.color='var('+variable+')';root.appendChild(span);const v=getComputedStyle(span).color;span.remove();return v;}
+ function fields(){
+  if(!model)return;
+  const fg=color('--fg'),sub=color('--sub'),line=color('--line'),ruby=color('--field');
+  const tau=1-state.t,radius=Math.sqrt(2*tau*Xmax),samples=[];
+  for(let iy=-3;iy<=3;iy++)for(let ix=-3;ix<=3;ix++){
+   const nx=ix/3.5,ny=iy/3.5;if(nx*nx+ny*ny>.94)continue;
+   const x=nx*radius,y=ny*radius,p=model.profile((x*x+y*y)/(2*tau),0);
+   const a=p.v0/(2*tau),w=tau**(-1-state.h)*p.F,g=tau**(-2*model.A-1)*p.Pi_X;
+   samples.push({nx,ny,v:[a*x-w*y,a*y+w*x],f:[-g*x,-g*y]});
+  }
+  for(const [id,key] of [['velocity','v'],['force','f']]){
+   const canvas=$(id),rect=canvas.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1),w=rect.width,h=rect.height;
+   canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+   const R=Math.max(20,Math.min(w*.43,(h-27)*.49)),cx=w/2,cy=(h-18)/2;
+   c.strokeStyle=line;c.lineWidth=1;c.beginPath();c.arc(cx,cy,R,0,2*Math.PI);c.moveTo(cx-R,cy);c.lineTo(cx+R,cy);c.moveTo(cx,cy-R);c.lineTo(cx,cy+R);c.stroke();
+   const max=Math.max(...samples.map(s=>Math.hypot(...s[key])));
+   for(const p of samples){const length=R*.245/Math.max(max,1e-20);if(Math.hypot(...p[key])>max*.01)arrow(c,cx+p.nx*R,cy-p.ny*R,p[key][0]*length,-p[key][1]*length,key==='v'?ruby:fg);}
+   c.fillStyle=sub;c.font='11px -apple-system, sans-serif';c.textAlign='center';c.fillText('η = 0 · max arrow '+compact(max),cx,h-3);
+  }
+ }
+ function draw(all=false){
+  if(!model)return;
+  $('time').value=state.t;$('time-value').textContent=state.t.toFixed(4)+' / 1';
+  const tau=1-state.t,gain=tau**(-1-state.h);
+  $('vorticity').textContent=compact(2*model.flow(0,0).F*gain)+' ('+compact(gain)+'× initial)';
+  const streamlines=state.showStreamlines?CoreStreamlines.atTime(streamlineData,tau):[];
+  const m=renderer.draw({...state,tau,Xmax,etaMax,particles,streamlines});
+  $('zoom').textContent=(state.scale==='physical'?'Physical scale':'Follow core')+' · '+compact(m?.zoom||1)+'×';
+  if(all||++fieldTick%5===0)fields();
+ }
+ $('play').addEventListener('click',()=>{
+  if(!model)return;
+  if(state.running){stop();draw(true);return;}
+  if(state.t>=CUTOFF){state.t=0;reseed();}
+  state.running=true;last=performance.now();$('play').textContent='Pause';
+ });
+ $('reset').addEventListener('click',()=>{stop();state.t=0;reseed();$('play').textContent='Play';draw(true);});
+ $('time').addEventListener('input',()=>{stop();state.t=+$('time').value;reseed();$('play').textContent=state.t>=CUTOFF?'Replay':'Play';draw(true);});
+ for(const [id,key,format] of [['h','h',v=>v.toFixed(3)],['lambda','Lambda',v=>String(v)],['pressure','P',v=>v.toFixed(2)]]){
+  $(id).addEventListener('input',()=>{state[key]=+$(id).value;$(id+'-value').textContent=format(state[key]);rebuild();});
+ }
+ $('rate').addEventListener('input',()=>{state.rate=+$('rate').value;$('rate-value').textContent=state.rate+'×';});
+ for(const key of ['mode','scale'])$(key).addEventListener('change',()=>{state[key]=$(key).value;$('opacity').disabled=state.mode==='tracers';draw(true);});
+ $('streamlines').addEventListener('change',()=>{state.showStreamlines=$('streamlines').checked;draw();});
+ $('opacity').addEventListener('input',()=>{state.opacity=+$('opacity').value;$('opacity-value').textContent=Math.round(state.opacity*100)+'%';draw();});
+ function cameraReadouts(){for(const key of ['yaw','pitch']){$(key).value=Math.round(state[key]*180/Math.PI);$(key+'-value').textContent=Math.round(state[key]*180/Math.PI)+'°';}}
+ for(const key of ['yaw','pitch'])$(key).addEventListener('input',()=>{state[key]=+$(key).value*Math.PI/180;cameraReadouts();draw();});
+ const canvas=$('scene');
+ canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);canvas.classList.add('dragging');});
+ canvas.addEventListener('pointermove',e=>{
+  if(!drag||drag.id!==e.pointerId)return;
+  state.yaw+=.007*(e.clientX-drag.x);state.yaw=((state.yaw+3*Math.PI)%(2*Math.PI))-Math.PI;
+  state.pitch=Math.max(-85*Math.PI/180,Math.min(85*Math.PI/180,state.pitch+.007*(e.clientY-drag.y)));
+  drag.x=e.clientX;drag.y=e.clientY;cameraReadouts();draw();
+ });
+ function release(){drag=null;canvas.classList.remove('dragging');}
+ canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
+ $('explain').addEventListener('click',()=>{$('method').showModal();});$('close').addEventListener('click',()=>{$('method').close();});
+ function frame(now){
+  if(state.running&&model){const elapsed=Math.min(.1,(now-last)/1000);advance(state.t+elapsed*state.rate/20);const finished=state.t>=CUTOFF;if(finished)stop();draw(finished);}
+  last=now;requestAnimationFrame(frame);
+ }
+ document.addEventListener('visibilitychange',()=>{last=performance.now();});
+ new ResizeObserver(()=>draw(true)).observe(root);
+ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>draw(true));
+ window.OpenAICoreDemo={get state(){return {...state};},get model(){return model;},get particles(){return particles.map(p=>({...p}));},get residual(){return maxResidual;},advance,draw};
+ try{build();requestAnimationFrame(frame);}catch(e){$('status').textContent=e.message;$('status').classList.add('error');console.error(e);}
+})();
+
+</script>
+</body></html>

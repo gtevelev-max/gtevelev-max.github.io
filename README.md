@@ -1,6 +1,6 @@
 # Jenia Tevelev — mathematical explorations
 
-A static personal homepage, triangle-group explorer, and braid animations for GitHub Pages.
+A static personal homepage, triangle-group explorer, Navier–Stokes demonstration, and braid animations for GitHub Pages.
 
 The homepage links to the [personal website](https://websites.umass.edu/tevelev/).
 
@@ -8,6 +8,7 @@ The homepage links to the [personal website](https://websites.umass.edu/tevelev/
 
 - `index.html`, `style.css`, `assets/`: personal homepage.
 - `triangle-group/index.html`: self-contained explorer, starting with (2,3,6).
+- `navier-stokes/index.html`: self-contained Math 233H vortex-concentration demonstration, with the existing inner-core approximation and scope explanation.
 - `animations/`: three video pages linking to the existing public UMass movies.
 
 No build tools, paid services, or server are required. Publish the root of the `main` branch using GitHub Pages. For a user homepage, the public repository name is `<github-username>.github.io`.
@@ -22,4 +23,4 @@ Repository: https://github.com/gtevelev-max/gtevelev-max.github.io
 
 GitHub Pages publishes the root of the `main` branch. Update the HTML or assets and commit to `main` to publish changes.
 
-All internal links are relative. Video files remain hosted on the UMass website; this repository contains only the pages, portrait, and triangle explorer.
+All internal links are relative. Video files remain hosted on the UMass website; this repository contains the pages, portrait, and interactive demonstrations.
