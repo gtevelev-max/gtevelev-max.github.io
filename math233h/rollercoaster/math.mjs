@@ -23,7 +23,7 @@ export const curves=[
  {id:'parabola',name:'Parabolic swoop',subtitle:'A gentle valley with a changing bend.',range:[-2.5,2.5],closed:false,distance:8,
   formula:'⟨t, t²/2, 0⟩',velocity:'⟨1, t, 0⟩',acceleration:'⟨0, 1, 0⟩',
   evaluate:t=>({r:[t,t*t/2,0],v:[1,t,0],a:[0,1,0]})},
- {id:'spiral',name:'Expanding corkscrew',subtitle:'The loops get wider as Professor π climbs.',range:[0,6*pi],closed:false,distance:9,
+ {id:'spiral',name:'Expanding corkscrew',subtitle:'The loops get wider as Professor JT climbs.',range:[0,6*pi],closed:false,distance:9,
   formula:'⟨q cos t, q sin t, 0.25t⟩; q = 0.7 + 0.1t',velocity:'⟨0.1 cos t − q sin t, 0.1 sin t + q cos t, 0.25⟩',acceleration:'⟨−0.2 sin t − q cos t, 0.2 cos t − q sin t, 0⟩',
   evaluate:t=>{const q=.7+.1*t,c=Math.cos(t),s=Math.sin(t);return {r:[q*c,q*s,.25*t],v:[.1*c-q*s,.1*s+q*c,.25],a:[-.2*s-q*c,.2*c-q*s,0]}}},
  {id:'line',name:'Straight-line express',subtitle:'What happens when curvature is zero?',range:[-4,4],closed:false,distance:8,
