@@ -1,30 +1,31 @@
 (function () {
   'use strict';
-  const O = window.Orbits, $ = id => document.getElementById(id);
+  const O = window.Orbits, bodyList = O.bodies, $ = id => document.getElementById(id);
   const canvas = $('space'), ctx = canvas.getContext('2d'), stage = $('stage');
   let width = 800, height = 600, yaw = -.45, tilt = .78, zoom = 1, view = 'focus', focusIndex = 2, time = 0;
   let playing = !window.matchMedia('(prefers-reduced-motion: reduce)').matches, lastFrame = null, metricsAt = 0;
-  const enabled = O.planets.map(() => true), paths = O.planets.map(p => O.orbit(p, 300));
+  const enabled = bodyList.map(() => true), paths = bodyList.map(p => O.orbit(p, 300));
   const colors = {r:'#65d4e2',force:'#ffae7a',v:'#addec4',h:'#c1a3fa'};
   let sectors = [], sectorPlanet = -1, sectorCount = -1, dragging = null;
   let labelBoxes = [];
   const stars = Array.from({length:95}, (_,j) => ({x: ((j*73.713)%97)/97, y:((j*27.129)%89)/89, a:.11+((j*7)%13)/80, s: j%9===0 ? 1.1 : .6}));
-  $('focus').innerHTML = O.planets.map((p,j) => `<option value="${j}"${j===2?' selected':''}>${p.name}</option>`).join('');
+  $('focus').innerHTML = bodyList.map((p,j) => `<option value="${j}"${j===2?' selected':''}>${p.menuName || p.name}</option>`).join('');
   ['focus','interval','speed'].forEach(id => { $(id+'Fs').innerHTML=$(id).innerHTML; $(id+'Fs').value=$(id).value; });
-  $('planets').innerHTML = O.planets.map((p,j) => `<label class="planet-toggle"><input type="checkbox" checked data-planet="${j}" aria-label="Show ${p.name}"><span class="planet-dot" style="background:${p.color}"></span>${p.name}</label>`).join('');
+  $('planets').innerHTML = bodyList.map((p,j) => `<label class="planet-toggle${p.kind==='comet'?' comet-toggle':''}"><input type="checkbox" checked data-planet="${j}" aria-label="Show ${p.name}"><span class="planet-dot" style="background:${p.color}"></span>${p.kind==='comet'?'Comet · Halley':p.name}</label>`).join('');
   const checkIds = ['showRadius','showForce','showVelocity','showMomentum','showAreas'];
   const flags = Object.fromEntries(checkIds.map(id => [id, $(id).checked]));
   checkIds.forEach(id => {
     $(id).addEventListener('change', () => {flags[id] = $(id).checked; $(id+'Fs').checked=flags[id]; render();});
     $(id+'Fs').addEventListener('change', () => {$(id).checked=$(id+'Fs').checked; $(id).dispatchEvent(new Event('change'));});
   });
-  function focused() { return O.planets[focusIndex]; }
+  function focused() { return bodyList[focusIndex]; }
   function extent() {
-    if (view === 'focus') return focused().a*(1+focused().e);
-    return Math.max(1,...O.planets.filter((_,j) => enabled[j]).map(p=>p.a*(1+p.e)));
+    if (view === 'focus') return focused().kind==='comet'?focused().a*1.18:focused().a*(1+focused().e);
+    return Math.max(1,...bodyList.filter((_,j) => enabled[j]).map(p=>p.a*(1+p.e)));
   }
   function unitScale() { return Math.min(width, height)*.355*zoom/extent(); }
   function project(v) {
+    if(view==='focus'&&focused().kind==='comet') v=O.add(v,O.rotate(focused(),[focused().a*focused().e,0,0]));
     const x = Math.cos(yaw)*v[0] - Math.sin(yaw)*v[1];
     const y = Math.sin(yaw)*v[0] + Math.cos(yaw)*v[1];
     const vertical = Math.sin(tilt)*y + Math.cos(tilt)*v[2];
@@ -82,12 +83,17 @@
   function drawBody(p, s, isFocus) {
     const q=project(s.r);if(!inFrame(q))return;
     const radius=p.size*(isFocus?1.25:1);
+    if(p.kind==='comet'){
+      // Schematic anti-solar tail. No arrowhead: it is not the gravitational force.
+      const end=project(O.add(s.r,O.scale(s.r,.32*p.a/s.radius))),dx=end[0]-q[0],dy=end[1]-q[1],length=Math.hypot(dx,dy);
+      if(length>2){const perp=[-dy/length,dx/length],spread=5+Math.min(12,length*.12);const tail=ctx.createLinearGradient(q[0],q[1],end[0],end[1]);tail.addColorStop(0,'#b6e7df70');tail.addColorStop(1,'#b6e7df00');ctx.beginPath();ctx.moveTo(q[0],q[1]);ctx.quadraticCurveTo(q[0]+dx*.5+perp[0]*spread,q[1]+dy*.5+perp[1]*spread,end[0]+perp[0]*spread,end[1]+perp[1]*spread);ctx.lineTo(end[0]-perp[0]*spread,end[1]-perp[1]*spread);ctx.quadraticCurveTo(q[0]+dx*.5-perp[0]*spread,q[1]+dy*.5-perp[1]*spread,q[0],q[1]);ctx.fillStyle=tail;ctx.fill();}
+    }
     if(isFocus){ctx.beginPath();ctx.arc(q[0],q[1],radius+5,0,O.TAU);ctx.strokeStyle=p.color+'88';ctx.lineWidth=1;ctx.stroke();}
     if(p.name==='Saturn'){ctx.save();ctx.translate(q[0],q[1]);ctx.rotate(-.3);ctx.beginPath();ctx.ellipse(0,0,14,4,0,0,O.TAU);ctx.strokeStyle='#ead7a288';ctx.lineWidth=3;ctx.stroke();ctx.restore();}
     const grad=ctx.createRadialGradient(q[0]-radius*.3,q[1]-radius*.3,0,q[0],q[1],radius);grad.addColorStop(0,'#f5f5e9');grad.addColorStop(.3,p.color);grad.addColorStop(1,p.color+'60');
     ctx.fillStyle=grad;ctx.beginPath();ctx.arc(q[0],q[1],radius,0,O.TAU);ctx.fill();
     if(isFocus||view==='system'||p.a<focused().a*2){
-      if(view==='system')placePlanetLabel(p.name,q,radius,isFocus?'#f8faf3':p.color,isFocus?13:11);
+      if(view==='system'||focused().kind==='comet')placePlanetLabel(p.name,q,radius,isFocus?'#f8faf3':p.color,isFocus?13:11);
       else tag(p.name,q[0]+radius+9,q[1]+(isFocus?18:4),isFocus?'#f8faf3':p.color,isFocus?13:11);
     }
   }
@@ -129,14 +135,14 @@
     drawGrid();
     const current=O.state(focused(),time);
     if(flags.showAreas&&enabled[focusIndex])drawSectors(current);
-    O.planets.forEach((p,j)=>{if(enabled[j])drawPath(paths[j],p.color+(j===focusIndex?'b8':'45'),j===focusIndex?1.6:.85);});
+    bodyList.forEach((p,j)=>{if(enabled[j]){ctx.save();if(p.kind==='comet')ctx.setLineDash([5,4]);drawPath(paths[j],p.color+(j===focusIndex?'b8':'45'),j===focusIndex?1.6:.85);ctx.restore();}});
     if(enabled[focusIndex]){
       const p=focused();
       if(flags.showRadius)arrow([0,0,0],current.r,colors.r,'r',1.9);
       if(flags.showMomentum)arrow([0,0,0],O.scale(current.h,.65*p.a/Math.sqrt(O.MU*p.a*(1-p.e*p.e))),colors.h,'h');
-      if(flags.showVelocity)arrow(current.r,O.scale(current.v,.55*p.a/Math.sqrt(O.MU/p.a)),colors.v,'v');
+      if(flags.showVelocity)arrow(current.r,O.scale(current.v,p.kind==='comet'?.40*p.a/current.speed:.55*p.a/Math.sqrt(O.MU/p.a)),colors.v,p.kind==='comet'?'v (direction)':'v');
       const referenceForce = p.mass * O.AU_METERS / O.YEAR_SECONDS ** 2 * O.MU / p.a ** 2;
-      if(flags.showForce)arrow(current.r,O.scale(current.force,.40*p.a/referenceForce),colors.force,'F');
+      if(flags.showForce)arrow(current.r,O.scale(current.force,p.kind==='comet'?.30*p.a/O.norm(current.force):.40*p.a/referenceForce),colors.force,p.kind==='comet'?'F (direction)':'F');
       // Mark the two ends of the focus orbit, which are especially useful for Mercury.
       if(view==='focus'){
         const near=project(O.stateAtMean(p,0).r),far=project(O.stateAtMean(p,Math.PI).r);
@@ -145,7 +151,7 @@
       }
     }
     drawSun();
-    const bodies=O.planets.map((p,j)=>({p,j,s:O.state(p,time)})).filter(({j})=>enabled[j]).sort((a,b)=>project(a.s.r)[2]-project(b.s.r)[2]);
+    const bodies=bodyList.map((p,j)=>({p,j,s:O.state(p,time)})).filter(({j})=>enabled[j]).sort((a,b)=>project(a.s.r)[2]-project(b.s.r)[2]);
     bodies.forEach(({p,j,s})=>drawBody(p,s,j===focusIndex));drawTriad();
     if(!enabled[focusIndex]){tag(`${focused().name} is hidden`,width/2,height*.78,'#e4c88b',14,'center');tag('Enable its checkbox to restore the focus overlays.',width/2,height*.78+23,'#94adba',11,'center');}
   }
@@ -160,17 +166,23 @@
     if(document.activeElement!==$('timelineFs'))$('timelineFs').value=Math.round(O.mod(time,p.period)/p.period*1000);
     const forceExponent = Math.floor(Math.log10(O.norm(s.force)));
     const forceDisplay = vector(O.scale(s.force,10**-forceExponent));
-    $('vectorValues').innerHTML=`<div class="vector-line"><span>r · AU</span><span>${vector(s.r)}</span></div><div class="vector-line"><span>v · AU/yr</span><span>${vector(s.v)}</span></div><div class="vector-line"><span>F · 10<sup>${forceExponent}</sup> N</span><span>${forceDisplay}</span></div><div class="vector-line"><span>|F|</span><span>${O.norm(s.force).toExponential(3)} N</span></div><div class="vector-line"><span>h · AU²/yr</span><span>${vector(s.h)}</span></div><div class="vector-line"><span>Mass</span><span>${p.mass.toExponential(4)} kg</span></div>`;
+    $('vectorValues').innerHTML=`<div class="vector-line"><span>r · AU</span><span>${vector(s.r)}</span></div><div class="vector-line"><span>v · AU/yr</span><span>${vector(s.v)}</span></div><div class="vector-line"><span>F · 10<sup>${forceExponent}</sup> N</span><span>${forceDisplay}</span></div><div class="vector-line"><span>|F|</span><span>${O.norm(s.force).toExponential(3)} N</span></div><div class="vector-line"><span>h · AU²/yr</span><span>${vector(s.h)}</span></div><div class="vector-line"><span>${p.assumedMass?'Assumed mass':'Mass'}</span><span>${p.mass.toExponential(4)} kg</span></div>`;
   }
   function updateLabels() {
     const p=focused(),count=Number($('interval').value),number=enabled.filter(Boolean).length;
     $('eccentricity').textContent=p.e.toFixed(4);$('period').textContent=p.period<2?`${(p.period*O.DAYS).toFixed(1)} days`:`${p.period.toFixed(2)} years`;
+    $('semimajorAxis').textContent=`${p.a.toFixed(3)} AU`;
     $('sceneTitle').textContent=view==='focus'?`${p.name} in focus`:'Our solar system';
     $('sceneSubtitle').textContent=view==='focus'?'Distances in astronomical units':`${p.name} selected · linear orbital scale`;
     $('intervalNote').textContent=`Δt = ${(p.period*O.DAYS/count).toFixed(2)} days. The active interval is highlighted; all ${count} complete sectors have equal area.`;
-    $('liveBadge').textContent=number===8?'ALL 8 PLANETS ENABLED':`${number} OF 8 PLANETS ENABLED`;
-    $('allPlanets').textContent=number===8?'Hide all':'Show all';
+    $('liveBadge').textContent=`${enabled.slice(0,8).filter(Boolean).length}/8 PLANETS · COMET ${enabled[8]?'ON':'OFF'}`;
+    $('allPlanets').textContent=number===bodyList.length?'Hide all':'Show all';
     $('scaleNote').textContent=view==='focus'?'Bodies & vector lengths enlarged for clarity':'True orbital distances · bodies enlarged for clarity';
+    const cometFocus=p.kind==='comet';
+    $('focusHint').textContent=cometFocus?'Halley’s retrograde orbit: e = 0.9671. Compare Perihelion and Aphelion; Encounter pace follows the close solar passage.':'Compare nearly circular Earth, eccentric Mercury, and Halley’s long comet orbit.';
+    $('vectorScale').textContent=cometFocus?'Halley: F and v arrows show direction only. Numerical magnitudes remain exact for this model. Force uses an assumed teaching mass of 10¹⁴ kg.':'Arrow lengths use separate fixed scales for this orbit; numerical magnitudes are shown below.';
+    $('vectorScaleFs').textContent=cometFocus?'Halley: F & v show direction only; mass assumed 10¹⁴ kg.':'Vector lengths use separate fixed display scales.';
+    if(cometFocus)$('scaleNote').textContent='Halley: F & v show direction only · tail is schematic';
     $('focusView').classList.toggle('active',view==='focus');$('systemView').classList.toggle('active',view==='system');
     $('focusView').setAttribute('aria-pressed',view==='focus');$('systemView').setAttribute('aria-pressed',view==='system');
     $('focusFs').value=$('focus').value;$('intervalFs').value=$('interval').value;
@@ -181,6 +193,10 @@
   $('playFs').addEventListener('click',()=>setPlay(!playing));
   $('restart').addEventListener('click',()=>{time=0;updateMetrics();render();});
   $('restartFs').addEventListener('click',()=>$('restart').click());
+  function jumpToMean(M){const p=focused();time=O.mod(M-p.M0,O.TAU)/O.TAU*p.period;setPlay(false);if(p.kind==='comet'){$('speed').value='.0002';$('speed').dispatchEvent(new Event('change'));}updateMetrics();render();}
+  $('perihelion').addEventListener('click',()=>jumpToMean(0));$('aphelion').addEventListener('click',()=>jumpToMean(Math.PI));
+  $('perihelionFs').addEventListener('click',()=>$('perihelion').click());$('aphelionFs').addEventListener('click',()=>$('aphelion').click());
+  $('focusComet').addEventListener('click',()=>{$('focus').value='8';$('focus').dispatchEvent(new Event('change'));});
   ['focus','interval','speed'].forEach(id=>$(id+'Fs').addEventListener('change',()=>{$(id).value=$(id+'Fs').value;$(id).dispatchEvent(new Event('change'));}));
   $('speed').addEventListener('change',()=>{$('speedFs').value=$('speed').value;});
   $('focus').addEventListener('change',()=>{focusIndex=Number($('focus').value);view='focus';zoom=1;enabled[focusIndex]=true;document.querySelector(`[data-planet="${focusIndex}"]`).checked=true;updateLabels();});

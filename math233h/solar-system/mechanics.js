@@ -1,4 +1,5 @@
-/* Fixed J2000 elements from NASA/JPL SSD Table 1. Units: AU and Julian years.
+/* Fixed planet elements from NASA/JPL SSD Table 1; JPL sample Halley elements.
+   Reference axes: J2000 ecliptic. Units: AU and Julian years.
    The idealized model holds all elements fixed and uses mu = 4 pi^2. */
 (function (root) {
   'use strict';
@@ -17,6 +18,14 @@
     ['Neptune', 30.06992276, .00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574, '#7d9cf5', 7]
   ];
   const planets = raw.map(([name, a, e, inc, L, peri, node, color, size], j) => ({ name, a, e, inc: inc * Math.PI / 180, omega: (peri - node) * Math.PI / 180, node: node * Math.PI / 180, M0: (L - peri) * Math.PI / 180, color, size, period: a ** 1.5, mass: masses[j] }));
+  // https://ssd.jpl.nasa.gov/sb/elem_tables.html — sample 1P/Halley, JPL J863/77.
+  // Elements epoch MJD 49400; q/e/i/omega/node held fixed for an ideal two-body
+  // teaching orbit. Perihelion time 1986-02-05.89532 gives its J2000 phase.
+  // Mass is explicitly a teaching assumption, not a claimed precise measurement.
+  const halleyA = .58597811 / (1 - .96714291);
+  const comet = {name: 'Halley', menuName: 'Comet (Halley)', kind: 'comet', a: halleyA, e: .96714291, inc:162.26269*Math.PI/180, omega:111.33249*Math.PI/180, node:58.42008*Math.PI/180, period:halleyA**1.5, mass:1e14, assumedMass:true, color:'#b6e7df', size:5, epochMJD:49400};
+  comet.M0 = TAU * 5077.60468 / DAYS / comet.period;
+  const bodies = [...planets, comet];
   const add = (a, b) => a.map((x, i) => x + b[i]);
   const scale = (a, k) => a.map(x => x * k);
   const norm = a => Math.hypot(...a);
@@ -25,11 +34,14 @@
   const mod = (a, b) => ((a % b) + b) % b;
   function eccentricAnomaly(M, e) {
     const reduced = mod(M + Math.PI, TAU) - Math.PI;
-    let E = reduced;
-    for (let n = 0; n < 20; n++) {
-      const d = (E - e * Math.sin(E) - reduced) / (1 - e * Math.cos(E));
-      E -= d;
-      if (Math.abs(d) < 1e-14) break;
+    // Safeguarded Newton iteration retains a bracket, including for high-e comets.
+    let low = -Math.PI, high = Math.PI, E = e < .8 ? reduced : Math.sign(reduced) * Math.PI;
+    for (let n = 0; n < 64; n++) {
+      const residual = E - e * Math.sin(E) - reduced;
+      if (Math.abs(residual) < 2e-15) break;
+      if (residual > 0) high = E; else low = E;
+      const trial = E - residual / (1 - e * Math.cos(E));
+      E = trial > low && trial < high ? trial : (low + high) / 2;
     }
     return E;
   }
@@ -50,11 +62,17 @@
     return { r, v, acc, force, h, radius, speed: norm(v), E, M, areaRate: norm(h) / 2 };
   }
   function state(p, years) { return stateAtMean(p, p.M0 + TAU * years / p.period); }
-  function orbit(p, segments = 240) { return Array.from({length: segments + 1}, (_, j) => stateAtMean(p, TAU*j/segments).r); }
+  function positionAtE(p, E) { return rotate(p, [p.a*(Math.cos(E)-p.e),p.a*Math.sqrt(1-p.e*p.e)*Math.sin(E),0]); }
+  function orbit(p, segments = 240) { return Array.from({length: segments + 1}, (_, j) => positionAtE(p, TAU*j/segments)); }
   function sector(p, fromM, toM, segments = 36) {
-    return [[0,0,0], ...Array.from({length: segments + 1}, (_, j) => stateAtMean(p, fromM + (toM-fromM)*j/segments).r), [0,0,0]];
+    // Endpoints are uniformly spaced in TIME (M), while the intervening ellipse
+    // is sampled in E so the rapid perihelion turn is geometrically resolved.
+    const continuousE = M => eccentricAnomaly(M,p.e) + TAU*Math.floor((M+Math.PI)/TAU);
+    const fromE=continuousE(fromM),toE=continuousE(toM),span=toE-fromE;
+    const count=Math.max(segments,Math.ceil(Math.abs(span)/.018));
+    return [[0,0,0], ...Array.from({length: count + 1}, (_, j) => positionAtE(p,fromE+span*j/count)), [0,0,0]];
   }
-  const api = { TAU, MU, DAYS, AU_METERS, YEAR_SECONDS, planets, add, scale, norm, dot, cross, mod, rotate, eccentricAnomaly, stateAtMean, state, orbit, sector };
+  const api = { TAU, MU, DAYS, AU_METERS, YEAR_SECONDS, planets, comet, bodies, add, scale, norm, dot, cross, mod, rotate, eccentricAnomaly, positionAtE, stateAtMean, state, orbit, sector };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Orbits = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
