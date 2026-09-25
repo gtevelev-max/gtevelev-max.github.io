@@ -12,7 +12,7 @@ The homepage links to the [personal website](https://websites.umass.edu/tevelev/
 
 No build tools, paid services, or server are required. Publish the root of the `main` branch using GitHub Pages. For a user homepage, the public repository name is `<github-username>.github.io`.
 
-The [portrait](https://websites.umass.edu/tevelev/files/2025/08/photo_jenia-1024x924.jpg) comes from Jenia Tevelev's official UMass website. Braid and Phantom/Sink, Atomic, and Fl(2,3;5) link to existing public UMass movies.
+The [portrait](https://websites.umass.edu/tevelev/files/2025/08/photo_jenia-1024x924.jpg) comes from Jenia Tevelev's official UMass website. Braid and Phantom/Sink, Atomic, Fl(2,3;5), and Fl(2,3;6) link to existing public UMass movies.
 
 ## Publication
 
