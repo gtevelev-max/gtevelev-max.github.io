@@ -8,11 +8,11 @@ The homepage links to the [personal website](https://websites.umass.edu/tevelev/
 
 - `index.html`, `style.css`, `assets/`: personal homepage.
 - `triangle-group/index.html`: self-contained explorer, starting with (2,3,6).
-- `animations/`: three video pages, including both Matching Flags examples.
+- `animations/`: three video pages linking to the existing public UMass movies.
 
 No build tools, paid services, or server are required. Publish the root of the `main` branch using GitHub Pages. For a user homepage, the public repository name is `<github-username>.github.io`.
 
-The [portrait](https://websites.umass.edu/tevelev/files/2025/08/photo_jenia-1024x924.jpg) comes from Jenia Tevelev's official UMass website. Braid and Phantom/Sink, Atomic, and Fl(2,3;5) link to existing public UMass movies. The Fl(2,3;6) movie is an unchanged copy of the local original.
+The [portrait](https://websites.umass.edu/tevelev/files/2025/08/photo_jenia-1024x924.jpg) comes from Jenia Tevelev's official UMass website. Braid and Phantom/Sink, Atomic, and Fl(2,3;5) link to existing public UMass movies.
 
 ## Publication
 
@@ -22,4 +22,4 @@ Repository: https://github.com/gtevelev-max/gtevelev-max.github.io
 
 GitHub Pages publishes the root of the `main` branch. Update the HTML or assets and commit to `main` to publish changes.
 
-All internal links are relative. The entire site is approximately 11.5 MB, with no individual file larger than 12 MB.
+All internal links are relative. Video files remain hosted on the UMass website; this repository contains only the pages, portrait, and triangle explorer.
