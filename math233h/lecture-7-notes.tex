@@ -1,0 +1,271 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=0.76in,headheight=15pt,headsep=14pt,footskip=28pt]{geometry}
+\usepackage{newtxtext,newtxmath}
+\usepackage{amsmath,booktabs,array,enumitem,xcolor,tikz,fancyhdr}
+\usepackage[colorlinks=true,urlcolor=blue!45!black,linkcolor=blue!45!black]{hyperref}
+\usetikzlibrary{arrows.meta}
+\definecolor{inkblue}{HTML}{24566D}
+\definecolor{lightblue}{HTML}{EDF4F7}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlength{\abovedisplayskip}{8pt}
+\setlength{\belowdisplayskip}{8pt}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=7pt,topsep=4pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Math 233H \quad Fall 2026}
+\fancyhead[R]{Lecture 7 demonstrations}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\newcommand{\R}{\mathbf r}
+\newcommand{\V}{\mathbf v}
+\newcommand{\A}{\mathbf a}
+\newcommand{\T}{\mathbf T}
+\newcommand{\N}{\mathbf N}
+\newcommand{\B}{\mathbf B}
+\newcommand{\F}{\mathbf F}
+\newcommand{\HH}{\mathbf h}
+\newcommand{\X}{\mathbf x}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\heading}[1]{\vspace{4pt}{\large\bfseries #1}\par}
+\newcommand{\subhead}[1]{\textbf{#1}\quad}
+\newcommand{\demolink}[2]{\href{#1}{\textcolor{inkblue}{\textbf{#2}}}\\[-2pt]{\small\url{#1}}\par}
+\hypersetup{pdftitle={Math 233H Lecture 7: Rollercoaster and solar system},pdfauthor={Jenia Tevelev},pdfsubject={Frenet frame, acceleration, osculating geometry, central forces, and equal areas}}
+\renewcommand*{\HyperDestNameFilter}[1]{lecture7-#1}
+\begin{document}
+\providecommand{\startpage}{1}
+\setcounter{page}{\startpage}
+{\LARGE\bfseries Lecture 7: motion, turning, and orbits}\par
+Jenia Tevelev \enspace$\cdot$\enspace Math 233H \enspace$\cdot$\enspace Fall 2026
+
+These demonstrations connect the helix from Lecture 6 with tangential and normal acceleration, then connect planetary motion with conservation of angular momentum and Kepler's equal-area law. They accompany Sections 13.3--13.4 of the Chapter 13 notes.
+
+\demolink{https://gtevelev-max.github.io/math233h/rollercoaster/}{Demonstration 1: Professor $\pi$'s rollercoaster}
+
+\heading{The moving frame and acceleration}
+Let $\R(t)$ be a twice continuously differentiable motion. As in the preceding notes, write $s(t)$ for \emph{speed}, not arc length:
+\[
+  \V=\R',\qquad \A=\V'=\R'',\qquad s=\norm{\V},\qquad \T=\frac{\V}{s}\quad(s>0).
+\]
+Differentiating $\V=s\T$ gives
+\[
+ \A=s'\T+s\T'.
+\]
+Since $\T\cdot\T=1$, we have $\T\cdot\T'=0$. Thus acceleration has a component along the motion and a component perpendicular to it. Define
+\[
+ \boxed{a_T=s'=\frac{\V\cdot\A}{\norm{\V}},\qquad
+ a_N=\norm{\A-a_T\T}=\frac{\norm{\V\times\A}}{\norm{\V}}.}
+\]
+Where $a_N>0$, the principal normal and binormal are
+\[
+ \N=\frac{\T'}{\norm{\T'}}=\frac{\A-a_T\T}{a_N},\qquad
+ \B=\T\times\N=\frac{\V\times\A}{\norm{\V\times\A}}.
+\]
+The curvature and acceleration decomposition are
+\[
+ \boxed{\kappa=\frac{\norm{\T'}}{s}
+ =\frac{\norm{\V\times\A}}{\norm{\V}^{3}},\qquad
+ \A=a_T\T+a_N\N,\qquad a_N=s^2\kappa.}
+\]
+\subhead{What the arrows mean.} $a_T$ is signed: it is positive when speed increases and negative when speed decreases. $a_N\ge0$ measures turning. The \emph{vector} components are $a_T\T$ and $a_N\N$. The vectors $\T,\N,\B$ have length one and form an oriented orthonormal frame.
+
+\subhead{When a formula does not apply.} If $s=0$, the tangent is undefined. At a regular point with $\kappa=0$, the principal normal, binormal, and finite osculating circle are undefined, although $a_N=0$ and $\A=a_T\T$ still hold. The normal plane remains defined because $\T$ exists.
+
+\subhead{Class question.} Can acceleration be nonzero when speed is constant? Turn on $\V$ and $\A$ for the lecture helix, then compare $a_T$ and $a_N$.
+
+\newpage
+\heading{Local geometry: two planes and a circle}
+Freeze the motion at $t=t_0$ and put $P=\R(t_0)$. A subscript $0$ means evaluation at $t_0$. For a variable point $\X=\langle x,y,z\rangle$,
+\begin{align*}
+ \text{normal plane:}&\quad (\X-P)\cdot\T_0=0
+     &&\text{(spanned by $\N_0,\B_0$)},\\
+ \text{osculating plane:}&\quad (\X-P)\cdot\B_0=0
+     &&\text{(spanned by $\T_0,\N_0$)}.
+\end{align*}
+For $\kappa_0>0$, the osculating circle lies in the osculating plane and has
+\[
+ \rho=\frac1{\kappa_0},\qquad C=P+\rho\N_0,\qquad
+ \gamma(u)=C-\rho\cos u\,\N_0+\rho\sin u\,\T_0.
+\]
+Here $0\le u<2\pi$, $\gamma(0)=P$, and $\gamma'(0)=\rho\T_0$. The term is \emph{osculating}: the circle has the same tangent and curvature as the curve at $P$.
+
+\heading{The exact helix from Lecture 6}
+For $\R(t)=\langle\cos t,\sin t,t\rangle$, direct differentiation gives
+\begin{align*}
+ \V&=\langle-\sin t,\cos t,1\rangle,&
+ \A&=\langle-\cos t,-\sin t,0\rangle,\\
+ \T&=\tfrac1{\sqrt2}\langle-\sin t,\cos t,1\rangle,&
+ \N&=\langle-\cos t,-\sin t,0\rangle,\\
+ \B&=\tfrac1{\sqrt2}\langle\sin t,-\cos t,1\rangle.&
+\end{align*}
+Therefore
+\[
+ \boxed{s=\sqrt2,\qquad a_T=0,\qquad a_N=1,\qquad\kappa=\tfrac12,\qquad\rho=2.}
+\]
+The circle radius is $2$, even though the helix lies on a cylinder of radius $1$.
+Writing $c=\cos t_0$ and $d=\sin t_0$, the two plane equations are
+\begin{align*}
+ \text{normal plane:}&\quad -d(x-c)+c(y-d)+(z-t_0)=0,\\
+ \text{osculating plane:}&\quad d(x-c)-c(y-d)+(z-t_0)=0.
+\end{align*}
+The circle center is $C=\langle-c,-d,t_0\rangle$. In particular, at $t_0=\pi/4$,
+\[
+ P=\left\langle\tfrac1{\sqrt2},\tfrac1{\sqrt2},\tfrac\pi4\right\rangle,
+ \qquad C=\left\langle-\tfrac1{\sqrt2},-\tfrac1{\sqrt2},\tfrac\pi4\right\rangle,
+\]
+and the plane equations reduce to
+\[
+ \begin{array}{ll}
+ \text{normal:}&-x+y+\sqrt2(z-\pi/4)=0,\\[2pt]
+ \text{osculating:}&x-y+\sqrt2(z-\pi/4)=0.
+ \end{array}
+\]
+\subhead{Pause and check.} Both planes pass through $P$. Their common line points along $\N_0$. Rotating the scene reveals why two planes sharing a line need not be the same plane.
+
+\newpage
+\heading{Professor $\pi$'s rollercoaster: classroom sequence}
+Professor JT appears as a stylized $\pi$ riding along the selected vector function. The displayed derivatives refer to its parameter $t$. Changing playback speed changes how quickly the demonstration runs on screen; it does not change the displayed mathematical parametrization.
+
+\begin{enumerate}
+ \item \textbf{Recall the helix.} Select the lecture helix and begin with the track alone. Turn on velocity and acceleration. Ask why velocity has an upward component while acceleration does not.
+ \item \textbf{Build the moving frame.} Turn on $\T$, then $\N$, then $\B$. Compare the directions with the formulas on the preceding page. Explain the order $\B=\T\times\N$ using the right-hand rule.
+ \item \textbf{Separate speeding up from turning.} Turn on tangential and normal acceleration. For the helix, $a_T=0$ and all acceleration is normal. Select a curve with changing speed and identify intervals where $a_T$ is positive or negative.
+ \item \textbf{Inspect local geometry.} Pause, then display the normal plane and osculating plane one at a time. Add the osculating circle and curvature. The center lies in the direction $\N$, a distance $1/\kappa$ away.
+ \item \textbf{Compare the two main views.} In \emph{World frame}, the coordinate directions keep their orientation as the scene translates to follow the rider. In \emph{Ride with JT}, the camera follows the rider's local frame. Rotate the scene in either view to inspect depth.
+ \item \textbf{Change the track.} Use the dropdown to compare a plane curve with a space curve and constant-speed motion with changing-speed motion. Predict how the arrows and osculating circle will change before playing the animation.
+\end{enumerate}
+
+\subhead{An important distinction.} The moving-frame view changes the viewpoint. The displayed $\V=\R'$ and $\A=\R''$ are derivatives in the original fixed coordinates; they are not obtained by differentiating coordinates measured in the rotating camera frame. A rider can be stationary on screen while the physical velocity is nonzero.
+
+\heading{Three comparisons to make aloud}
+\begin{center}
+\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{@{}p{0.23\textwidth}p{0.34\textwidth}p{0.33\textwidth}@{}}
+\toprule
+\textbf{Quantity} & \textbf{What it measures} & \textbf{What to look for}\\
+\midrule
+Speed $s$ & Change in distance per unit time & Length of $\V$\\
+Tangential acceleration $a_T$ & Change in speed per unit time & Component along or opposite $\T$\\
+Curvature $\kappa$ & Change in tangent direction per unit arc length & Smaller osculating circle for larger $\kappa$\\
+\bottomrule
+\end{tabular}
+\end{center}
+\subhead{Check for understanding.} A small osculating circle indicates large curvature, but does it automatically imply large normal acceleration? No: $a_N=s^2\kappa$ depends on speed as well.
+
+\newpage
+\heading{The curve menu: positions and analytic derivatives}
+The lecture helix is worked out above. For the remaining tracks, the following derivatives feed the same formulas for $\T,\N,\B,a_T,a_N,\kappa$, planes, and osculating circle. All derivatives are with respect to the displayed parameter $t$.
+
+\subhead{Wavy sky ring.}
+\begin{align*}
+ \R&=\langle2\cos t,\,2\sin t,\,0.6\sin3t\rangle,\\
+ \V&=\langle-2\sin t,\,2\cos t,\,1.8\cos3t\rangle,\\
+ \A&=\langle-2\cos t,\,-2\sin t,\,-5.4\sin3t\rangle.
+\end{align*}
+\subhead{Trefoil knot.}
+\begin{align*}
+ \R&=\langle\sin t+2\sin2t,\,\cos t-2\cos2t,\,-\sin3t\rangle,\\
+ \V&=\langle\cos t+4\cos2t,\,-\sin t+4\sin2t,\,-3\cos3t\rangle,\\
+ \A&=\langle-\sin t-8\sin2t,\,-\cos t+8\cos2t,\,9\sin3t\rangle.
+\end{align*}
+\subhead{Ellipse: changing speed.} Put $u=t+0.45\sin t$, so $u'=1+0.45\cos t$ and $u''=-0.45\sin t$. Then
+\begin{align*}
+ \R&=\langle3\cos u,\,1.7\sin u,\,0\rangle,\\
+ \V&=u'\langle-3\sin u,\,1.7\cos u,\,0\rangle,\\
+ \A&=u''\langle-3\sin u,\,1.7\cos u,\,0\rangle
+       +(u')^2\langle-3\cos u,\,-1.7\sin u,\,0\rangle.
+\end{align*}
+\subhead{Parabolic swoop.}
+\[
+ \R=\langle t,t^2/2,0\rangle,\qquad
+ \V=\langle1,t,0\rangle,\qquad\A=\langle0,1,0\rangle.
+\]
+Here $a_T=t/\sqrt{1+t^2}$, $a_N=1/\sqrt{1+t^2}$, and $\kappa=(1+t^2)^{-3/2}$.
+
+\subhead{Expanding corkscrew.} Put $q=0.7+0.1t$. Then
+\begin{align*}
+ \R&=\langle q\cos t,\,q\sin t,\,0.25t\rangle,\\
+ \V&=\langle0.1\cos t-q\sin t,\,0.1\sin t+q\cos t,\,0.25\rangle,\\
+ \A&=\langle-0.2\sin t-q\cos t,\,0.2\cos t-q\sin t,\,0\rangle.
+\end{align*}
+\subhead{Straight-line express.}
+\[
+ \R=\langle t,0,0\rangle,\quad \V=\T=\langle1,0,0\rangle,
+ \quad\A=\mathbf0,\quad a_T=a_N=\kappa=0.
+\]
+At $t_0$, its normal plane is $x=t_0$. There is no distinguished principal normal, binormal, osculating plane, or finite osculating circle.
+
+\newpage
+\demolink{https://gtevelev-max.github.io/math233h/solar-system/}{Demonstration 2: solar system and equal areas}
+\heading{The vectors in a planetary orbit}
+The demonstration starts with all eight planets enabled and Earth in focus. It uses fixed J2000 orbital elements and ideal Kepler motion under the Sun's attraction, neglecting interactions among planets.\footnote{Orbital elements: NASA/JPL, \href{https://ssd.jpl.nasa.gov/planets/approx_pos.html}{\emph{Approximate Positions of the Planets}}, Table 1. Earth's orbit uses Earth--Moon barycenter elements.} Orbital distances use a linear scale; planet markers are enlarged. Vector arrows use separate scales, held fixed for the selected planet.
+
+Place the Sun at the origin. For a planet of mass $m$ and position $\R(t)$, put $r=\norm{\R}$ and $\mu=GM$. The toggleable vectors are
+\begin{align*}
+ \text{radius vector:}&\quad\R &&\text{from the Sun to the planet},\\
+ \text{velocity:}&\quad\V=\R' &&\text{tangent to the orbit},\\
+ \text{gravitational force:}&\quad\F=-\frac{\mu m}{r^3}\R
+       &&\text{toward the Sun},\\
+ \text{specific angular momentum:}&\quad\HH=\R\times\V
+       &&\text{normal to the orbital plane}.
+\end{align*}
+Newton's law is $\F=m\A$, so the acceleration is $\A=\F/m$. The displayed force is in newtons. The vector $\HH$ is angular momentum \emph{per unit mass}; ordinary angular momentum is $m\HH$. Its direction is determined by the right-hand rule.
+
+\heading{Why the orbital plane stays fixed}
+Because the force is central, acceleration is parallel to $\R$. Therefore
+\[
+ \HH'=\V\times\V+\R\times\A
+ =\mathbf0+\R\times\left(-\frac{\mu}{r^3}\R\right)=\mathbf0.
+\]
+Thus $\HH$ is constant. When $\HH\ne\mathbf0$, both $\R$ and $\V$ are perpendicular to it, so the orbit lies in the fixed plane through the Sun normal to $\HH$.
+
+\heading{Why equal times sweep equal areas}
+Write $h=\norm{\HH}$ and orient the orbital plane so that the polar angle $\theta$ increases in the direction of motion. Then
+\[
+ h=r^2\frac{d\theta}{dt},\qquad
+ \frac{dA}{d\theta}=\frac12r^2,
+ \qquad\boxed{\frac{dA}{dt}=\frac h2.}
+\]
+Consequently, every interval of a fixed duration $\Delta t$ sweeps the same area:
+\[
+ \boxed{\Delta A=\frac h2\,\Delta t.}
+\]
+The sectors have equal areas but usually different angles and arc lengths. Near perihelion the planet moves faster and turns through a larger angle in the same time. Equal areas are compared \emph{within one planet's orbit}; different planets generally have different values of $h$.
+
+\subhead{Geometric caution.} The swept region is bounded by two radius segments and an orbital arc. The triangle joining the Sun and two consecutive positions only approximates that region for a short time interval.
+
+\newpage
+\heading{Solar-system demonstration: classroom sequence}
+\begin{enumerate}
+ \item \textbf{Start with Earth.} Keep all planets enabled and Earth in focus. Identify the Sun as a focus of the ellipse. Toggle other planets to reduce visual clutter when needed.
+ \item \textbf{Compare three directions.} Turn on $\R$, $\V$, and $\F$. The force points opposite $\R$; the velocity follows the tangent. Velocity is not generally perpendicular to $\R$ on an ellipse.
+ \item \textbf{See a conserved vector.} Turn on $\HH$ and rotate the scene so that the orbital plane is seen at an angle. Its direction and magnitude stay fixed for that planet even as $\R$ and $\V$ change.
+ \item \textbf{Compare equal-time sectors.} Turn on swept areas. The default increment is $\Delta t=P/12$, where $P$ is the selected planet's orbital period; $P/8$ and $P/24$ are also available. Compare sectors near perihelion and aphelion. Complete equal-area sectors are shown, with the current time interval highlighted.
+ \item \textbf{Make the contrast clearer.} Focus on Mercury, whose ellipse is more eccentric than Earth's. Compare wide, shallow sectors near perihelion with narrow, deep sectors near aphelion. Then return to Earth to see why its speed variation is less conspicuous.
+ \item \textbf{Connect the demonstrations.} Ask whether gravitational force is always a principal-normal force. For an eccentric orbit it can also have a tangential component, because the planet's speed changes.
+\end{enumerate}
+
+\heading{How the simulation assigns time to an ellipse}
+Moving around an ellipse at constant angular speed would generally violate the equal-area law. A Kepler motion can instead be parametrized by the \emph{eccentric anomaly} $E$. Let $a$ be the semimajor axis, $0\le e<1$ the eccentricity, and $b=a\sqrt{1-e^2}$. In coordinates in the orbital plane with perihelion on the positive $x$-axis,
+\[
+ \R(E)=\langle a(\cos E-e),\ b\sin E,\ 0\rangle.
+\]
+Time is specified by Kepler's equation
+\[
+ E-e\sin E=M_0+n(t-t_0),\qquad
+ n=\sqrt{\frac{\mu}{a^3}},\qquad
+ \frac{dE}{dt}=\frac{n}{1-e\cos E}.
+\]
+This gives, before any fixed rotation of the orbital plane,
+\[
+ \V=\frac{n}{1-e\cos E}\langle-a\sin E,\ b\cos E,\ 0\rangle,
+ \qquad \norm{\HH}=nab.
+\]
+For successive eccentric anomalies $E_1,E_2$, unwrapped across complete turns,
+\[
+ \Delta A=\frac{ab}{2}\bigl[(E_2-e\sin E_2)-(E_1-e\sin E_1)\bigr]
+         =\frac{nab}{2}\Delta t.
+\]
+The orbital period $P=2\pi/n$ therefore satisfies $P^2=(4\pi^2/\mu)a^3$. These formulas connect the moving picture to the equal-area and period laws proved in the Chapter 13 notes.
+
+\end{document}

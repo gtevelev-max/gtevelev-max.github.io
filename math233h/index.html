@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lecture 7 · Motion &amp; geometry · Math 233H</title>
+  <meta name="description" content="Professor JT's rollercoaster and the solar system: interactive demonstrations of the Frenet frame, acceleration, curvature, and Kepler's second law.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .page-shell{max-width:1100px}.page-header h1{font-size:clamp(40px,6vw,64px)}
+    .intro{max-width:710px;font-size:18px;color:var(--muted)}
+    .lesson-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:38px 0}
+    .lesson{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fffefa}
+    .lesson-art{height:236px;background:#102437;display:flex;align-items:center;justify-content:center}
+    .lesson-art svg{width:100%;height:100%}.lesson-body{padding:28px}.lesson h2{font-size:32px;margin:10px 0 16px}
+    .lesson p{font-size:15px;color:var(--muted)}.launch{display:inline-block;border-radius:6px;background:var(--accent);color:white;padding:11px 16px;text-decoration:none;font-weight:600;font-size:14px;margin-top:10px}
+    .notes{padding:28px 32px;background:#eef2e9;border-radius:12px;border:1px solid var(--line);margin-top:36px}.notes h2{font-size:27px;margin:0 0 12px}.notes p{margin:8px 0}.notes-links{display:flex;flex-wrap:wrap;gap:24px;font-weight:600;font-size:14px}
+    .prompt{font-family:Georgia,serif;font-style:italic;border-top:1px solid var(--line);padding-top:16px;margin-top:22px}
+    @media(max-width:720px){.lesson-grid{grid-template-columns:1fr}.lesson-art{height:210px}.lesson-body,.notes{padding:24px}}
+  </style>
+</head>
+<body><main class="page-shell">
+  <a class="back-link" href="../">← All mathematical demonstrations</a>
+  <header class="page-header"><p class="eyebrow">Math 233H · Lecture 7 · Jenia Tevelev</p><h1>Motion has geometry.</h1><p class="intro">Ride along a space curve. Follow a planet around the Sun. See how derivatives describe motion, and how geometry explains what changes.</p></header>
+  <section class="lesson-grid" aria-label="Lecture 7 demonstrations">
+    <article class="lesson">
+      <div class="lesson-art" aria-hidden="true"><svg viewBox="0 0 450 236" fill="none"><g stroke="#3b5264" stroke-width="1"><path d="M45 186h360M110 220V20M45 186l210-136"/></g><path d="M74 164c-44-42 166-95 206-58s-164 91-172 52 175-97 210-64-153 87-163 51 170-93 201-65" stroke="#72d6c1" stroke-width="3"/><path d="M230 115l64-27M230 115l-28-61M230 115l8 61" stroke-width="3" stroke="#ffcc7c"/><circle cx="230" cy="115" r="26" fill="#213e50"/><text x="211" y="131" fill="#ffda87" font-size="54" font-family="Georgia">π</text><path d="M220 105h9m3 0h9" stroke="#102437" stroke-width="3"/><text x="333" y="208" fill="#9fb8c8" font-size="13" font-family="system-ui">T · N · B</text></svg></div>
+      <div class="lesson-body"><p class="eyebrow">01 · Curves &amp; moving frames</p><h2>Professor JT’s rollercoaster</h2><p>Put Professor π on the Lecture 6 helix and other tracks. Reveal velocity, acceleration, the Frenet frame, curvature, planes, and the osculating circle.</p><p>Rotate the scene or ride in the moving frame. The camera follows the professor throughout the journey.</p><a class="launch" href="rollercoaster/">Ride the rollercoaster →</a><p class="prompt">How can a rider accelerate while moving at constant speed?</p></div>
+    </article>
+    <article class="lesson">
+      <div class="lesson-art" aria-hidden="true"><svg viewBox="0 0 450 236" fill="none"><g transform="translate(222 119) rotate(-15)"><ellipse rx="66" ry="28" stroke="#597184"/><ellipse rx="123" ry="52" stroke="#668896"/><ellipse rx="183" ry="80" stroke="#3a5369"/><path d="M-16 0 113-20A123 52 0 0 1 102 29Z" fill="#f2bf6d" fill-opacity=".18"/><circle cx="-16" cy="0" r="15" fill="#f9c366"/><circle cx="113" cy="-20" r="8" fill="#70c8e9"/><path d="M-16 0 113-20" stroke="#f9c366" stroke-width="2"/><path d="m113-20-28-24m28 24 2-72" stroke="#75dab6" stroke-width="2.5"/><circle cx="-94" cy="-39" r="5" fill="#e9a486"/><circle cx="-138" cy="53" r="10" fill="#c6af91"/><ellipse cx="-138" cy="53" rx="17" ry="5" stroke="#e1c79a"/></g><text x="321" y="210" fill="#9fb8c8" font-size="13" font-family="system-ui">r × v = h</text></svg></div>
+      <div class="lesson-body"><p class="eyebrow">02 · Central forces &amp; equal areas</p><h2>The solar system</h2><p>Start with Earth in focus and all eight planets enabled. Compare the radius, gravitational force, velocity, and conserved angular momentum vectors.</p><p>Color the regions swept in equal time intervals to make Kepler’s second law visible.</p><a class="launch" href="solar-system/">Explore the solar system →</a><p class="prompt">Why does a planet speed up near the Sun but sweep out the same area?</p></div>
+    </article>
+  </section>
+  <section class="notes" aria-labelledby="notes-title"><h2 id="notes-title">Take the mathematics with you.</h2><p>The Lecture 7 handout connects both demonstrations to the formulas, includes the worked Lecture 6 helix, and provides a guided classroom sequence.</p><p class="notes-links"><a href="lecture-7-notes.pdf">Lecture 7 notes · PDF ↗</a><a href="lecture-7-notes.tex">Editable LaTeX source ↗</a></p></section>
+  <footer>Jenia Tevelev <span aria-hidden="true">·</span> Math 233H <span aria-hidden="true">·</span> <a href="https://websites.umass.edu/tevelev/">UMass Amherst</a></footer>
+</main></body></html>

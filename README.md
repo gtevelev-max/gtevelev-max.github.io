@@ -7,6 +7,9 @@ The homepage links to the [personal website](https://websites.umass.edu/tevelev/
 ## Contents
 
 - `index.html`, `style.css`, `assets/`: personal homepage.
+- `math233h/`: Lecture 7 demonstrations and downloadable lecture handout.
+- `math233h/rollercoaster/`: Professor JT (π), analytic space curves, Frenet frames, acceleration components, and osculating geometry.
+- `math233h/solar-system/`: Keplerian planetary motion, central force and angular momentum vectors, and equal-time swept areas.
 - `triangle-group/index.html`: self-contained explorer, starting with (2,3,6).
 - `navier-stokes/index.html`: self-contained Math 233H spiraling-vortex classroom demonstration, restored from the September 10 version. This illustrates a prescribed velocity field; it is not the later inner-core numerical model.
 - `animations/`: three video pages linking to the existing public UMass movies.
