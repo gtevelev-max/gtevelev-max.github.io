@@ -287,6 +287,63 @@ The body slows down while moving outward ($r'>0$), and speeds up while moving in
 \subhead{Make the contrast visible.} Earth's orbit is nearly circular. Compare Mercury, then select \emph{Comet (Halley)} to make the change in speed and sector shape much more pronounced. The sector boundary follows the orbital arc; a triangle joining two sampled positions is only an approximation.
 
 \newpage
+\tagline{A VECTOR IDENTITY FOR ORBITAL MOTION}
+\heading{The vector triple-product identity}
+For any vectors $\mathbf u,\mathbf v,\mathbf w\in\mathbb R^3$,
+\[
+ \boxed{\mathbf u\times(\mathbf v\times\mathbf w)
+ =\mathbf v(\mathbf u\cdot\mathbf w)
+ -\mathbf w(\mathbf u\cdot\mathbf v).}
+\]
+The result is a vector in the span of $\mathbf v$ and $\mathbf w$. This identity is often remembered as ``BAC minus CAB'': the middle vector comes first, multiplied by the dot product of the other two.
+
+\heading{Proof in coordinates}
+Write $\mathbf u=\langle u_1,u_2,u_3\rangle$, $\mathbf v=\langle v_1,v_2,v_3\rangle$, and $\mathbf w=\langle w_1,w_2,w_3\rangle$. By the definition of the cross product,
+\[
+ \mathbf v\times\mathbf w
+ =\langle v_2w_3-v_3w_2,\ v_3w_1-v_1w_3,\ v_1w_2-v_2w_1\rangle.
+\]
+Consequently the first component of $\mathbf u\times(\mathbf v\times\mathbf w)$ is
+\begin{align*}
+ u_2(v_1w_2-v_2w_1)-u_3(v_3w_1-v_1w_3)
+ &=v_1(u_2w_2+u_3w_3)-w_1(u_2v_2+u_3v_3)\\
+ &=v_1(u_1w_1+u_2w_2+u_3w_3)\\
+ &\hspace{12pt}-w_1(u_1v_1+u_2v_2+u_3v_3)\\
+ &=v_1(\mathbf u\cdot\mathbf w)-w_1(\mathbf u\cdot\mathbf v).
+\end{align*}
+In the second equality, the added terms $v_1u_1w_1$ and $-w_1u_1v_1$ cancel. Applying the same computation with the cyclic index replacements $1\to2\to3\to1$ gives the other two components:
+\[
+ \begin{aligned}
+ [\mathbf u\times(\mathbf v\times\mathbf w)]_2
+ &=v_2(\mathbf u\cdot\mathbf w)-w_2(\mathbf u\cdot\mathbf v),\\
+ [\mathbf u\times(\mathbf v\times\mathbf w)]_3
+ &=v_3(\mathbf u\cdot\mathbf w)-w_3(\mathbf u\cdot\mathbf v).
+ \end{aligned}
+\]
+Thus all three components agree with the claimed right-hand side, proving the identity. The computation also covers zero and parallel vectors.
+
+\heading{The parentheses matter}
+By antisymmetry and the identity just proved,
+\[
+ (\mathbf u\times\mathbf v)\times\mathbf w
+ =-\mathbf w\times(\mathbf u\times\mathbf v)
+ =\mathbf v(\mathbf u\cdot\mathbf w)-\mathbf u(\mathbf v\cdot\mathbf w).
+\]
+The cross product is not associative. For example,
+\[
+ \mathbf i\times(\mathbf i\times\mathbf j)=-\mathbf j,
+ \qquad (\mathbf i\times\mathbf i)\times\mathbf j=\mathbf0.
+\]
+The \emph{scalar} triple product $\mathbf u\cdot(\mathbf v\times\mathbf w)$ is a different expression: it is a number, rather than a vector.
+
+\heading{The substitution used in Kepler's first law}
+Apply the identity with the first two vectors both equal to $\R$ and the third equal to $\V$. With $r=\norm{\R}$, this gives
+\[
+ \boxed{\R\times(\R\times\V)=\R(\R\cdot\V)-r^2\V.}
+\]
+We use exactly this form on the next page to prove that the eccentricity vector is constant.
+
+\newpage
 \tagline{KEPLER'S FIRST LAW: A VECTOR-CALCULUS DERIVATION}
 \heading{Why does inverse-square gravity produce a conic?}
 We know that $\HH=\R\times\V$ is constant. Define one more vector,
@@ -299,7 +356,7 @@ It is called the eccentricity vector. We will show that it is constant. First,
  =\frac\V r-\frac{\R(\R\cdot\V)}{r^3},
  \qquad r'=\frac{\R\cdot\V}{r}.
 \]
-The vector triple-product identity gives
+The vector triple-product identity proved above gives
 \begin{align*}
  \A\times\HH
  &=-\frac{\mu}{r^3}\R\times(\R\times\V)\\
