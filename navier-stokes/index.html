@@ -2,754 +2,1637 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Navier–Stokes · Vortex concentration · Jenia Tevelev</title>
-<meta name="description" content="Explore vortex concentration in an interactive inner-core model, with material tracers, flow parameters, and velocity and pressure-force fields.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navier–Stokes · Spiraling vortex · Jenia Tevelev</title>
+<meta name="description" content="A spiraling-vortex classroom demonstration with adjustable swirl, axial strain, concentration, and 3D views.">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<style>
-:root{color-scheme:light dark;--bg:light-dark(#fff,#181a1d);--fg:light-dark(#202328,#eef0f4);--sub:light-dark(#60636a,#b0b5bf);--line:light-dark(#dfe1e5,#41444c);--soft:light-dark(#f5f5f4,#23262b);--active:light-dark(#292d33,#eceef2);--on:light-dark(#fff,#202328);--ruby:#b51f48;--gold:#edd18a;--field:light-dark(#9e2442,#ff8fab)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit;color:inherit}button,select{border:1px solid var(--line);background:var(--bg);border-radius:7px;padding:6px 9px}button{cursor:pointer}button:hover{background:var(--soft)}button.primary{background:var(--active);color:var(--on);border-color:var(--active)}button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--field);outline-offset:3px}a{color:var(--field);text-underline-offset:3px}h1,h2,h3,p{margin:0}h1{font-size:21px;line-height:1.2;font-weight:500}h2{font-size:16px;font-weight:500}h3{font-size:15px;font-weight:500}.small{font-size:12px;line-height:1.4;color:var(--sub)}.num{font-variant-numeric:tabular-nums}#openai-core{height:100dvh;min-height:690px;display:flex;flex-direction:column;padding:16px 20px 14px;gap:12px}header{display:flex;align-items:end;justify-content:space-between;gap:14px}header .course{margin-bottom:4px}header .edition{text-align:right}.workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);flex:1;gap:24px;min-height:0}.stage{position:relative;min-height:0;overflow:hidden}.stage canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}.stage canvas.dragging{cursor:grabbing}.stage-tag{position:absolute;left:12px;top:10px;pointer-events:none}.vorticity-label{margin-top:5px}.streamline-toggle{display:flex;align-items:center;gap:5px;margin-top:7px;pointer-events:auto}.streamline-toggle input{accent-color:var(--ruby)}.stage-bottom{position:absolute;left:12px;right:12px;bottom:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}.panel{min-width:0;display:flex;flex-direction:column;gap:10px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.timeline{flex:1;min-width:0}.label{display:flex;align-items:baseline;justify-content:space-between;gap:6px}input[type=range]{display:block;width:100%;margin:7px 0 1px;accent-color:var(--ruby);height:14px}output{font-variant-numeric:tabular-nums}.ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--sub)}.controls{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px}.controls label{min-width:0}.views{display:grid;grid-template-columns:1fr 1fr;gap:8px}.views select{width:100%;min-width:0}.camera{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}.equations{border-top:1px solid var(--line);padding-top:9px;display:flex;flex-direction:column;gap:6px}.formula{font:17px/1.5 "Cambria Math","STIX Two Math",Georgia,serif;overflow-wrap:anywhere}.formula sup,.formula sub{font-size:.72em}.formula .space{display:inline-block;width:14px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-height:146px}.field{display:flex;flex-direction:column;min-width:0;min-height:0}.field canvas{display:block;flex:1;width:100%;height:0;min-height:108px}.scope{border-top:1px solid var(--line);padding-top:8px}.source-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.source-row button{padding:4px 8px;font-size:12px}.status{min-height:17px}.error{color:var(--field)}dialog{max-width:900px;width:calc(100% - 32px);max-height:calc(100dvh - 40px);padding:24px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg)}dialog::backdrop{background:rgb(0 0 0 / .45)}dialog .row{margin-bottom:14px}dialog h3{margin-top:18px;margin-bottom:7px}dialog p{margin:7px 0}dialog .formula{margin:9px 0}dialog .math-grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}dialog .note{background:var(--soft);padding:12px;border-radius:7px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-@media(min-width:1100px){#openai-core{padding:20px 26px}.panel{gap:12px}h1{font-size:23px}.fields{min-height:165px}}
-@media(max-height:740px) and (min-width:761px){#openai-core{padding:10px 15px;gap:8px;min-height:660px}.panel{gap:7px}.fields{min-height:127px}.field canvas{min-height:95px}.formula{font-size:16px}header .edition{display:none}}
-@media(max-width:900px){#openai-core{padding:12px;min-height:750px}.workspace{gap:14px}.panel{gap:9px}.controls{gap:6px 12px}.formula{font-size:16px}.edition{display:none}h1{font-size:19px}.camera{gap:7px}.small{font-size:11px}}
-@media(max-width:760px){#openai-core{height:auto;min-height:0}.workspace{grid-template-columns:1fr}.stage{height:440px}.panel{gap:12px}.fields{height:190px;flex:none}header{align-items:start}.small{font-size:12px}dialog .math-grid{grid-template-columns:1fr;gap:0}}
-@media(max-width:420px){.stage{height:360px}.views{grid-template-columns:1fr}.camera{grid-template-columns:1fr 1fr}.camera>label:first-child{grid-column:1/-1}.source-row{align-items:start}h1{font-size:18px}}
-@media print{#openai-core{display:none}dialog[open]{position:static;max-width:none;max-height:none;border:0;width:100%}dialog button{display:none}}
-
-/* Keep the two desktop panes within one screen; spare height goes to the fields. */
-@media(min-width:761px){.panel{min-height:0;gap:7px}.fields{min-height:120px}.field canvas{min-height:90px}.equations{gap:4px;padding-top:8px}.formula{font-size:16px;line-height:1.35}}
-</style>
 </head>
 <body>
-<main id="openai-core">
- <header><div><div class="course"><a href="../" style="color:inherit;text-decoration:none">← Jenia Tevelev</a><span class="small"> · Math 233H · Fall 2026</span></div><h1>OpenAI inner-core model · vortex concentration</h1></div><div class="edition small">Equations from the<br>September 2026 paper</div></header>
- <div class="workspace">
-  <section class="stage" aria-label="Three-dimensional flow">
-   <canvas id="oc-scene" role="img" aria-label="Gold inner-core region with ruby material tracers. Press and drag to rotate.">Three-dimensional core flow with ruby tracers.</canvas>
-   <div class="stage-tag small"><div id="oc-domain"></div><div class="vorticity-label">Axial vorticity at origin: <output id="oc-vorticity" class="num"></output></div><label class="streamline-toggle"><input id="oc-streamlines" type="checkbox" checked> Show instantaneous flow lines</label></div>
-   <div class="stage-bottom small"><span>Press and drag to rotate</span><span id="oc-zoom" class="num">Physical scale · 1×</span></div>
-  </section>
-  <section class="panel" aria-label="Parameters, equations and vector fields">
-   <div class="row"><h2>Flow parameters</h2><button id="oc-reset" type="button">Restart</button></div>
-   <div class="row"><button id="oc-play" class="primary" type="button">Play</button><div class="timeline"><label class="label" for="oc-time"><span>Ordinary time t</span><output id="oc-time-value">0.0000 / 1</output></label><input id="oc-time" type="range" min="0" max="0.9999" step="0.0001" value="0"><div class="ticks"><span>0</span><span>¼</span><span>½</span><span>¾</span><span>T = 1</span></div></div></div>
-   <div class="controls">
-    <label for="oc-h"><span class="label"><span>Concentration h</span><output id="oc-h-value">0.005</output></span><input id="oc-h" type="range" min="0.001" max="0.009" step="0.001" value="0.005"></label>
-    <label for="oc-lambda"><span class="label"><span>Profile parameter Λ</span><output id="oc-lambda-value">12</output></span><input id="oc-lambda" type="range" min="8" max="16" step="1" value="12"></label>
-    <label for="oc-pressure"><span class="label"><span>Axis pressure P</span><output id="oc-pressure-value">1.00</output></span><input id="oc-pressure" type="range" min="0.25" max="2" step="0.25" value="1"></label>
-    <label for="oc-rate"><span class="label"><span>Playback</span><output id="oc-rate-value">2×</output></span><input id="oc-rate" type="range" min="0.25" max="2" step="0.25" value="2"></label>
-   </div>
-   <div class="views"><select id="oc-mode" aria-label="Flow appearance"><option value="volume">Full core volume</option><option value="sheet">Core boundary</option><option value="tracers">Ruby tracers only</option></select><select id="oc-scale" aria-label="Spatial view"><option value="physical">Fixed physical scale</option><option value="follow">Follow shrinking core</option></select></div>
-   <div class="camera">
-    <label for="oc-opacity"><span class="label"><span>Gold opacity</span><output id="oc-opacity-value">55%</output></span><input id="oc-opacity" type="range" min="0.15" max="0.9" step="0.05" value="0.55"></label>
-    <label for="oc-yaw"><span class="label"><span>Azimuth</span><output id="oc-yaw-value">−28°</output></span><input id="oc-yaw" type="range" min="-180" max="180" step="1" value="-28"></label>
-    <label for="oc-pitch"><span class="label"><span>Elevation</span><output id="oc-pitch-value">19°</output></span><input id="oc-pitch" type="range" min="-85" max="85" step="1" value="19"></label>
-   </div>
-   <section class="equations" aria-label="Equations used by this simulation">
-    <div class="row"><h2>Forced Navier–Stokes</h2><span class="small">ν = 1</span></div>
-    <div class="formula">∂<sub>t</sub><b>u</b> + (<b>u</b> · ∇)<b>u</b> = Δ<b>u</b> − ∇p + <b>f</b><span class="space"></span>∇ · <b>u</b> = 0</div>
-    <div class="formula">1 − t = q(1 − η²),<span class="space"></span>z = q<sup>½−h</sup>η,<span class="space"></span>X = r²/(2q)</div>
-    <div class="formula">u<sub>θ</sub> = q<sup>−½−h</sup>√(2X) F,<span class="space"></span>u<sub>z</sub> = q<sup>−½−h</sup>U</div>
-    <div class="small">F, U and pressure are computed from the paper’s inner equations (4.13). Radial velocity enforces incompressibility.</div>
-   </section>
-   <section class="fields" aria-label="Computed vector fields in the central transverse plane">
-    <div class="field"><h3>Velocity <span class="small">(u<sub>x</sub>, u<sub>y</sub>)</span></h3><canvas id="oc-velocity" role="img" aria-label="Computed inward and swirling velocity arrows in the central transverse plane."></canvas></div>
-    <div class="field"><h3>Pressure force <span class="small">−∇<sub>x,y</sub>p</span></h3><canvas id="oc-force" role="img" aria-label="Computed pressure force projected into the central transverse plane."></canvas></div>
-   </section>
-   <div class="scope small">
-    <div>An existing vortex concentrates here; formation from rest is not modeled. Global matching and infinite corrections are omitted. Gold marks the sampled region.</div>
-    <div id="oc-status" class="status num" role="status" aria-live="polite">Computing the core profiles…</div>
-    <div class="source-row"><a href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf#page=24" target="_blank" rel="noopener">OpenAI paper · §4 & Appendix B</a><button id="oc-explain" type="button">Equations &amp; method</button></div>
-   </div>
-  </section>
- </div>
-</main>
-<dialog id="oc-method" aria-labelledby="oc-method-title">
- <div class="row"><h2 id="oc-method-title">What the new simulation computes</h2><button id="oc-close" type="button">Close</button></div>
- <p>This version numerically evaluates the inner-core equations in OpenAI’s September 2026 Navier–Stokes paper. It uses a finite radial Taylor expansion with smooth interpolation in height. The pressure prescribed on the axis is an explicit classroom choice.</p>
- <div class="note">This is a local approximation to one part of the construction. The complete solution needs the paper’s matched exterior, parameter hierarchy, and infinite correction scheme. The displayed flow is not a numerical realization of that complete solution, and its residual forcing is not certified smooth at t = 1.</div>
- <div class="math-grid"><section>
- <h3>1. Coordinates and velocity · (4.1)–(4.7)</h3>
- <div class="formula">A = ½ + h, &nbsp; D = ½ − h<br>d = 1 − η², &nbsp; L = 1 − 2hη²<br>1 − t = qd, &nbsp; z = q<sup>D</sup>η, &nbsp; X = r²/(2q)</div>
- <div class="formula">u<sub>θ</sub> = q<sup>−A</sup>√(2X) F<br>u<sub>z</sub> = q<sup>−A</sup>U, &nbsp; r u<sub>r</sub> = Xv<sub>0</sub><br>p = q<sup>−2A</sup>Π</div>
- <div class="formula">Ū = ∫<sub>0</sub><sup>1</sup> U(sX, η) ds<br>v<sub>0</sub> = (2ηU − 2DηŪ − dŪ<sub>η</sub>)/L</div>
- <p>The radial-velocity identity preserves ∇·u = 0 for the interpolated finite profiles. At η = 0, the radial scale is proportional to √(1 − t), while the speed prefactor is (1 − t)<sup>−A</sup>.</p>
- <h3>2. Inner equations · (4.13)</h3>
- <div class="formula">W = 1 − 2DηŪ − dŪ<sub>η</sub><br>H = Dη + dU<br>ℓ = 1 + XF<sub>X</sub>/F</div>
- <div class="formula">S<sub>q</sub> = −Wℓ − h(1 − 2ηU) − HF<sub>η</sub>/F</div>
- <div class="formula">S<sub>n</sub> = −WXU<sub>X</sub> − A(1 − 2ηU)U<br>− HU<sub>η</sub> − dΠ<sub>η</sub> + 4AηΠ + 2ηXΠ<sub>X</sub></div>
- <div class="formula">−2L(XF<sub>XX</sub> + 2F<sub>X</sub>) = FS<sub>q</sub><br>−2L(XU<sub>XX</sub> + U<sub>X</sub>) = S<sub>n</sub><br>Π<sub>X</sub> = F²</div>
- <p>These are the equations solved locally by the series. They contain the leading radial viscosity. The full Navier–Stokes momentum residual also involves axial viscosity and higher-order terms.</p>
- </section><section>
- <h3>3. Axis data · (B.1)–(B.3)</h3>
- <div class="formula">U(0,η) = U<sub>*</sub> = 4η + j<sub>0</sub><br>H<sub>*</sub> = Dη + dU<sub>*</sub><br>ζ<sub>*</sub> = −LH<sub>*</sub>/(H<sub>*</sub>² + σ<sub>*</sub>²)<br>F(0,η) = exp(Λ∫<sub>0</sub><sup>η</sup>ζ<sub>*</sub>(w) dw)/C</div>
- <p>Here j<sub>0</sub> = 0.025 and σ<sub>*</sub> = 0.5. C normalizes the largest axis value of F to 0.5. The h and Λ controls explore local profiles; they are not certified choices satisfying the paper’s full nested parameter restrictions.</p>
- <div class="formula">Π(0,η) = −P/(1 + η²)²</div>
- <p><b>This pressure datum is a demo choice.</b> The paper’s Π<sub>0</sub> comes from its globally matched outer profile; the formula above does not reproduce that matching.</p>
- <h3>4. Tracers, volume and time</h3><p>This view starts with a rotating core already present. It demonstrates its prescribed similarity concentration, not vortex formation from rest. At h = 0.005, height divided by radius grows by only 4.7% before the display cutoff.</p><div class="formula">ω = ∇ × u<br>ω<sub>z</sub>(0,t) = 2(1 − t)<sup>−1−h</sup> F(0,0)</div><p>The vorticity readout measures axial rotation at the spatial origin. The value in parentheses is its ratio to t = 0. Increasing vorticity quantifies the strengthening local rotation as the core concentrates.</p>
- <div class="formula">dX/dt = XW/(qL)<br>dη/dt = H/(qL)<br>dθ/dt = q<sup>−1−h</sup>F</div>
- <p>Ruby tracers integrate these material equations with adaptive steps in ordinary time. A tracer that leaves the small displayed region is replaced at its incoming radial boundary. Changing appearance or camera does not change particle speed. Moving the time slider seeds a new sample at the selected time.</p>
- <p>The ruby curves are instantaneous streamlines: their tangent is parallel to the current velocity field, with arrows in the flow direction. They differ from particle histories because the velocity changes with time. The swirl is weaker than radial inflow with these numerical parameters; the curves show that actual balance.</p><p>The gold region is a window in similarity coordinates, not a free liquid surface. The physical view uses one spatial scale on all axes; “Follow shrinking core” zooms uniformly. The animation stops at t = 0.9999, before the singular limit.</p>
- <p>The vector diagrams show the central transverse slice with a separate arrow scale for each field. Pressure force is −∇p, not the external forcing f.</p>
- <h3>5. Numerical checks</h3>
- <p id="oc-method-checks">Profile residuals and radial series convergence are checked in the displayed domain.</p>
- <p><a href="https://cdn.openai.com/pdf/32d9f210-8b73-45e0-91bc-82a30aef8a9a/navier-stokes.pdf" target="_blank" rel="noopener">Read the original paper</a> · <a href="https://github.com/openai/NavierStokesAndEuler" target="_blank" rel="noopener">Official formalization</a></p>
- </section></div>
-</dialog>
-<script>
-/*
- * Numerical inner-core equations from OpenAI, Finite time blowup for
- * Navier–Stokes, (4.1), (4.3), (4.7)–(4.9), (4.13), (B.1)–(B.3).
- * This is a truncated numerical solution of the LEADING INNER profile system.
- * The exploratory datum Pi(0,eta)=-P/(1+eta^2)^2 is not the globally matched
- * pressure datum of (A.21). No annular waves, higher-order corrections,
- * exterior matching, localization, or activation from rest are included.
- */
-(function(global) {
-  'use strict';
-  const DEFAULTS=Object.freeze({h:.005,j:.025,sigma:.5,Lambda:12,P:2,axisSwirl:.5,order:14,etaMax:.7,Xmax:.12,intervals:280});
-  const constant=(value,m)=>{const a=new Float64Array(m);a[0]=value;return a;};
-  function add(a,b,m) {const c=new Float64Array(m);for(let k=0;k<m;k++)c[k]=(a[k]||0)+(b[k]||0);return c;}
-  function scale(a,s,m=a.length) {const c=new Float64Array(m);for(let k=0;k<m;k++)c[k]=(a[k]||0)*s;return c;}
-  function mul(a,b,m) {
-    const c=new Float64Array(m);
-    for(let i=0;i<Math.min(a.length,m);i++)for(let j=0;j<Math.min(b.length,m-i);j++)c[i+j]+=a[i]*b[j];
-    return c;
-  }
-  function deriv(a,m=a.length-1) {const c=new Float64Array(m);for(let k=0;k<m;k++)c[k]=(k+1)*(a[k+1]||0);return c;}
-  function divide(a,b,m) {
-    const c=new Float64Array(m);
-    for(let k=0;k<m;k++){let v=a[k]||0;for(let i=1;i<=k;i++)v-=(b[i]||0)*c[k-i];c[k]=v/b[0];}
-    return c;
-  }
-  function exponential(a,m) {
-    const c=new Float64Array(m);c[0]=Math.exp(a[0]);
-    for(let n=1;n<m;n++){let s=0;for(let k=1;k<=n;k++)s+=k*(a[k]||0)*c[n-k];c[n]=s/n;}
-    return c;
-  }
-  function accumulate(target,a,factor=1) {for(let k=0;k<target.length;k++)target[k]+=factor*(a[k]||0);}
-  function integrate(f,a,b) {
-    // Composite 8-point Gauss–Legendre quadrature. Short fixed panels avoid
-    // accidental error-estimator cancellation in the sharply varying axis datum.
-    const nodes=[.1834346424956498,.5255324099163290,.7966664774136267,.9602898564975363];
-    const weights=[.3626837833783620,.3137066458778873,.2223810344533745,.1012285362903763];
-    const panels=Math.max(1,Math.ceil(Math.abs(b-a)/.0125)),step=(b-a)/panels;
-    let sum=0;
-    for(let k=0;k<panels;k++) {
-      const mid=a+(k+.5)*step,half=step/2;
-      for(let j=0;j<4;j++)sum+=half*weights[j]*(f(mid-half*nodes[j])+f(mid+half*nodes[j]));
-    }
-    return sum;
-  }
-  // A degree-seven Hermite polynomial in s in [0,1], matching eta jets 0..3.
-  function hermite(left,right,step,target,offset) {
-    const a0=left[0],a1=left[1]*step,a2=left[2]*step**2,a3=left[3]*step**3;
-    const r0=right[0]-a0-a1-a2-a3;
-    const r1=right[1]*step-a1-2*a2-3*a3;
-    const r2=2*right[2]*step**2-2*a2-6*a3;
-    const r3=6*right[3]*step**3-6*a3;
-    target.set([a0,a1,a2,a3,35*r0-15*r1+2.5*r2-r3/6,-84*r0+39*r1-7*r2+r3/2,70*r0-34*r1+6.5*r2-r3/2,-20*r0+10*r1-2*r2+r3/6],offset);
-  }
-  function evaluateField(pack,offset,order,s,X,invStep,average=false) {
-    // Layout: [value, X derivative, XX derivative] for each eta derivative 0..3.
-    const out=new Float64Array(12);
-    for(let n=order;n>=0;n--) {
-      let c0=0,c1=0,c2=0,c3=0;
-      for(let k=7;k>=0;k--){c3=c3*s+3*c2;c2=c2*s+2*c1;c1=c1*s+c0;c0=c0*s+pack[offset+8*n+k];}
-      const factor=average?1/(n+1):1;
-      const coefs=[c0*factor,c1*invStep*factor,c2*invStep**2*factor,c3*invStep**3*factor];
-      for(let e=0;e<4;e++){const i=3*e;out[i+2]=out[i+2]*X+2*out[i+1];out[i+1]=out[i+1]*X+out[i];out[i]=out[i]*X+coefs[e];}
-    }
-    return out;
-  }
-  function buildModel(options={}) {
-    const p=Object.assign({},DEFAULTS,options);
-    for(const key of ['h','j','sigma','Lambda','P','axisSwirl','etaMax','Xmax'])if(!Number.isFinite(p[key]))throw new RangeError(key+' must be finite');
-    if(!(p.h>0&&p.h<.01&&p.j>0&&p.j<=.05&&p.sigma>0&&p.Lambda>0&&p.P>0&&p.axisSwirl>0&&p.etaMax>0&&p.etaMax<1&&p.Xmax>0))throw new RangeError('Invalid inner-core parameters');
-    p.order=Math.round(p.order);p.intervals=Math.round(p.intervals);
-    if(p.order<4||p.order>20||p.intervals<20||p.intervals>1600)throw new RangeError('Invalid approximation resolution');
-    const A=.5+p.h,D=.5-p.h,N=p.order,K=N+5,m0=K+1;
-    const Haxis=eta=>D*eta+(1-eta*eta)*(4*eta+p.j);
-    const zeta=eta=>-(1-2*p.h*eta*eta)*Haxis(eta)/(Haxis(eta)**2+p.sigma**2);
-    let lo=-p.etaMax,hi=p.etaMax;
-    for(let k=0;k<60;k++){const mid=(lo+hi)/2;if(Haxis(mid)<0)lo=mid;else hi=mid;}
-    const etaPeak=(lo+hi)/2,logPeak=p.Lambda*integrate(zeta,0,etaPeak);
-    const logC=options.C===undefined?logPeak-Math.log(p.axisSwirl):Math.log(options.C);
-    if(!Number.isFinite(logC))throw new RangeError('C must be positive');
-    p.C=Math.exp(logC);
-    const step=2*p.etaMax/p.intervals,nodes=[];
-    function makeNode(eta) {
-      const e=constant(eta,m0);e[1]=1;
-      const one=constant(1,m0),ee=mul(e,e,m0),d=add(one,scale(ee,-1),m0),L=add(one,scale(ee,-2*p.h),m0);
-      const Uaxis=add(scale(e,4),constant(p.j,m0),m0),H=add(scale(e,D),mul(d,Uaxis,m0),m0);
-      const zetaJet=scale(divide(mul(L,H,m0),add(mul(H,H,m0),constant(p.sigma**2,m0),m0),m0),-1);
-      const logF=constant(p.Lambda*integrate(zeta,0,eta)-logC,m0);
-      for(let k=1;k<m0;k++)logF[k]=p.Lambda*zetaJet[k-1]/k;
-      const F=[exponential(logF,m0)],U=[Uaxis];
-      const den=add(one,ee,m0),Pi=[scale(divide(one,mul(den,den,m0),m0),-p.P)];
-      const W=[],Hc=[];
-      for(let n=0;n<N;n++) {
-        const len=K-n;
-        // W and Hc depend only on the already known axial coefficient U_n.
-        W[n]=add(n===0?one:constant(0,len),scale(add(scale(mul(e,U[n],len),2*D),mul(d,deriv(U[n],len),len),len),-1/(n+1)),len);
-        Hc[n]=add(n===0?scale(e,D,len):constant(0,len),mul(d,U[n],len),len);
-        const sf=new Float64Array(len),su=new Float64Array(len),ff=new Float64Array(len),uf=new Float64Array(len),uu=new Float64Array(len);
-        for(let i=0;i<=n;i++) {
-          const j=n-i;
-          accumulate(sf,mul(W[i],F[j],len),j+1);
-          accumulate(sf,mul(Hc[i],deriv(F[j],len),len));
-          accumulate(su,mul(W[i],U[j],len),j);
-          accumulate(su,mul(Hc[i],deriv(U[j],len),len));
-          accumulate(ff,mul(F[i],F[j],len));
-          accumulate(uf,mul(U[i],F[j],len));
-          accumulate(uu,mul(U[i],U[j],len));
-        }
-        accumulate(sf,F[n],p.h);accumulate(sf,mul(e,uf,len),-2*p.h);
-        accumulate(su,U[n],A);accumulate(su,mul(e,uu,len),-2*A);
-        accumulate(su,mul(d,deriv(Pi[n],len),len));accumulate(su,mul(e,Pi[n],len),-(4*A+2*n));
-        F[n+1]=scale(divide(sf,L,len),1/(2*(n+1)*(n+2)));
-        U[n+1]=scale(divide(su,L,len),1/(2*(n+1)**2));
-        Pi[n+1]=scale(ff,1/(n+1));
-      }
-      return [F,U,Pi];
-    }
-    for(let k=0;k<=p.intervals;k++)nodes.push(makeNode(-p.etaMax+k*step));
-    const stride=8*(N+1),packs=[];
-    for(let k=0;k<p.intervals;k++) {
-      const pack=new Float64Array(3*stride);
-      for(let f=0;f<3;f++)for(let n=0;n<=N;n++)hermite(nodes[k][f][n],nodes[k+1][f][n],step,pack,f*stride+n*8);
-      packs.push(pack);
-    }
-    function inDomain(X,eta) {return Number.isFinite(X)&&Number.isFinite(eta)&&X>=0&&X<=p.Xmax&&Math.abs(eta)<=p.etaMax;}
-    function locate(X,eta) {
-      if(!Number.isFinite(X)||!Number.isFinite(eta)||X< -1e-12||X>p.Xmax+1e-12||Math.abs(eta)>p.etaMax+1e-12)throw new RangeError('Query outside computed inner-core rectangle');
-      X=Math.max(0,Math.min(p.Xmax,X));eta=Math.max(-p.etaMax,Math.min(p.etaMax,eta));
-      const index=Math.min(p.intervals-1,Math.max(0,Math.floor((eta+p.etaMax)/step)));
-      const s=(eta-(-p.etaMax+index*step))/step;
-      return {X,eta,s,pack:packs[index]};
-    }
-    function flow(X,eta) {
-      const at=locate(X,eta);X=at.X;eta=at.eta;
-      const s=at.s,pack=at.pack;
-      let F=0,U=0,Ubar=0,Ubar_eta=0;
-      for(let n=N;n>=0;n--) {
-        let f=0,u=0,ue=0;
-        for(let k=7;k>=0;k--){f=f*s+pack[8*n+k];ue=ue*s+u;u=u*s+pack[stride+8*n+k];}
-        F=F*X+f;U=U*X+u;Ubar=Ubar*X+u/(n+1);Ubar_eta=Ubar_eta*X+ue/(step*(n+1));
-      }
-      const d=1-eta*eta,L=1-2*p.h*eta*eta,W=1-2*D*eta*Ubar-d*Ubar_eta,Hc=D*eta+d*U;
-      return {X,eta,F,U,Ubar,Ubar_eta,d,L,W,Hc,v0:(2*eta*U+W-1)/L,E:Math.sqrt(2*X)*F};
-    }
-    function profile(X,eta) {
-      const at=locate(X,eta);X=at.X;eta=at.eta;
-      const s=at.s,pack=at.pack;
-      const f=evaluateField(pack,0,N,s,X,1/step),u=evaluateField(pack,stride,N,s,X,1/step),pi=evaluateField(pack,2*stride,N,s,X,1/step),bar=evaluateField(pack,stride,N,s,X,1/step,true);
-      const d=1-eta*eta,L=1-2*p.h*eta*eta;
-      const W=1-2*D*eta*bar[0]-d*bar[3],Hc=D*eta+d*u[0];
-      const v0=(2*eta*u[0]+W-1)/L;
-      return {X,eta,F:f[0],F_X:f[1],F_XX:f[2],F_eta:f[3],F_Xeta:f[4],F_etaeta:f[6],F_etaetaeta:f[9],
-        U:u[0],U_X:u[1],U_XX:u[2],U_eta:u[3],U_Xeta:u[4],U_etaeta:u[6],U_etaetaeta:u[9],
-        Ubar:bar[0],Ubar_X:bar[1],Ubar_XX:bar[2],Ubar_eta:bar[3],Ubar_Xeta:bar[4],Ubar_etaeta:bar[6],Ubar_etaetaeta:bar[9],
-        Pi:pi[0],Pi_X:pi[1],Pi_XX:pi[2],Pi_eta:pi[3],Pi_Xeta:pi[4],Pi_etaeta:pi[6],Pi_etaetaeta:pi[9],E:Math.sqrt(2*X)*f[0],d,L,W,Hc,v0,V0:X*v0};
-    }
-    function position(X,eta,theta,t) {
-      if(!(t>=0&&t<1))throw new RangeError('Time must satisfy 0 <= t < 1');
-      const q=(1-t)/(1-eta*eta),r=Math.sqrt(2*q*X);
-      return {x:r*Math.cos(theta),y:r*Math.sin(theta),z:q**D*eta,q,r};
-    }
-    function similarity(z,t) {
-      if(!(t>=0&&t<1)||!Number.isFinite(z))throw new RangeError('Invalid space-time coordinates');
-      const tau=1-t,target=Math.abs(z)/tau**D;
-      let a=0,b=1;
-      for(let k=0;k<55;k++){const mid=(a+b)/2,v=mid/(1-mid*mid)**D;if(v<target)a=mid;else b=mid;}
-      const eta=Math.sign(z)*(a+b)/2,q=tau/(1-eta*eta);
-      return {q,eta,tau};
-    }
-    function velocity(x,y,z,t) {
-      const {q,eta}=similarity(z,t),X=(x*x+y*y)/(2*q),a=profile(X,eta);
-      const radial=a.v0/(2*q),angular=q**(-1-p.h)*a.F;
-      const ux=radial*x-angular*y,uy=radial*y+angular*x,uz=q**(-A)*a.U;
-      const pressure=q**(-2*A)*a.Pi;
-      const pressure_r=q**(-2*A-1)*Math.hypot(x,y)*a.Pi_X;
-      const pressure_z=q**(-2*A-D)*(-4*A*eta*a.Pi+a.d*a.Pi_eta-2*eta*X*a.Pi_X)/a.L;
-      return {ux,uy,uz,speed:Math.hypot(ux,uy,uz),pressure,pressure_r,pressure_z,q,eta,X,profile:a};
-    }
-    function rates(X,eta,t) {
-      if(!(t>=0&&t<1))throw new RangeError('Time must satisfy 0 <= t < 1');
-      const a=flow(X,eta),q=(1-t)/a.d;
-      return {X:X*a.W/(q*a.L),eta:a.Hc/(q*a.L),theta:q**(-1-p.h)*a.F,q};
-    }
-    function residual(X,eta) {
-      const a=profile(X,eta);
-      // Algebraic form avoids division by F in the angular equation.
-      const angularLeft=2*a.L*(X*a.F_XX+2*a.F_X);
-      const angularRight=a.W*(a.F+X*a.F_X)+p.h*(1-2*eta*a.U)*a.F+a.Hc*a.F_eta;
-      const axialLeft=2*a.L*(X*a.U_XX+a.U_X);
-      const axialRight=a.W*X*a.U_X+A*(1-2*eta*a.U)*a.U+a.Hc*a.U_eta+a.d*a.Pi_eta-4*A*eta*a.Pi-2*eta*X*a.Pi_X;
-      const pressure=a.Pi_X-a.F*a.F;
-      return {angular:angularLeft-angularRight,axial:axialLeft-axialRight,pressure,
-        relativeAngular:Math.abs(angularLeft-angularRight)/(1+Math.abs(angularLeft)+Math.abs(angularRight)),
-        relativeAxial:Math.abs(axialLeft-axialRight)/(1+Math.abs(axialLeft)+Math.abs(axialRight)),relativePressure:Math.abs(pressure)/(1+a.F*a.F)};
-    }
-    return Object.freeze({params:Object.freeze(p),A,D,profile,flow,inDomain,position,similarity,velocity,rates,residual,
-      limitations:'Numerical leading inner-core equations; exploratory axis pressure, without global matching, oscillatory or higher-order corrections, or activation from rest.'});
-  }
-  const api=Object.freeze({buildModel,DEFAULTS});
-  if(typeof module!=='undefined'&&module.exports)module.exports=api;
-  global.CoreModel=api;
-})(typeof globalThis!=='undefined'?globalThis:this);
+<div id="vortex-lab">
+  <style id="vx-standalone-styles">
+:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
 
-</script>
-<script>
-(function(global){
-  'use strict';
-  const TAU=2*Math.PI;
-  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-  const fract=v=>v-Math.floor(v);
-  const mixColor=(a,b,t)=>a.map((x,i)=>Math.round(x+(b[i]-x)*t));
-  const cssColor=c=>'rgb('+c.join(',')+')';
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
 
-  /** Display only: particle positions are supplied by the core integrator. */
-  class CoreRenderer {
-    constructor(canvas,options={}) {
-      this.canvas=canvas;this.ctx=canvas.getContext('2d');this.options=options;
-      this.gold=options.gold||[237,209,138];this.ruby=options.ruby||[181,31,72];
-      this.foreground=options.foreground||'#554c3b';
-      this.metrics={};this.project=()=>({x:0,y:0,depth:0});
-      this.imageCache=null;this.profileCache=null;this.resize();
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 10px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget > :not(.card, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover,
+.nav-link:not(:disabled):not([aria-disabled="true"]):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed="true"],
+  [aria-selected="true"],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type="file"]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type="color"] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="time"],
+    [type="week"]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: "";
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+  </style>
+  <style>
+    #vortex-lab { padding:16px 20px; position:relative; display:flex; flex-direction:column; height:100dvh; min-height:660px; gap:10px; --vx-dye-color:#edd18a; --vx-bubble-color:#b51f48; }
+    #vortex-lab .course-line { margin-bottom:3px; }
+    #vortex-lab .workspace-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; flex:1; min-height:0; }
+    #vortex-lab .workspace-grid > section { min-width:0; min-height:0; }
+    #vortex-lab .scene-wrap { position:relative; height:100%; min-height:0; }
+    #vortex-lab canvas { position:absolute; inset:0; display:block; width:100%; height:100%; touch-action:none; cursor:grab; }
+    #vortex-lab canvas[data-dragging] { cursor:grabbing; }
+    #vortex-lab .parameter-panel { display:flex; flex-direction:column; gap:7px; }
+    #vortex-lab .heading-row, #vortex-lab .control-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    #vortex-lab .time-control { flex:1; min-width:0; }
+    #vortex-lab label { display:block; min-width:0; }
+    #vortex-lab .parameter-label { display:flex; justify-content:space-between; align-items:baseline; gap:5px; }
+    #vortex-lab .time-ticks { display:flex; justify-content:space-between; gap:4px; }
+    #vortex-lab .parameter-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 14px; }
+    #vortex-lab .parameter-grid > label { display:grid; grid-template-columns:minmax(119px,1.35fr) minmax(40px,1fr); gap:8px; align-items:center; }
+    #vortex-lab .settings { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+    #vortex-lab .view-controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    #vortex-lab .camera-hint { display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px 10px; }
+    #vortex-lab .pde-section { display:flex; flex-direction:column; gap:5px; }
+    #vortex-lab .pde-equation { display:flex; flex-wrap:wrap; align-items:center; gap:5px 8px; }
+    #vortex-lab math { color:var(--foreground); }
+    #vortex-lab .fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:minmax(137px,1fr) auto; gap:6px 14px; flex:1; min-height:159px; }
+    #vortex-lab .field { min-width:0; min-height:0; display:flex; flex-direction:column; }
+    #vortex-lab .field-title { font-weight:500; }
+    #vortex-lab .field-svg { display:block; width:100%; height:0; min-height:100px; flex:1; }
+    #vortex-lab .field-caption { grid-column:1 / -1; }
+    @media(max-width:800px) {
+      #vortex-lab { min-height:720px; }
+      #vortex-lab .workspace-grid { gap:14px; }
+      #vortex-lab .parameter-grid > label { display:block; }
+      #vortex-lab .settings { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      #vortex-lab .settings > label:last-child { grid-column:1 / -1; }
     }
-    resize() {
-      const rect=this.canvas.getBoundingClientRect();
-      const w=Math.max(1,rect.width),h=Math.max(1,rect.height);
-      const dpr=Math.min(2,global.devicePixelRatio||1);
-      if(this.width!==w||this.height!==h||this.dpr!==dpr) {
-        this.width=w;this.height=h;this.dpr=dpr;
-        this.canvas.width=Math.round(w*dpr);this.canvas.height=Math.round(h*dpr);
-        this.ctx.setTransform(dpr,0,0,dpr,0,0);
+    @media(max-width:640px) {
+      #vortex-lab { height:auto; min-height:0; }
+      #vortex-lab .workspace-grid { grid-template-columns:1fr; }
+      #vortex-lab .scene-wrap { height:360px; }
+      #vortex-lab .parameter-panel { gap:10px; }
+      #vortex-lab .parameter-grid > label { display:block; }
+      #vortex-lab .view-controls { gap:8px; }
+    }
+  </style>
+  <header>
+    <div class="course-line"><a href="../">← Jenia Tevelev</a> · Math 233H · Fall 2026</div>
+    <h2>Spiraling vortex · finite-time concentration</h2>
+  </header>
+  <div class="workspace-grid">
+    <section class="vortex-stage" aria-label="Three-dimensional vortex">
+      <div class="scene-wrap">
+        <canvas id="vx-canvas" role="img" aria-describedby="vx-camera-hint" aria-label="Gold vortex volume with ruby red tracers, shown at a fixed physical scale.">Ruby red tracers throughout a gold vortex volume.</canvas>
+      </div>
+    </section>
+    <section class="parameter-panel" aria-label="Controls, equations, and vector fields">
+      <div class="heading-row">
+        <h3>Parameters</h3>
+        <select id="vx-preset" class="form-select" aria-label="Parameter preset"><option value="classroom">Classroom defaults</option><option value="paper">Paper-scale exponents</option><option value="slender">More visible narrowing</option><option value="energy">Diverging-energy example</option><option value="custom" disabled>Custom parameters</option></select>
+      </div>
+      <div class="control-row">
+        <button id="vx-play" type="button" class="btn btn-primary">Play</button>
+        <div class="time-control">
+          <label class="parameter-label" for="vx-time"><span>Time t</span><output id="vx-time-value" class="tabular-nums">t = 0 / 5</output></label>
+          <input id="vx-time" class="form-range" aria-label="Time t" type="range" min="0" max="4.9995" step="0.0005" value="0">
+          <div id="vx-time-ticks" class="time-ticks text-small"><span>0</span><span>1.25</span><span>2.5</span><span>3.75</span><span>5</span></div>
+        </div>
+      </div>
+      <div class="parameter-grid">
+        <label for="vx-T"><span class="parameter-label"><span>Singular time T</span><output id="vx-T-value" class="tabular-nums">5</output></span><input id="vx-T" class="form-range" type="range" min="1" max="20" step="0.5" value="5"></label>
+        <label for="vx-h"><span class="parameter-label"><span>Concentration h</span><output id="vx-h-value" class="tabular-nums">3</output></span><input id="vx-h" class="form-range" type="range" min="0.001" max="3" step="0.001" value="3"></label>
+        <label for="vx-U"><span class="parameter-label"><span>Initial speed U₀</span><output id="vx-U-value" class="tabular-nums">1</output></span><input id="vx-U" class="form-range" type="range" min="0.25" max="3" step="0.05" value="1"></label>
+        <label for="vx-swirl"><span class="parameter-label"><span>Swirl strength</span><output id="vx-swirl-value" class="tabular-nums">1</output></span><input id="vx-swirl" class="form-range" type="range" min="-2" max="2" step="0.05" value="1"></label>
+        <label for="vx-strain"><span class="parameter-label"><span>Axial strain</span><output id="vx-strain-value" class="tabular-nums">1</output></span><input id="vx-strain" class="form-range" type="range" min="0.2" max="2" step="0.05" value="1"></label>
+        <label for="vx-rate"><span class="parameter-label"><span>Playback</span><output id="vx-rate-value" class="tabular-nums">2×</output></span><input id="vx-rate" class="form-range" aria-label="Playback speed" type="range" min="0.25" max="2" step="0.25" value="2"></label>
+      </div>
+      <div class="settings">
+        <label><span class="sr-only">Flow appearance</span><select class="form-select" id="vx-rendering" aria-label="Flow appearance"><option value="volume">Full vortex volume</option><option value="liquid">Liquid sheets</option><option value="lines">Streamlines</option></select></label>
+        <label><span class="sr-only">Spatial view</span><select class="form-select" id="vx-scale" aria-label="Spatial view"><option value="fixed">Fixed physical scale</option><option value="follow">Follow shrinking core</option></select></label>
+        <label><span class="sr-only">Camera angle</span><select class="form-select" id="vx-view" aria-label="Camera angle"><option value="oblique">Oblique view</option><option value="side">Side view</option><option value="top">Top view</option><option value="custom" disabled>Custom angle</option></select></label>
+      </div>
+      <div class="view-controls">
+        <label for="vx-opacity"><span class="parameter-label"><span>Opacity</span><output id="vx-opacity-value" class="tabular-nums">55%</output></span><input id="vx-opacity" class="form-range" aria-label="Volume opacity" type="range" min="0.15" max="1" step="0.05" value="0.55"></label>
+        <label for="vx-yaw"><span class="parameter-label"><span>Azimuth</span><output id="vx-yaw-value" class="tabular-nums">−28°</output></span><input id="vx-yaw" class="form-range" type="range" min="-180" max="180" step="1" value="-28"></label>
+        <label for="vx-pitch"><span class="parameter-label"><span>Elevation</span><output id="vx-pitch-value" class="tabular-nums">19°</output></span><input id="vx-pitch" class="form-range" type="range" min="-90" max="90" step="1" value="19"></label>
+      </div>
+      <div class="camera-hint text-small"><span id="vx-camera-hint">Press and drag to rotate</span><span id="vx-zoom" class="tabular-nums">Zoom 1×</span></div>
+      <section class="pde-section" aria-label="Navier–Stokes partial differential equations">
+        <div class="heading-row"><h3>Navier–Stokes PDE</h3><a class="text-small" href="https://www.claymath.org/wp-content/uploads/2022/06/navierstokes.pdf">Fefferman (1)–(3)</a></div>
+        <div class="pde-equation">
+          <math xmlns="http://www.w3.org/1998/Math/MathML" aria-label="Partial u with respect to time plus u dot gradient u equals nu Laplacian u minus gradient p plus external force f."><mstyle displaystyle="true"><mrow><mfrac><mrow><mo>∂</mo><mi mathvariant="bold">u</mi></mrow><mrow><mo>∂</mo><mi>t</mi></mrow></mfrac><mo>+</mo><mo>(</mo><mi mathvariant="bold">u</mi><mo>·</mo><mo>∇</mo><mo>)</mo><mi mathvariant="bold">u</mi><mo>=</mo><mi>ν</mi><mo>Δ</mo><mi mathvariant="bold">u</mi><mo>−</mo><mo>∇</mo><mi>p</mi><mo>+</mo><mi mathvariant="bold">f</mi></mrow></mstyle></math>
+        </div>
+        <div class="pde-equation">
+          <math xmlns="http://www.w3.org/1998/Math/MathML" aria-label="Divergence u is zero; initial velocity u of x and zero equals u circle of x."><mrow><mo>∇</mo><mo>·</mo><mi mathvariant="bold">u</mi><mo>=</mo><mn>0</mn><mo>,</mo><mspace width="0.6em"/><mi mathvariant="bold">u</mi><mo>(</mo><mi>x</mi><mo>,</mo><mn>0</mn><mo>)</mo><mo>=</mo><msup><mi mathvariant="bold">u</mi><mo>∘</mo></msup><mo>(</mo><mi>x</mi><mo>)</mo></mrow></math>
+          <span class="text-small">x ∈ ℝ³, ν &gt; 0</span>
+        </div>
+        <div class="text-small">u: velocity · p: pressure · ν: viscosity · f: external force</div>
+      </section>
+      <section class="fields" aria-label="Velocity and force vector-field schematics">
+        <div class="field"><div class="field-title">Velocity field</div><svg id="vx-field-velocity" class="field-svg" role="img" aria-label="Tangential velocity vectors in a rotating slice."></svg><div class="text-small">u = ω(−y, x)</div></div>
+        <div class="field"><div class="field-title">Net force per unit mass</div><svg id="vx-field-force" class="field-svg" role="img" aria-label="Inward centripetal force vectors in a rotating slice."></svg><div class="text-small">F / m = −ω²(x, y) = −∇p</div></div>
+        <div class="field-caption text-small">Frozen rotation at angular speed ω; pressure supplies the force (f = 0).</div>
+      </section>
+    </section>
+  </div>
+  <script>
+  (() => {
+    'use strict';
+    const root = document.getElementById('vortex-lab');
+    const $ = id => root.querySelector('#vx-' + id);
+    const canvas = $('canvas');
+    const ctx = canvas.getContext('2d');
+    const state = { d:0, T:5, h:3, U:1, swirl:1, strain:1, rate:2, running:false, phase:0, scale:'fixed', view:'oblique', yaw:-.48, pitch:.33, rendering:'volume', opacity:.55 };
+    let width=400, height=340, last=0, frame=0, lines=[], lineKey='', colors=null;
+    let cameraPointer=null, cameraFrame=0;
+    const R0=1, H0=1.45;
+    const fmt = v => !Number.isFinite(v) ? '∞' : v!==0 && (Math.abs(v)<.001 || Math.abs(v)>=10000) ? v.toExponential(2) : Number(v.toPrecision(4)).toString();
+    // d is only an internal coordinate for stable evaluation near the cutoff.
+    function timeFromD(d) { return state.T*(1-Math.pow(10,-d)); }
+    function dFromTime(t) { return t>=state.T*.9999?4:-Math.log10(1-Math.max(0,t)/state.T); }
+    // Analytic scales of the prescribed family; no PDE time stepping is used.
+    function scales(d=state.d) {
+      const q=Math.pow(10,-d), a=.5+state.h;
+      const R=R0*Math.pow(q,.5), H=H0*Math.pow(q,.5-state.h), U=state.U*Math.pow(q,-a);
+      const C=state.swirl**2/8+state.strain**2/32;
+      const D=3*state.strain**2*(R0/H0)**2/128;
+      return { q, t:state.T*(1-q), remaining:state.T*q, R,H,U,
+        energy:Math.pow(q,.5-3*state.h)*(C+D*Math.pow(q,2*state.h))/(C+D),
+        derivative:a*state.U/state.T*Math.pow(q,-a-1),
+        energyPower:.5-3*state.h,
+        aspect:(H/R)/(H0/R0) };
+    }
+    // A smooth axisymmetric streamfunction makes the meridional field divergence free.
+    // psi=(strain/2)*U*r^2*(z/H)*exp(-(r/R)^2-(z/H)^2).
+    function velocity(r,z,sc) {
+      const s=r/sc.R, w=z/sc.H, e=Math.exp(-s*s-w*w);
+      return [-state.strain*sc.U*r/(2*sc.H)*(1-2*w*w)*e,
+        state.swirl*sc.U*s*e,
+        state.strain*sc.U*w*(1-s*s)*e];
+    }
+    function theme() {
+      const probe=document.createElement('span'); root.appendChild(probe);
+      const resolve=token => { probe.style.color='var('+token+')'; return getComputedStyle(probe).color; };
+      colors={ fg:resolve('--foreground'), bg:resolve('--background'), border:resolve('--border'), first:resolve('--viz-series-1'), second:resolve('--viz-series-2'), dye:resolve('--vx-dye-color'), bubble:resolve('--vx-bubble-color') };
+      probe.remove();
+    }
+    function rgb(c) { const p=c.match(/[\d.]+/g); return p ? p.slice(0,3).map(Number) : [0,0,0]; }
+    function blend(t) { const a=rgb(colors.first),b=rgb(colors.second); return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*Math.min(1,Math.max(0,t)))).join(',')})`; }
+    function ode(v,ratio) {
+      const [s,w]=v, e=Math.exp(-s*s-w*w);
+      return [-state.strain*.5*s*(1-2*w*w)*e, state.strain*w*(1-s*s)*e, state.swirl*ratio*e];
+    }
+    function rk4(v,dt,ratio) {
+      const a=ode(v,ratio), b=ode(v.map((x,i)=>x+dt*a[i]/2),ratio), c=ode(v.map((x,i)=>x+dt*b[i]/2),ratio), d=ode(v.map((x,i)=>x+dt*c[i]),ratio);
+      return v.map((x,i)=>x+dt*(a[i]+2*b[i]+2*c[i]+d[i])/6);
+    }
+    function tracerTime() {
+      // One slowed frozen-time clock for every appearance. Integrate the
+      // teaching speed gain rather than multiplying all elapsed time by it.
+      // phase=1.5*d in both playback and scrubbing; changing appearance keeps it.
+      return .7*(.8+.2*state.U)*(state.phase+.05*(.5+state.h)*state.phase**2);
+    }
+    const tracerStep=.125;
+    function streamlines(sc) {
+      const key=[state.swirl,state.strain,Math.round(sc.H/sc.R*1000)].join(':');
+      if(key===lineKey) return;
+      lineKey=key; lines=[];
+      for(let side of [-1,1]) for(let ring of [.72,1,1.3]) for(let k=0;k<6;k++) {
+        let v=[ring,side*.11,k*Math.PI/3+(ring-.7)*1.1]; const points=[];
+        // Constant steps in streamline parameter, not physical time.
+        const step=.13/Math.max(1,Math.abs(state.swirl)*sc.H/sc.R/3);
+        const count=Math.min(300,Math.round(115*Math.max(1,Math.abs(state.swirl)*sc.H/sc.R/3)));
+        for(let i=0;i<count;i++) { points.push(v); v=rk4(v,step,sc.H/sc.R); }
+        points.duration=(points.length-1)*step;
+        lines.push(points);
       }
     }
-    _profile(h,Xmax,etaMax) {
-      const key=[h,Xmax,etaMax].join(':');
-      if(this.profileCache&&this.profileCache.key===key)return this.profileCache;
-      const D=.5-h,zmax=etaMax/Math.pow(1-etaMax*etaMax,D),r0=Math.sqrt(2*Xmax);
-      const radius2=new Float64Array(257);
-      // z(eta) is monotone on the displayed strip. Tabulate its inverse once,
-      // keeping the actual flared geometry, rather than replacing it by a tube.
-      for(let j=0;j<=256;j++) {
-        const z=zmax*j/256;let lo=0,hi=etaMax;
-        for(let n=0;n<42;n++) {
-          const mid=(lo+hi)/2,value=mid/Math.pow(1-mid*mid,D);
-          if(value<z)lo=mid;else hi=mid;
+    function drawLiquid(sc,project,k,yaw,pitch) {
+      // These pale surfaces bound a volume of dye, not a free liquid surface.
+      // Ruby bubbles are passive flow markers sampled from interior streamtubes.
+      const primitives=[],foreground=rgb(colors.fg),background=rgb(colors.bg);
+      const light=foreground.reduce((a,b)=>a+b,0)>background.reduce((a,b)=>a+b,0)?foreground:background;
+      const liquid=rgb(colors.dye);
+      const bubbleColor=colors.bubble,glintColor=`rgb(${light.map(Math.round).join(',')})`;
+      const eye=[Math.sin(yaw)*Math.cos(pitch),Math.cos(yaw)*Math.cos(pitch),Math.sin(pitch)];
+      const lamp=[-.45,.5,.74],half=lamp.map((v,i)=>v+eye[i]),hn=Math.hypot(...half);
+      for(let i=0;i<3;i++)half[i]/=hn;
+      // s and w do not depend on aspect ratio; theta is linear in that ratio.
+      // Cache dimensionless tracks, so playback only projects/interpolates them.
+      const trackKey=[state.swirl,state.strain].join(':');
+      if(!drawLiquid.trackCache||drawLiquid.trackCache.key!==trackKey) {
+        const inner=.69,outer=1.18,steps=128,dt=tracerStep,tracks=[],surfaces=[];
+        const makeTrack=(seed,side)=>{
+          let v=[seed,side*.065,0];const values=[];
+          for(let i=0;i<=steps;i++) {values.push({s:v[0],w:v[1],theta:v[2]});v=rk4(v,dt/state.strain,1);}
+          return {seed,side,values};
+        };
+        for(const side of [-1,1]) {
+          surfaces.push(makeTrack(inner,side),makeTrack(outer,side));
+          // Equal-area radial strata distribute markers through the tube volume.
+          for(let j=0;j<8;j++)tracks.push(makeTrack(Math.sqrt(inner*inner+(outer*outer-inner*inner)*(j+.5)/8),side));
         }
-        const eta=(lo+hi)/2;radius2[j]=2*Xmax/(1-eta*eta);
+        drawLiquid.trackCache={key:trackKey,surfaces,tracks,steps,dt};
       }
-      return this.profileCache={key,D,zmax,r0,rmax:r0/Math.sqrt(1-etaMax*etaMax),radius2};
-    }
-    _radiusSquared(z,zmax,profile) {
-      const f=clamp(Math.abs(z)/zmax*256,0,256),i=Math.min(255,Math.floor(f));
-      return profile.radius2[i]+(profile.radius2[i+1]-profile.radius2[i])*(f-i);
-    }
-    _ray(X,V,shape) {
-      const {rmax,zmax,cp,sp}=shape;
-      const delta=rmax*rmax-X*X;
-      if(delta<=0)return null;
-      let lo=-Infinity,hi=Infinity;
-      const rad=Math.sqrt(delta);
-      if(Math.abs(cp)>1e-12) {
-        const a=(V*sp-rad)/cp,b=(V*sp+rad)/cp;
-        lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));
-      } else if(Math.abs(V*sp)>=rad)return null;
-      if(Math.abs(sp)>1e-12) {
-        const a=(-zmax-V*cp)/sp,b=(zmax-V*cp)/sp;
-        lo=Math.max(lo,Math.min(a,b));hi=Math.min(hi,Math.max(a,b));
-      } else if(Math.abs(V*cp)>=zmax)return null;
-      return hi>lo?{lo,hi}:null;
-    }
-    _column(X,V,lo,hi,shape,profile,steps=28) {
-      if(hi<=lo)return 0;
-      const dl=(hi-lo)/steps;let integral=0;
-      for(let j=0;j<steps;j++) {
-        const depth=lo+(j+.5)*dl;
-        const y=-V*shape.sp+depth*shape.cp,z=V*shape.cp+depth*shape.sp;
-        if(Math.abs(z)>shape.zmax)continue;
-        const edge=this._radiusSquared(z,shape.zmax,profile),r2=X*X+y*y;
-        if(r2<=edge)integral+=(.65+.35*(1-r2/edge))*dl;
-      }
-      return integral/profile.r0;
-    }
-    _volume(shape,profile,k,sr,opacity,center) {
-      const ctx=this.ctx,{rmax,zmax,cp,sp}=shape;
-      const vertical=rmax*Math.abs(sp)+zmax*Math.abs(cp);
-      // Relative radial/axial scaling changes by only tau^h. Quantization lets
-      // most animation frames reuse this small optical-density image.
-      const ratio=shape.axialFactor;
-      const targetH=280,targetW=clamp(Math.round(targetH*rmax/vertical),64,180);
-      const rasterW=Math.round(targetW),rasterH=Math.round(clamp(targetH,96,300));
-      const key=[profile.key,ratio.toFixed(3),shape.pitch.toFixed(3),opacity.toFixed(3),rasterW,rasterH].join(':');
-      if(!this.imageCache||this.imageCache.key!==key) {
-        const surface=this.canvas.ownerDocument.createElement('canvas');
-        surface.width=rasterW;surface.height=rasterH;
-        const context=surface.getContext('2d'),image=context.createImageData(rasterW,rasterH);
-        for(let j=0;j<rasterH;j++)for(let i=0;i<rasterW;i++) {
-          const X=2*rmax*((i+.5)/rasterW-.5),V=2*vertical*(.5-(j+.5)/rasterH);
-          const ray=this._ray(X,V,shape);if(!ray)continue;
-          const optical=this._column(X,V,ray.lo,ray.hi,shape,profile);
-          const alpha=1-Math.exp(-opacity*.92*optical);
-          const illumination=.1+.12*clamp(.5-X/(4*rmax)+V/(8*vertical),0,1);
-          const color=mixColor(this.gold,[255,252,235],illumination),id=4*(j*rasterW+i);
-          image.data[id]=color[0];image.data[id+1]=color[1];image.data[id+2]=color[2];image.data[id+3]=Math.round(255*alpha);
-        }
-        context.putImageData(image,0,0);this.imageCache={key,surface};
-      }
-      const px=k*sr;
-      ctx.globalAlpha=1;
-      ctx.drawImage(this.imageCache.surface,center.x-px*rmax,center.y-px*vertical,2*px*rmax,2*px*vertical);
-    }
-    _bubble(p,opacity) {
-      const ctx=this.ctx;
-      ctx.globalAlpha=opacity;ctx.fillStyle=cssColor(this.ruby);
-      ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,TAU);ctx.fill();
-      if(p.radius>1) {
-        ctx.globalAlpha=opacity*.52;ctx.fillStyle='#fff0c7';
-        ctx.beginPath();ctx.arc(p.x-p.radius*.29,p.y-p.radius*.33,p.radius*.24,0,TAU);ctx.fill();
-      }
-    }
-    _boundary(profile,sr,sz,opacity,particles) {
-      const primitives=particles.map(p=>({...p,bubble:true})),sectors=40,levels=22;
-      const point=(eta,theta)=>{
-        const den=1-eta*eta,r=sr*profile.r0/Math.sqrt(den),z=sz*eta/Math.pow(den,profile.D);
-        return this.project(r*Math.cos(theta),r*Math.sin(theta),z);
-      };
-      const etaMax=this.current.etaMax;
-      for(let j=0;j<levels;j++) {
-        const a=etaMax*(2*j/levels-1),b=etaMax*(2*(j+1)/levels-1);
-        for(let i=0;i<sectors;i++) {
-          const angle=i*TAU/sectors,next=(i+1)*TAU/sectors;
-          const points=[point(a,angle),point(a,next),point(b,next),point(b,angle)];
-          primitives.push({points,depth:points.reduce((n,p)=>n+p.depth,0)/4,alpha:opacity*.17});
+      const {surfaces,tracks,steps,dt}=drawLiquid.trackCache,ratio=sc.H/sc.R;
+      for(const {values,side,seed} of surfaces) {
+        const sectors=32;
+        for(let i=0;i<steps;i+=4) {
+          const a=values[i],b=values[Math.min(i+4,steps)];
+          const dr=sc.R*(b.s-a.s),dz=sc.H*(b.w-a.w),norm=Math.hypot(dr,dz)||1;
+          for(let j=0;j<sectors;j++) {
+            const th=j*2*Math.PI/sectors,th2=(j+1)*2*Math.PI/sectors,mid=(th+th2)/2;
+            const points=[project(sc.R*a.s*Math.cos(th),sc.R*a.s*Math.sin(th),sc.H*a.w),project(sc.R*a.s*Math.cos(th2),sc.R*a.s*Math.sin(th2),sc.H*a.w),project(sc.R*b.s*Math.cos(th2),sc.R*b.s*Math.sin(th2),sc.H*b.w),project(sc.R*b.s*Math.cos(th),sc.R*b.s*Math.sin(th),sc.H*b.w)];
+            const normal=[side*dz/norm*Math.cos(mid),side*dz/norm*Math.sin(mid),-side*dr/norm];
+            const diffuse=Math.max(0,normal.reduce((s,v,c)=>s+v*lamp[c],0));
+            const specular=Math.pow(Math.max(0,normal.reduce((s,v,c)=>s+v*half[c],0)),24);
+            const stripe=.5+.5*Math.sin(12*(mid-(a.theta+b.theta)*ratio/2)+i*.1);
+            const shade=.73+.2*diffuse+.035*stripe,highlight=Math.min(.85,specular*.8);
+            const color=liquid.map((v,c)=>(v*shade+light[c]*(1-shade))*(1-highlight)+light[c]*highlight);
+            const fade=Math.max(0,Math.min(1,(i+1.5)/8,(steps-i-1.5)/10));
+            primitives.push({points,depth:points.reduce((s,p)=>s+p.depth,0)/4,color:`rgb(${color.map(Math.round).join(',')})`,alpha:(seed<1?.22:.48)*fade});
+          }
         }
       }
-      // Caps close the sampled region in every appearance; they are display
-      // boundaries, not material free surfaces of the fluid.
-      for(const eta of [-etaMax,etaMax]) {
-        const z=sz*eta/Math.pow(1-eta*eta,profile.D),center=this.project(0,0,z);
-        for(let i=0;i<sectors;i++) {
-          const points=[center,point(eta,i*TAU/sectors),point(eta,(i+1)*TAU/sectors)];
-          primitives.push({points,depth:points.reduce((n,p)=>n+p.depth,0)/3,alpha:opacity*.2});
+      const fract=v=>v-Math.floor(v);
+      // Common time along each ODE track preserves the local velocity direction.
+      // It is slowed for teaching; state.phase makes scrubbing deterministic.
+      const travel=tracerTime()*state.strain/(steps*dt);
+      tracks.forEach(({values},trackIndex)=>{
+        for(let j=0;j<27;j++) {
+          const identity=trackIndex*27+j;
+          const position=fract(j/27+trackIndex*.1732050808+travel),index=position*steps;
+          const ii=Math.floor(index),f=index-ii,a=values[ii],b=values[Math.min(ii+1,steps)];
+          const s=a.s+(b.s-a.s)*f,w=a.w+(b.w-a.w)*f;
+          const theta=(a.theta+(b.theta-a.theta)*f)*ratio+2*Math.PI*fract(identity*.61803398875);
+          const p=project(sc.R*s*Math.cos(theta),sc.R*s*Math.sin(theta),sc.H*w);
+          const radius=Math.min(4.5,k*sc.R*.029)*(.72+.5*fract(identity*.41421356237));
+          const fade=Math.min(1,position/.04,(1-position)/.07);
+          if(radius>.22&&fade>0)primitives.push({...p,radius,alpha:.94*fade,bubble:true});
         }
-      }
+      });
+      // Paint back-to-front so interior markers show through the liquid skin.
       primitives.sort((a,b)=>a.depth-b.depth);
-      const ctx=this.ctx;ctx.fillStyle=cssColor(this.gold);
-      for(const primitive of primitives) {
-        if(primitive.bubble){this._bubble(primitive,.88);continue;}
-        ctx.globalAlpha=primitive.alpha;ctx.fillStyle=cssColor(this.gold);ctx.beginPath();
-        primitive.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fill();
-      }
-    }
-    _streamlines(curves,shape,profile,k,sr,opacity,center,mode) {
-      // The caller supplies forward-ordered samples of the actual instantaneous
-      // vector field. Project their existing geometry; never add turns or motion.
-      if(!Array.isArray(curves)||!curves.length)return {segments:0,arrows:0};
-      const segments=[],arrows=[];
-      const transmission=p=>{
-        if(mode!=='volume')return 1;
-        const X=(p.x-center.x)/(k*sr),V=(center.y-p.y)/(k*sr),ray=this._ray(X,V,shape);
-        if(!ray)return 1;
-        const column=this._column(X,V,Math.max(ray.lo,p.depth/sr),ray.hi,shape,profile,16);
-        return Math.exp(-opacity*.92*column);
-      };
-      const visible=(a,b)=>!((a.x<0&&b.x<0)||(a.x>this.width&&b.x>this.width)||(a.y<0&&b.y<0)||(a.y>this.height&&b.y>this.height));
-      for(const curve of curves) {
-        if(!Array.isArray(curve)||curve.length<2)continue;
-        const pieces=[];let length=0;
-        for(let j=1;j<curve.length;j++) {
-          const a=curve[j-1],b=curve[j];
-          if(!a||!b||![a.x,a.y,a.z,b.x,b.y,b.z].every(Number.isFinite))continue;
-          const p=this.project(a.x,a.y,a.z),q=this.project(b.x,b.y,b.z);
-          const distance=Math.hypot(q.x-p.x,q.y-p.y);
-          if(distance<1e-7)continue;
-          const start=length;length+=distance;
-          const segment={p,q,start,end:length,distance,depth:(p.depth+q.depth)/2};
-          pieces.push(segment);
-          if(visible(p,q)) {
-            const middle={x:(p.x+q.x)/2,y:(p.y+q.y)/2,depth:segment.depth};
-            segment.alpha=.64*transmission(middle);segments.push(segment);
+      ctx.lineJoin='round';ctx.lineCap='round';
+      for(const p of primitives) {
+        ctx.globalAlpha=p.alpha;
+        if(p.bubble) {
+          ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fillStyle=bubbleColor;ctx.fill();
+          // A restrained pale rim keeps dark spheres legible in dark themes.
+          ctx.globalAlpha=p.alpha*.3;ctx.strokeStyle=glintColor;ctx.lineWidth=Math.min(.7,p.radius*.2);ctx.stroke();
+          if(p.radius>1) {
+            ctx.beginPath();ctx.arc(p.x-p.radius*.3,p.y-p.radius*.32,p.radius*.2,0,Math.PI*2);
+            ctx.globalAlpha=p.alpha*.5;ctx.fillStyle=glintColor;ctx.fill();
           }
+        } else {
+          ctx.beginPath();p.points.forEach((v,i)=>i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y));
+          ctx.closePath();ctx.fillStyle=p.color;ctx.fill();
         }
-        // Screen-space spacing keeps the direction legible at different zooms.
-        // Arrowheads are omitted once a physical-scale curve becomes too small.
-        const count=length<40?0:Math.min(3,Math.max(1,Math.floor(length/110)));
-        for(let j=0;j<count;j++) {
-          const target=length*(j+.5)/count;
-          const segment=pieces.find(p=>target>=p.start&&target<=p.end);
-          if(!segment)continue;
-          const f=(target-segment.start)/segment.distance,p=segment.p,q=segment.q;
-          const point={x:p.x+(q.x-p.x)*f,y:p.y+(q.y-p.y)*f,depth:p.depth+(q.depth-p.depth)*f};
-          if(point.x<6||point.x>this.width-6||point.y<6||point.y>this.height-6)continue;
-          const ux=(q.x-p.x)/segment.distance,uy=(q.y-p.y)/segment.distance;
-          arrows.push({...point,ux,uy,alpha:.87*transmission(point)});
-        }
-      }
-      // Back-to-front order and optical attenuation retain spatial depth cues.
-      segments.sort((a,b)=>a.depth-b.depth);arrows.sort((a,b)=>a.depth-b.depth);
-      const ctx=this.ctx;ctx.save();ctx.strokeStyle=cssColor(this.ruby);ctx.fillStyle=cssColor(this.ruby);
-      ctx.lineWidth=1.3;ctx.lineCap='round';ctx.lineJoin='round';
-      for(const segment of segments) {
-        ctx.globalAlpha=segment.alpha;ctx.beginPath();ctx.moveTo(segment.p.x,segment.p.y);ctx.lineTo(segment.q.x,segment.q.y);ctx.stroke();
-      }
-      for(const arrow of arrows) {
-        const {x,y,ux,uy}=arrow,back=6,half=2.7;
-        ctx.globalAlpha=arrow.alpha;ctx.beginPath();ctx.moveTo(x,y);
-        ctx.lineTo(x-back*ux-half*uy,y-back*uy+half*ux);
-        ctx.lineTo(x-back*ux+half*uy,y-back*uy-half*ux);ctx.closePath();ctx.fill();
-      }
-      ctx.restore();return {segments:segments.length,arrows:arrows.length};
-    }
-    _rings(profile,sr,sz,mode) {
-      const ctx=this.ctx,etaMax=this.current.etaMax;
-      ctx.strokeStyle=cssColor(mixColor(this.gold,[125,92,36],.28));ctx.lineWidth=.75;
-      const etas=mode==='tracers'?[-etaMax,0,etaMax]:[-etaMax,etaMax];
-      for(const eta of etas) {
-        const r=sr*profile.r0/Math.sqrt(1-eta*eta),z=sz*eta/Math.pow(1-eta*eta,profile.D);
-        ctx.beginPath();
-        for(let i=0;i<=72;i++) {
-          const angle=i*TAU/72,p=this.project(r*Math.cos(angle),r*Math.sin(angle),z);
-          i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);
-        }
-        ctx.globalAlpha=mode==='tracers'?.28:.2;ctx.stroke();
       }
       ctx.globalAlpha=1;
     }
-    _axes() {
-      if(this.options.showAxes===false)return;
-      const ctx=this.ctx,origin={x:30,y:this.height-35},yaw=this.current.yaw,pitch=this.current.pitch;
-      const axes=[['x',Math.cos(yaw),-Math.sin(yaw)*Math.sin(pitch)],['y',-Math.sin(yaw),-Math.cos(yaw)*Math.sin(pitch)],['z',0,Math.cos(pitch)]];
-      ctx.strokeStyle=this.foreground;ctx.fillStyle=this.foreground;ctx.lineWidth=.85;ctx.font='10px sans-serif';
-      for(const [label,x,y] of axes) {
-        ctx.globalAlpha=.5;ctx.beginPath();ctx.moveTo(origin.x,origin.y);ctx.lineTo(origin.x+22*x,origin.y-22*y);ctx.stroke();
-        ctx.fillText(label,origin.x+27*x-3,origin.y-27*y+3);
+    function drawVolume(sc,project,k,yaw,pitch) {
+      // The finite display core s²+w² <= 4 is filled, including the axis.
+      // It is a window into an everywhere-defined Gaussian field, not a free surface.
+      const ratio=sc.H/sc.R, pixelR=k*sc.R;
+      const opacity=Number.isFinite(state.opacity)?state.opacity:.55;
+      const gold=rgb(colors.dye);
+      const foreground=rgb(colors.fg),background=rgb(colors.bg);
+      const light=foreground.reduce((a,b)=>a+b,0)>background.reduce((a,b)=>a+b,0)?foreground:background;
+      const cp=Math.cos(pitch),sp=Math.sin(pitch),vertical=Math.hypot(sp,ratio*cp);
+      const A=cp*cp+sp*sp/(ratio*ratio),sqrtA=Math.sqrt(A);
+      const opticalStrength=1.3*opacity;
+      const erf=x=>{
+        const sign=x<0?-1:1,ax=Math.abs(x),t=1/(1+.3275911*ax);
+        return sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-ax*ax));
+      };
+      // The orthographic line of sight has normalized depth lambda = depth/R.
+      // Display dye density = .2 + .8 exp(-s²-w²) inside the core. The uniform
+      // component makes the outer liquid visible; it does not change velocity.
+      // Integrate this density analytically along the complete ellipsoid chord.
+      const ray=(X,V)=>{
+        // Completing the square analytically avoids subtracting large nearly
+        // equal terms when an exploratory exponent makes H/R extremely large.
+        const closest=X*X+(V/vertical)**2;
+        if(closest>=4)return null;
+        return {root:Math.sqrt(4-closest),peak:Math.exp(-closest)};
+      };
+      // A cached continuous optical-density image supplies the liquid fill.
+      // Unlike a translucent shell, it has positive density through the center.
+      // Sample only the visible rectangle: at h=3 the physical column can be
+      // trillions of pixels tall, so never pass its full extent to Canvas2D.
+      const center=project(0,0,0);
+      const x0=Math.max(1,center.x-2*pixelR),x1=Math.min(width-1,center.x+2*pixelR);
+      const y0=Math.max(30,center.y-2*pixelR*vertical),y1=Math.min(height-24,center.y+2*pixelR*vertical);
+      if(x1<=x0||y1<=y0)return;
+      const drawW=x1-x0,drawH=y1-y0;
+      const xMin=(x0-center.x)/pixelR,xSpan=drawW/pixelR;
+      const vTop=(center.y-y0)/pixelR,vSpan=drawH/pixelR;
+      const rasterW=Math.max(48,Math.min(240,Math.ceil(drawW)));
+      const rasterH=Math.max(48,Math.min(320,Math.ceil(drawH)));
+      const cacheKey=[rasterW,rasterH,ratio.toPrecision(7),pitch.toFixed(3),opacity.toFixed(3),...[xMin,xSpan,vTop,vSpan].map(v=>v.toPrecision(7)),colors.dye,colors.fg,colors.bg].join(':');
+      if(!drawVolume.imageCache||drawVolume.imageCache.key!==cacheKey) {
+        const surface=document.createElement('canvas');surface.width=rasterW;surface.height=rasterH;
+        const surfaceCtx=surface.getContext('2d'),im=surfaceCtx.createImageData(rasterW,rasterH);
+        for(let iy=0;iy<rasterH;iy++)for(let ix=0;ix<rasterW;ix++) {
+          const X=xMin+(ix+.5)/rasterW*xSpan,V=vTop-(iy+.5)/rasterH*vSpan,r=ray(X,V);
+          if(!r)continue;
+          const gaussianIntegral=Math.sqrt(Math.PI)/sqrtA*r.peak*erf(r.root);
+          const integral=.4*r.root/sqrtA+.8*gaussianIntegral;
+          const alpha=1-Math.exp(-opticalStrength*integral);
+          // Broad illumination makes the continuous liquid shape readable.
+          const shine=.09+.12*Math.max(0,Math.min(1,(-X+V/vertical+2)/4));
+          const id=4*(iy*rasterW+ix);
+          for(let c=0;c<3;c++)im.data[id+c]=gold[c]*(1-shine)+light[c]*shine;
+          im.data[id+3]=Math.round(255*alpha);
+        }
+        surfaceCtx.putImageData(im,0,0);drawVolume.imageCache={key:cacheKey,surface};
+      }
+      ctx.globalAlpha=1;
+      ctx.drawImage(drawVolume.imageCache.surface,x0,y0,drawW,drawH);
+      if(pixelR<5)return;
+      // Equal-volume low-discrepancy seeds fill the ball; extra narrow axial
+      // seeds make the central flow visible as well as its larger outer volume.
+      // Tracks integrate the same frozen-time ODE in tau = strain*time:
+      // ds/dtau=-s(1-2w²)F/2, dw/dtau=w(1-s²)F, dJ/dtau=F.
+      // theta = theta0 + swirl*(H/R)*J/strain recovers its azimuthal component.
+      if(!drawVolume.tracks) {
+        const count=1600,axial=96,steps=256,dt=tracerStep,tracks=[];
+        const fract=x=>x-Math.floor(x);
+        const derivative=(s,w)=>{
+          const F=Math.exp(-s*s-w*w);
+          return [-.5*s*(1-2*w*w)*F,w*(1-s*s)*F,F];
+        };
+        for(let n=0;n<count+axial;n++) {
+          let s,w;
+          if(n<count) {
+            const radius=2*Math.cbrt((n+.5)/count),zdir=1-2*fract((n+.5)*.618033988749895);
+            s=radius*Math.sqrt(1-zdir*zdir);w=radius*zdir;
+          } else {
+            s=.025+.12*Math.sqrt(fract((n+.5)*.754877666));w=3.8*fract((n+.5)*.569840291)-1.9;
+          }
+          const values=new Float32Array((steps+1)*3);let J=0;
+          for(let j=0;j<=steps;j++) {
+            values[j*3]=s;values[j*3+1]=w;values[j*3+2]=J;
+            const a=derivative(s,w),b=derivative(s+a[0]*dt/2,w+a[1]*dt/2);
+            const c=derivative(s+b[0]*dt/2,w+b[1]*dt/2),d=derivative(s+c[0]*dt,w+c[1]*dt);
+            s+=dt*(a[0]+2*b[0]+2*c[0]+d[0])/6;
+            w+=dt*(a[1]+2*b[1]+2*c[1]+d[1])/6;
+            J+=dt*(a[2]+2*b[2]+2*c[2]+d[2])/6;
+          }
+          tracks.push({values,angle:2*Math.PI*fract((n+.5)*.414213562373095),size:.65+.75*fract((n+.5)*.732050807568877)});
+        }
+        drawVolume.tracks={tracks,steps,dt};
+      }
+      const {tracks,steps,dt}=drawVolume.tracks;
+      // Deterministic phase supports scrubbing. These are slowed, frozen-time
+      // flow markers, not particle paths through the time-dependent singularity.
+      const displayTime=tracerTime();
+      const index=Math.min(steps-.000001,Math.max(0,displayTime*state.strain/dt));
+      const j=Math.floor(index),mix=index-j,bubbles=[];
+      for(const track of tracks) {
+        const a=3*j,b=a+3,v=track.values;
+        const s=v[a]+(v[b]-v[a])*mix,w=v[a+1]+(v[b+1]-v[a+1])*mix,J=v[a+2]+(v[b+2]-v[a+2])*mix;
+        const rho2=s*s+w*w;
+        if(rho2>=4||s<0)continue;
+        const theta=track.angle+state.swirl*ratio*J/state.strain;
+        const p=project(sc.R*s*Math.cos(theta),sc.R*s*Math.sin(theta),sc.H*w);
+        const radius=Math.min(3.6,pixelR*.019)*track.size;
+        if(radius<=.22||p.x+radius<1||p.x-radius>width-1||p.y+radius<30||p.y-radius>height-24)continue;
+        const X=(p.x-center.x)/pixelR,V=(center.y-p.y)/pixelR,r=ray(X,V);
+        if(!r)continue;
+        // Normalized displacement along the ray, evaluated directly from the
+        // particle coordinates instead of subtracting two enormous depths.
+        const xi=(cp*s*Math.sin(theta+yaw)+sp*w/ratio)/sqrtA;
+        const gaussianFront=r.peak*Math.sqrt(Math.PI)/(2*sqrtA)*Math.max(0,erf(r.root)-erf(xi));
+        const frontIntegral=.2*Math.max(0,(r.root-xi)/sqrtA)+.8*gaussianFront;
+        const transmission=Math.exp(-opticalStrength*frontIntegral);
+        const edgeFade=Math.min(1,(4-rho2)/.12);
+        bubbles.push({...p,radius,alpha:.96*transmission*edgeFade,transmission});
+      }
+      bubbles.sort((a,b)=>a.depth-b.depth);
+      for(const p of bubbles) {
+        ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+        ctx.globalAlpha=p.alpha;ctx.fillStyle=colors.bubble;ctx.fill();
+        // Ruby centers stay distinct; a small gold-lit highlight gives depth.
+        if(p.radius>1) {
+          ctx.beginPath();ctx.arc(p.x-p.radius*.28,p.y-p.radius*.32,p.radius*.25,0,Math.PI*2);
+          ctx.globalAlpha=p.alpha*.55;ctx.fillStyle=colors.dye;ctx.fill();
+        }
       }
       ctx.globalAlpha=1;
     }
-    draw(input) {
-      this.resize();
-      if(!this.options.foreground&&global.getComputedStyle)this.foreground=global.getComputedStyle(this.canvas).color;
-      const suppliedTau=Number(input.tau),tau=Number.isFinite(suppliedTau)?Math.max(1e-12,suppliedTau):1,h=Number(input.h)||.005;
-      const Xmax=Math.max(1e-8,Number(input.Xmax)||.12),etaMax=clamp(Number(input.etaMax)||.4,.001,.98);
-      const yaw=Number(input.yaw)||0,pitch=clamp(Number(input.pitch)||0,-Math.PI/2,Math.PI/2);
-      const opacity=clamp(Number.isFinite(input.opacity)?input.opacity:.5,0,1);
-      const scale=input.scale||'physical',mode=input.mode==='sheet'||input.mode==='sheets'||input.mode==='liquid'?'sheet':input.mode==='tracers'||input.mode==='lines'?'tracers':'volume';
-      const profile=this._profile(h,Xmax,etaMax),sr=Math.sqrt(tau),sz=Math.pow(tau,profile.D);
-      const follow=scale==='follow'||scale==='follow-core',zoom=follow?1/Math.max(sr,sz):1;
-      // A common world scale for x,y,z preserves the actual aspect ratio. The
-      // initial circumscribing sphere fits for every camera angle.
-      const referenceRadius=Math.hypot(profile.rmax,profile.zmax);
-      const frameRadius=Math.min(this.width*.43,Math.max(10,this.height/2-48));
-      const k=frameRadius/referenceRadius*zoom,center={x:this.width/2,y:this.height*.5};
-      const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
-      this.current={tau,h,Xmax,etaMax,yaw,pitch,opacity,scale,mode};
-      this.project=(x,y,z)=>{
-        const X=x*cy-y*sy,Y=x*sy+y*cy;
-        return{x:center.x+k*X,y:center.y-k*(z*cp-Y*sp),depth:Y*cp+z*sp};
+    function drawScene() {
+      const sc=scales();
+      const follow=state.scale==='follow';
+      const zoom=follow ? Math.min(R0/sc.R,H0/sc.H) : 1;
+      // Keep physical display magnification identical when appearance changes.
+      const k=Math.min((width-42)/4.15,(height-86)/6.05)*zoom;
+      const {yaw,pitch}=state;
+      const project=(x,y,z) => {
+        const X=x*Math.cos(yaw)-y*Math.sin(yaw), Y=x*Math.sin(yaw)+y*Math.cos(yaw);
+        return {x:width*.5+k*X,y:height*.53-k*(z*Math.cos(pitch)-Y*Math.sin(pitch)),depth:Y*Math.cos(pitch)+z*Math.sin(pitch)};
       };
-      const shape={rmax:profile.rmax,zmax:profile.zmax*sz/sr,axialFactor:sz/sr,cp,sp,pitch};
-      const ctx=this.ctx;ctx.clearRect(0,0,this.width,this.height);ctx.save();
-      ctx.beginPath();ctx.rect(0,0,this.width,this.height);ctx.clip();
-      const bubbles=[];let rejected=0;
-      for(let i=0;i<(input.particles||[]).length;i++) {
-        const particle=input.particles[i],X=particle.X,eta=particle.eta,theta=particle.theta;
-        if(![X,eta,theta].every(Number.isFinite)||X<0||X>Xmax||Math.abs(eta)>etaMax){rejected++;continue;}
-        const den=1-eta*eta,r=sr*Math.sqrt(2*X/den),z=sz*eta/Math.pow(den,profile.D);
-        const p=this.project(r*Math.cos(theta),r*Math.sin(theta),z);
-        const radius=Math.min(3.6,k*sr*profile.r0*.043)*(.73+.48*fract((i+1)*.61803398875));
-        if(radius<.24||p.x+radius<0||p.x-radius>this.width||p.y+radius<0||p.y-radius>this.height)continue;
-        let alpha=.92;
-        if(mode==='volume') {
-          const sx=(p.x-center.x)/(k*sr),sv=(center.y-p.y)/(k*sr),ray=this._ray(sx,sv,shape);
-          if(ray) {
-            const front=this._column(sx,sv,Math.max(ray.lo,p.depth/sr),ray.hi,shape,profile,20);
-            alpha*=Math.exp(-opacity*.92*front);
-          }
-        }
-        bubbles.push({...p,radius,alpha});
+      ctx.clearRect(0,0,width,height);
+      ctx.save(); ctx.strokeStyle=colors.border; ctx.lineWidth=1; ctx.strokeRect(.5,.5,width-1,height-1);
+      ctx.beginPath(); ctx.rect(1,30,width-2,height-54); ctx.clip();
+      function path3(points,color,alpha=1,lw=1) {
+        ctx.beginPath(); points.forEach((v,i)=>{const p=project(...v); if(i===0)ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);});
+        ctx.strokeStyle=color;ctx.globalAlpha=alpha;ctx.lineWidth=lw;ctx.stroke();ctx.globalAlpha=1;
       }
-      if(mode==='volume')this._volume(shape,profile,k,sr,opacity,center);
-      const flowOverlay=this._streamlines(input.streamlines,shape,profile,k,sr,opacity,center,mode);
-      if(mode==='sheet')this._boundary(profile,sr,sz,opacity,bubbles);
-      else {bubbles.sort((a,b)=>a.depth-b.depth);for(const bubble of bubbles)this._bubble(bubble,bubble.alpha);}
-      this._rings(profile,sr,sz,mode);this._axes();ctx.restore();ctx.globalAlpha=1;
-      this.metrics={tau,h,Xmax,etaMax,mode,scale,zoom,pixelsPerWorldUnit:k,radius:sr*profile.rmax,halfHeight:sz*profile.zmax,axisRadius:sr*profile.r0,visibleParticles:bubbles.length,rejectedParticles:rejected,visibleStreamlineSegments:flowOverlay.segments,streamlineArrows:flowOverlay.arrows};
-      return this.metrics;
+      if(state.rendering==='liquid'||state.rendering==='volume') {
+        const volume=state.rendering==='volume';
+        if(volume)drawVolume(sc,project,k,yaw,pitch);else drawLiquid(sc,project,k,yaw,pitch);
+        ctx.restore();
+        $('zoom').textContent='Zoom '+fmt(zoom)+'×';
+        canvas.setAttribute('aria-label',`${volume?'Full light gold vortex core, including the central axis, with ruby red tracers throughout its volume. The displayed core extends to two Gaussian scale lengths.':'Light gold liquid sheets with ruby red bubble tracers.'} Radius scale ${fmt(sc.R)}, axial scale ${fmt(sc.H)}, speed scale ${fmt(sc.U)}. The bubbles are illustrative flow markers.`);
+        return;
+      }
+      streamlines(sc);
+      // Neutral wire rings indicate scale lengths, not a material fluid boundary.
+      for(const z of [-sc.H,0,sc.H]) {
+        const ring=[]; for(let i=0;i<=72;i++)ring.push([sc.R*Math.cos(i*Math.PI/36),sc.R*Math.sin(i*Math.PI/36),z]);
+        path3(ring,colors.border,.75);
+      }
+      path3([[0,0,-2*sc.H],[0,0,2*sc.H]],colors.border);
+      path3([[-1.9*sc.R,0,0],[1.9*sc.R,0,0]],colors.border);
+      const dots=[];
+      lines.forEach((line,j)=> {
+        const points=line.map(([s,w,theta])=>[sc.R*s*Math.cos(theta),sc.R*s*Math.sin(theta),sc.H*w]);
+        path3(points,colors.first,.38,1);
+        // Beads indicate the direction along frozen-time streamlines; their playback is slowed.
+        for(let n=0;n<3;n++) {
+          const f=((tracerTime()/line.duration+n/3+j*.037)%1)*(line.length-1);
+          const i=Math.floor(f),t=f-i,a=line[i],b=line[Math.min(i+1,line.length-1)];
+          const [s,w,theta]=a.map((v,c)=>v+(b[c]-v)*t);
+          const p=project(sc.R*s*Math.cos(theta),sc.R*s*Math.sin(theta),sc.H*w);
+          const vel=velocity(sc.R*s,sc.H*w,sc), speed=Math.hypot(...vel)/sc.U;
+          dots.push({...p,speed});
+        }
+      });
+      dots.sort((a,b)=>a.depth-b.depth);
+      const maxSpeed=Math.max(.001,...dots.map(p=>p.speed));
+      dots.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,2.15,0,Math.PI*2);ctx.fillStyle=blend(p.speed/maxSpeed);ctx.fill();});
+      // Flow-direction arrows remain available while paused.
+      [0,8,18,26].forEach(j=>{
+        const v=lines[j],i=Math.floor(v.length*.6),a=v[i],b=v[Math.min(v.length-1,i+3)];
+        const p=project(sc.R*a[0]*Math.cos(a[2]),sc.R*a[0]*Math.sin(a[2]),sc.H*a[1]);
+        const q=project(sc.R*b[0]*Math.cos(b[2]),sc.R*b[0]*Math.sin(b[2]),sc.H*b[1]);
+        const angle=Math.atan2(q.y-p.y,q.x-p.x);
+        ctx.beginPath();ctx.moveTo(p.x+5*Math.cos(angle),p.y+5*Math.sin(angle));
+        ctx.lineTo(p.x-4*Math.cos(angle)+3*Math.sin(angle),p.y-4*Math.sin(angle)-3*Math.cos(angle));
+        ctx.lineTo(p.x-4*Math.cos(angle)-3*Math.sin(angle),p.y-4*Math.sin(angle)+3*Math.cos(angle));ctx.closePath();ctx.fillStyle=colors.fg;ctx.fill();
+      });
+      ctx.restore();
+      $('zoom').textContent='Zoom '+fmt(zoom)+'×';
+      canvas.setAttribute('aria-label',`Instantaneous vortex streamlines. Radius ${fmt(sc.R)}, axial length scale ${fmt(sc.H)}, speed scale ${fmt(sc.U)}. ${follow?'Camera follows the shrinking core.':'Physical scale is fixed.'}`);
     }
-  }
-  global.CoreRenderer=CoreRenderer;
-})(typeof window!=='undefined'?window:globalThis);
+    function drawFields() {
+      // Frozen rigid rotation, with one uniform normalization per field:
+      // u = omega*(-y,x), F_net/m = -omega^2*(x,y).
+      // Normalization preserves relative arrow lengths across the disk.
+      const ns='http://www.w3.org/2000/svg';
+      const direction=Math.sign(state.swirl),zero=direction===0;
+      if(!drawFields.cache)drawFields.cache=new WeakMap();
+      for(const kind of ['velocity','force']) {
+        const svg=$('field-'+kind);
+        if(!svg)continue;
+        const bounds=svg.getBoundingClientRect(),width=bounds.width||160,height=bounds.height||100;
+        const cacheKey=width+':'+height+':'+direction;
+        if(drawFields.cache.get(svg)===cacheKey)continue;
+        drawFields.cache.set(svg,cacheKey);
+        const cx=width/2,cy=height/2,radius=Math.max(6,Math.min((width-30)/2,(height-28)/2));
+        const color='var(--viz-series-'+(kind==='velocity'?1:2)+')';
+        const add=(tag,attrs,text)=>{
+          const el=document.createElementNS(ns,tag);
+          for(const [key,value] of Object.entries(attrs||{}))el.setAttribute(key,String(value));
+          if(text!==undefined)el.textContent=text;
+          svg.appendChild(el);return el;
+        };
+        svg.replaceChildren();
+        svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+        svg.setAttribute('role','img');
+        const description=zero
+          ? 'Zero swirl: the rotating-slice '+(kind==='velocity'?'velocity':'centripetal net force per unit mass')+' is zero; dots mark the sample points.'
+          : kind==='velocity'
+            ? 'Frozen rigid-rotation velocity schematic, '+(direction>0?'counterclockwise':'clockwise')+'. Arrow lengths show relative speed across the disk.'
+            : 'Frozen rigid-rotation centripetal net force per unit mass, directed inward. Arrow lengths show relative magnitude across the disk.';
+        add('title',{},description);
+        svg.setAttribute('aria-label',description);
+        add('circle',{cx,cy,r:radius,fill:'none',stroke:'var(--border)','stroke-width':.7});
+        const axis={stroke:'var(--border)','stroke-width':.7};
+        add('line',{...axis,x1:cx-radius-4,y1:cy,x2:cx+radius+4,y2:cy});
+        add('line',{...axis,x1:cx,y1:cy-radius-4,x2:cx,y2:cy+radius+4});
+        const label={fill:'var(--foreground)','font-size':11,'font-family':'inherit',opacity:.8};
+        add('text',{...label,x:cx+radius+7,y:cy+3},'x');
+        add('text',{...label,x:cx+4,y:cy-radius-5},'y');
+        for(let row=-2;row<=2;row++)for(let col=-2;col<=2;col++) {
+          const x=col*.4,y=row*.4;
+          if(x*x+y*y>.9)continue;
+          const px=cx+radius*x,py=cy-radius*y;
+          if(zero||(x===0&&y===0)) {
+            add('circle',{cx:px,cy:py,r:zero?1.05:.85,fill:color,opacity:zero?.65:1});
+            continue;
+          }
+          const vx=kind==='velocity'?-direction*y:-x;
+          const vy=kind==='velocity'?direction*x:-y;
+          const dx=.28*radius*vx,dy=-.28*radius*vy;
+          const length=Math.hypot(dx,dy),ux=dx/length,uy=dy/length;
+          const ex=px+dx,ey=py+dy,head=Math.min(2.5,length*.44),wing=head*.52;
+          add('path',{
+            d:`M ${px} ${py} L ${ex} ${ey} M ${ex-head*ux+wing*uy} ${ey-head*uy-wing*ux} L ${ex} ${ey} L ${ex-head*ux-wing*uy} ${ey-head*uy+wing*ux}`,
+            fill:'none',stroke:color,'stroke-width':1.2,'stroke-linecap':'round','stroke-linejoin':'round'
+          });
+        }
+      }
+    }
 
-</script>
-<script>
-/* Instantaneous spatial streamlines of the computed velocity, not tracer histories.
-   Time is held fixed. ds=q dλ removes a positive common speed factor. */
-(function(global){
- 'use strict';
- function build(model,{Xmax=.12,etaMax=.4,step=.008,spokes=6}={}){
-  const h=model.params.h,D=model.D,outer=Xmax*.995;
-  let lo=-.03,hi=.03;
-  for(let i=0;i<45;i++){const mid=(lo+hi)/2;if(model.flow(outer,mid).U<0)lo=mid;else hi=mid;}
-  const divider=(lo+hi)/2;
-  const seeds=[divider-.12,divider-.022,divider,divider+.022,divider+.12];
-  // At tau=1, theta'=d^h F. All other times multiply its accumulated angle by tau^-h.
-  const rates=v=>{const a=model.flow(v[0],v[1]);return[v[0]*(a.W-1)/a.L,a.d*a.U/a.L,a.d**h*a.F];};
-  const add=(v,k,dt)=>v.map((x,i)=>x+dt*k[i]);
-  const curves=[];
-  for(const eta of seeds){
-   let v=[outer,eta,0];const points=[];
-   for(let n=0;n<430;n++){
-    const [X,e,theta]=v;if(X<1e-7||X>Xmax||Math.abs(e)>etaMax)break;
-    const d=1-e*e;points.push({r:Math.sqrt(2*X/d),z:d**(-D)*e,theta,X,eta:e});
-    const a=rates(v),b=rates(add(v,a,step/2)),c=rates(add(v,b,step/2)),d4=rates(add(v,c,step));
-    v=v.map((x,i)=>x+step*(a[i]+2*b[i]+2*c[i]+d4[i])/6);
-   }
-   curves.push(points);
-  }
-  return {curves,spokes,h,D};
- }
- function atTime(data,tau){
-  const sr=Math.sqrt(tau),sz=tau**data.D,spin=tau**(-data.h),out=[];
-  for(let ring=0;ring<data.curves.length;ring++)for(let k=0;k<data.spokes;k++){
-   const angle=2*Math.PI*k/data.spokes+(ring%2)*Math.PI/data.spokes;
-   out.push(data.curves[ring].map(p=>{const theta=angle+spin*p.theta;return{x:sr*p.r*Math.cos(theta),y:sr*p.r*Math.sin(theta),z:sz*p.z};}));
-  }
-  return out;
- }
- const api={build,atTime};global.CoreStreamlines=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
-})(typeof globalThis!=='undefined'?globalThis:this);
+    function readouts(announce=false) {
+      const sc=scales();
+      const timeText=Number(sc.t.toFixed(5)).toString();
+      $('time').max=state.T*.9999;$('time').step=state.T/10000;$('time').value=sc.t;
+      Array.from($('time-ticks').children).forEach((el,i)=>{el.textContent=fmt(state.T*i/4);});
+      $('time-value').textContent='t = '+timeText+' / '+fmt(state.T);
+      $('time').setAttribute('aria-valuetext',`Time ${timeText} of ${fmt(state.T)}; remaining ${fmt(sc.remaining)}`);
+      for(const key of ['T','h','U','swirl','strain','rate'])$(''+key+'-value').textContent=key==='rate'?fmt(state[key])+'×':fmt(state[key]);
+      drawFields();
+    }
+    function render(all=false,announce=false) {readouts(announce);drawScene();}
+    function stop() {state.running=false;$('play').textContent='Play';last=0;cancelAnimationFrame(frame);}
+    function nextPlaybackD(d,dt,rate) {
+      // Equal elapsed playback intervals advance t by equal amounts.
+      const remaining=Math.pow(10,-d)-dt*rate/20;
+      return remaining<=.0001?4:Math.max(0,-Math.log10(remaining));
+    }
+    function tick(now) {
+      if(!state.running)return;
+      const dt=last?Math.min(.06,(now-last)/1000):0;last=now;
+      state.d=nextPlaybackD(state.d,dt,state.rate);state.phase=1.5*state.d;
+      render(false,state.d>=4);
+      if(state.d>=4)stop();else frame=requestAnimationFrame(tick);
+    }
+    $('play').addEventListener('click',()=>{
+      if(state.running)stop();else {if(state.d>=4){state.d=0;state.phase=0;$('time').value=0;}state.running=true;$('play').textContent='Pause';last=0;readouts(true);frame=requestAnimationFrame(tick);}
+    });
+    $('time').addEventListener('input',()=>{stop();state.d=dFromTime(+$('time').value);state.phase=1.5*state.d;render(false,true);});
+    for(const key of ['T','h','U','swirl','strain','rate'])$(key).addEventListener('input',()=>{state[key]=+$(key).value;if(key!=='rate')$('preset').value='custom';lineKey='';render(key!=='rate',true);});
+    $('preset').addEventListener('change',()=>{
+      stop();const preset=$('preset').value;Object.assign(state,{d:0,h:preset==='classroom'?3:preset==='paper'?.005:preset==='slender'?.12:.25,T:5,U:1,swirl:1,strain:1,phase:0});
+      for(const key of ['T','h','U','swirl','strain'])$(key).value=state[key];$('time').value=0;lineKey='';render(true,true);
+    });
+    for(const key of ['scale','rendering'])$(key).addEventListener('change',()=>{state[key]=$(key).value;$('opacity').disabled=state.rendering!=='volume';drawScene();});
+    $('opacity').addEventListener('input',()=>{state.opacity=+$('opacity').value;$('opacity-value').textContent=Math.round(state.opacity*100)+'%';drawScene();});
+    function cameraReadouts() {
+      for(const key of ['yaw','pitch']) {
+        const degrees=Math.round(state[key]*180/Math.PI);
+        $(key).value=degrees;$(key+'-value').textContent=degrees+'°';
+        $(key).setAttribute('aria-valuetext',degrees+' degrees');
+      }
+      $('view').value=state.view;
+    }
+    function setCamera(yaw,pitch,view='custom') {
+      state.yaw=Math.atan2(Math.sin(yaw),Math.cos(yaw));
+      state.pitch=Math.max(-Math.PI/2,Math.min(Math.PI/2,pitch));state.view=view;
+      cameraReadouts();
+      // Coalesce pointer events into one redraw per frame; camera motion never advances time.
+      if(!state.running&&!cameraFrame)cameraFrame=requestAnimationFrame(()=>{cameraFrame=0;drawScene();});
+    }
+    $('view').addEventListener('change',()=>{
+      const view=$('view').value;
+      setCamera(view==='side'?0:-.48,view==='top'?Math.PI/2:view==='side'?0:.33,view);
+    });
+    for(const key of ['yaw','pitch'])$(key).addEventListener('input',()=>{
+      setCamera(key==='yaw'?+$(key).value*Math.PI/180:state.yaw,key==='pitch'?+$(key).value*Math.PI/180:state.pitch);
+    });
+    const rememberPointer=event=>{cameraPointer={id:event.pointerId,x:event.clientX,y:event.clientY};};
+    canvas.addEventListener('pointerdown',event=>{
+      if(!event.isPrimary||event.button!==0)return;
+      rememberPointer(event);
+      canvas.setPointerCapture(event.pointerId);canvas.setAttribute('data-dragging','');
+    });
+    canvas.addEventListener('pointermove',event=>{
+      if(!event.isPrimary||!cameraPointer||cameraPointer.id!==event.pointerId||!canvas.hasPointerCapture(event.pointerId))return;
+      if(event.pointerType==='mouse'&&(event.buttons&1)===0){releasePointer(event);return;}
+      const dx=event.clientX-cameraPointer.x,dy=event.clientY-cameraPointer.y;
+      rememberPointer(event);
+      if(dx===0&&dy===0)return;
+      const rect=canvas.getBoundingClientRect();
+      setCamera(state.yaw+dx*2*Math.PI/Math.max(1,rect.width),state.pitch-dy*Math.PI/Math.max(1,rect.height));
+    });
+    const releasePointer=event=>{
+      if(cameraPointer?.id===event.pointerId){cameraPointer=null;canvas.removeAttribute('data-dragging');}
+      if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);
+    };
+    canvas.addEventListener('pointerleave',event=>{if(!canvas.hasPointerCapture(event.pointerId))releasePointer(event);});
+    canvas.addEventListener('pointerup',releasePointer);
+    canvas.addEventListener('pointercancel',releasePointer);
+    canvas.addEventListener('lostpointercapture',releasePointer);
+    window.addEventListener('blur',()=>{if(cameraPointer)releasePointer({pointerId:cameraPointer.id});});
+    function resize() {const rect=canvas.getBoundingClientRect();width=rect.width;height=rect.height;const ratio=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);drawScene();drawFields();}
+    theme();
+    const observer=new ResizeObserver(resize);observer.observe(canvas);observer.observe($('field-velocity'));
+    const themes=new MutationObserver(()=>{theme();drawScene();});themes.observe(document.documentElement,{attributes:true,attributeFilter:['class','style','data-theme']});
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{theme();drawScene();});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+    // Playback is opt-in, including for users who prefer reduced motion.
+    cameraReadouts();readouts(true);resize();
+  })();
+  </script>
+</div>
 
-</script>
-<script>
-(() => {
- 'use strict';
- const root=document.getElementById('openai-core'), $=id=>document.getElementById('oc-'+id);
- const state={t:0,h:.005,Lambda:12,P:1,rate:2,opacity:.55,yaw:-28*Math.PI/180,pitch:19*Math.PI/180,scale:'physical',mode:'volume',showStreamlines:true,running:false};
- const Xmax=.12,etaMax=.4,CUTOFF=.9999,COUNT=520;
- const renderer=new CoreRenderer($('scene'));
- let model,streamlineData,particles=[],last=0,rebuildTimer=0,drag=null,fieldTick=0,maxResidual=0,seed=233;
- const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
- const compact=v=>Math.abs(v)>=1000||Math.abs(v)>0&&Math.abs(v)<.001?v.toExponential(2):Number(v.toPrecision(3)).toString();
- function newParticle(incoming=false){
-  // A visualization sample, not a claim of constant particle number in a material region.
-  return {X:incoming?Xmax*.997:Xmax*(.015+.97*random()),eta:(random()*2-1)*etaMax*.985,theta:random()*2*Math.PI,size:.65+.6*random()};
- }
- function reseed(){seed=233;particles=Array.from({length:COUNT},()=>newParticle());}
- function stop(){state.running=false;$('play').textContent=state.t>=CUTOFF?'Replay':'Play';}
- function build(){
-  stop();state.t=0;model=CoreModel.buildModel({h:state.h,Lambda:state.Lambda,P:state.P,Xmax,etaMax:.7});
-  maxResidual=0;
-  for(let i=0;i<=12;i++)for(let j=0;j<=12;j++){
-   const r=model.residual(Xmax*i/12,-etaMax+2*etaMax*j/12);
-   maxResidual=Math.max(maxResidual,r.relativeAngular,r.relativeAxial,r.relativePressure);
-  }
-  if(!Number.isFinite(maxResidual)||maxResidual>1e-5)throw Error('The local profile approximation did not pass its residual check.');
-  streamlineData=CoreStreamlines.build(model,{Xmax,etaMax});
-  reseed();
-  $('domain').textContent='Already rotating core · gold shows the sampled region';
-  $('status').textContent='Order '+model.params.order+' · sampled core-equation residual '+maxResidual.toExponential(1);
-  $('method-checks').textContent='The radial Taylor expansion has order '+model.params.order+'. In the displayed domain 0 ≤ X ≤ 0.12, |η| ≤ 0.4, the maximum sampled normalized residual of (4.13) is '+maxResidual.toExponential(2)+'. Each equation’s residual is divided by one plus the magnitudes of its two sides (pressure uses 1 + F²). This measures the inner equations only, not the full Navier–Stokes residual. The C³ interpolation uses '+model.params.intervals+' height intervals; independent checks compare orders 14 and 16 and test incompressibility.';
-  draw(true);
- }
- function rebuild(){
-  stop();clearTimeout(rebuildTimer);$('status').textContent='Computing the core profiles…';
-  rebuildTimer=setTimeout(()=>{try{build();}catch(e){$('status').textContent=e.message;$('status').classList.add('error');}},80);
- }
- function advance(target){
-  // Midpoint material advection. Steps contract with tau without changing the displayed time clock.
-  target=Math.min(CUTOFF,Math.max(state.t,target));
-  while(state.t<target-1e-13){
-   const dt=Math.min(target-state.t,.006*(1-state.t));
-   for(let i=0;i<particles.length;i++){
-    const p=particles[i],k1=model.rates(p.X,p.eta,state.t);
-    const mx=p.X+.5*dt*k1.X,me=p.eta+.5*dt*k1.eta;
-    if(mx<0||mx>Xmax*1.04||Math.abs(me)>etaMax*1.04){particles[i]=newParticle(true);continue;}
-    const k2=model.rates(mx,me,state.t+.5*dt);
-    p.X+=dt*k2.X;p.eta+=dt*k2.eta;p.theta=(p.theta+dt*k2.theta)%(2*Math.PI);
-    if(p.X<0||p.X>Xmax||Math.abs(p.eta)>etaMax||![p.X,p.eta,p.theta].every(Number.isFinite))particles[i]=newParticle(true);
-   }
-   state.t+=dt;
-  }
-  if(target-state.t<1e-12)state.t=target;
- }
- function arrow(c,x,y,dx,dy,color){
-  const endX=x+dx,endY=y+dy,a=Math.atan2(dy,dx),head=3.5;
-  c.strokeStyle=color;c.fillStyle=color;c.lineWidth=1.35;c.beginPath();c.moveTo(x-dx*.3,y-dy*.3);c.lineTo(endX,endY);c.stroke();
-  c.beginPath();c.moveTo(endX,endY);c.lineTo(endX-head*Math.cos(a-.48),endY-head*Math.sin(a-.48));c.lineTo(endX-head*Math.cos(a+.48),endY-head*Math.sin(a+.48));c.closePath();c.fill();
- }
- function color(variable){const span=document.createElement('span');span.style.color='var('+variable+')';root.appendChild(span);const v=getComputedStyle(span).color;span.remove();return v;}
- function fields(){
-  if(!model)return;
-  const fg=color('--fg'),sub=color('--sub'),line=color('--line'),ruby=color('--field');
-  const tau=1-state.t,radius=Math.sqrt(2*tau*Xmax),samples=[];
-  for(let iy=-3;iy<=3;iy++)for(let ix=-3;ix<=3;ix++){
-   const nx=ix/3.5,ny=iy/3.5;if(nx*nx+ny*ny>.94)continue;
-   const x=nx*radius,y=ny*radius,p=model.profile((x*x+y*y)/(2*tau),0);
-   const a=p.v0/(2*tau),w=tau**(-1-state.h)*p.F,g=tau**(-2*model.A-1)*p.Pi_X;
-   samples.push({nx,ny,v:[a*x-w*y,a*y+w*x],f:[-g*x,-g*y]});
-  }
-  for(const [id,key] of [['velocity','v'],['force','f']]){
-   const canvas=$(id),rect=canvas.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1),w=rect.width,h=rect.height;
-   canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
-   const R=Math.max(20,Math.min(w*.43,(h-27)*.49)),cx=w/2,cy=(h-18)/2;
-   c.strokeStyle=line;c.lineWidth=1;c.beginPath();c.arc(cx,cy,R,0,2*Math.PI);c.moveTo(cx-R,cy);c.lineTo(cx+R,cy);c.moveTo(cx,cy-R);c.lineTo(cx,cy+R);c.stroke();
-   const max=Math.max(...samples.map(s=>Math.hypot(...s[key])));
-   for(const p of samples){const length=R*.245/Math.max(max,1e-20);if(Math.hypot(...p[key])>max*.01)arrow(c,cx+p.nx*R,cy-p.ny*R,p[key][0]*length,-p[key][1]*length,key==='v'?ruby:fg);}
-   c.fillStyle=sub;c.font='11px -apple-system, sans-serif';c.textAlign='center';c.fillText('η = 0 · max arrow '+compact(max),cx,h-3);
-  }
- }
- function draw(all=false){
-  if(!model)return;
-  $('time').value=state.t;$('time-value').textContent=state.t.toFixed(4)+' / 1';
-  const tau=1-state.t,gain=tau**(-1-state.h);
-  $('vorticity').textContent=compact(2*model.flow(0,0).F*gain)+' ('+compact(gain)+'× initial)';
-  const streamlines=state.showStreamlines?CoreStreamlines.atTime(streamlineData,tau):[];
-  const m=renderer.draw({...state,tau,Xmax,etaMax,particles,streamlines});
-  $('zoom').textContent=(state.scale==='physical'?'Physical scale':'Follow core')+' · '+compact(m?.zoom||1)+'×';
-  if(all||++fieldTick%5===0)fields();
- }
- $('play').addEventListener('click',()=>{
-  if(!model)return;
-  if(state.running){stop();draw(true);return;}
-  if(state.t>=CUTOFF){state.t=0;reseed();}
-  state.running=true;last=performance.now();$('play').textContent='Pause';
- });
- $('reset').addEventListener('click',()=>{stop();state.t=0;reseed();$('play').textContent='Play';draw(true);});
- $('time').addEventListener('input',()=>{stop();state.t=+$('time').value;reseed();$('play').textContent=state.t>=CUTOFF?'Replay':'Play';draw(true);});
- for(const [id,key,format] of [['h','h',v=>v.toFixed(3)],['lambda','Lambda',v=>String(v)],['pressure','P',v=>v.toFixed(2)]]){
-  $(id).addEventListener('input',()=>{state[key]=+$(id).value;$(id+'-value').textContent=format(state[key]);rebuild();});
- }
- $('rate').addEventListener('input',()=>{state.rate=+$('rate').value;$('rate-value').textContent=state.rate+'×';});
- for(const key of ['mode','scale'])$(key).addEventListener('change',()=>{state[key]=$(key).value;$('opacity').disabled=state.mode==='tracers';draw(true);});
- $('streamlines').addEventListener('change',()=>{state.showStreamlines=$('streamlines').checked;draw();});
- $('opacity').addEventListener('input',()=>{state.opacity=+$('opacity').value;$('opacity-value').textContent=Math.round(state.opacity*100)+'%';draw();});
- function cameraReadouts(){for(const key of ['yaw','pitch']){$(key).value=Math.round(state[key]*180/Math.PI);$(key+'-value').textContent=Math.round(state[key]*180/Math.PI)+'°';}}
- for(const key of ['yaw','pitch'])$(key).addEventListener('input',()=>{state[key]=+$(key).value*Math.PI/180;cameraReadouts();draw();});
- const canvas=$('scene');
- canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);canvas.classList.add('dragging');});
- canvas.addEventListener('pointermove',e=>{
-  if(!drag||drag.id!==e.pointerId)return;
-  state.yaw+=.007*(e.clientX-drag.x);state.yaw=((state.yaw+3*Math.PI)%(2*Math.PI))-Math.PI;
-  state.pitch=Math.max(-85*Math.PI/180,Math.min(85*Math.PI/180,state.pitch+.007*(e.clientY-drag.y)));
-  drag.x=e.clientX;drag.y=e.clientY;cameraReadouts();draw();
- });
- function release(){drag=null;canvas.classList.remove('dragging');}
- canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
- $('explain').addEventListener('click',()=>{$('method').showModal();});$('close').addEventListener('click',()=>{$('method').close();});
- function frame(now){
-  if(state.running&&model){const elapsed=Math.min(.1,(now-last)/1000);advance(state.t+elapsed*state.rate/20);const finished=state.t>=CUTOFF;if(finished)stop();draw(finished);}
-  last=now;requestAnimationFrame(frame);
- }
- document.addEventListener('visibilitychange',()=>{last=performance.now();});
- new ResizeObserver(()=>draw(true)).observe(root);
- matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>draw(true));
- window.OpenAICoreDemo={get state(){return {...state};},get model(){return model;},get particles(){return particles.map(p=>({...p}));},get residual(){return maxResidual;},advance,draw};
- try{build();requestAnimationFrame(frame);}catch(e){$('status').textContent=e.message;$('status').classList.add('error');console.error(e);}
-})();
-
-</script>
-</body></html>
+</body>
+</html>
