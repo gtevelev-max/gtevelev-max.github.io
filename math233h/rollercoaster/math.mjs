@@ -8,7 +8,7 @@ export const norm=a=>Math.hypot(...a);
 export const unit=a=>norm(a)>1e-12?mul(a,1/norm(a)):null;
 const pi=Math.PI;
 export const curves=[
- {id:'helix',name:'Lecture 6 helix',subtitle:'A steady climb, a turning frame.',range:[0,6*pi],closed:false,distance:8,
+ {id:'helix',name:'Circular helix',subtitle:'A steady climb, a turning frame.',range:[0,6*pi],closed:false,distance:8,
   formula:'⟨cos t, sin t, t⟩',velocity:'⟨−sin t, cos t, 1⟩',acceleration:'⟨−cos t, −sin t, 0⟩',
   evaluate:t=>({r:[Math.cos(t),Math.sin(t),t],v:[-Math.sin(t),Math.cos(t),1],a:[-Math.cos(t),-Math.sin(t),0]})},
  {id:'wavy',name:'Wavy sky ring',subtitle:'A circle that refuses to stay in a plane.',range:[0,2*pi],closed:true,distance:8,

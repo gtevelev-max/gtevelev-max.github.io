@@ -7,11 +7,11 @@ The homepage links to the [personal website](https://websites.umass.edu/tevelev/
 ## Contents
 
 - `index.html`, `style.css`, `assets/`: personal homepage.
-- `math233h/`: Lecture 7 demonstrations and downloadable lecture handout.
-- `math233h/rollercoaster/`: Professor JT (π), analytic space curves, Frenet frames, acceleration components, and osculating geometry.
-- `math233h/solar-system/`: Keplerian motion of eight planets and an approximate Halley comet orbit, central force and angular momentum vectors, and equal-time swept areas. Halley’s force and velocity arrows show direction only; its force calculation uses an explicitly assumed teaching mass.
+- [Motion and geometry](math233h/): interactive rollercoaster and solar-system demonstrations.
+- [Professor JT’s rollercoaster](math233h/rollercoaster/): analytic space curves, Frenet frames, acceleration components, and osculating geometry.
+- [The solar system](math233h/solar-system/): Keplerian motion of eight planets and an approximate Halley comet orbit, central force and angular momentum vectors, and equal-time swept areas. Halley’s force and velocity arrows show direction only; its force calculation uses an explicitly assumed teaching mass.
 - `triangle-group/index.html`: self-contained explorer, starting with (2,3,6).
-- `navier-stokes/index.html`: self-contained Math 233H spiraling-vortex classroom demonstration, restored from the September 10 version. This illustrates a prescribed velocity field; it is not the later inner-core numerical model.
+- `navier-stokes/index.html`: self-contained spiraling-vortex demonstration, restored from the September 10 version. This illustrates a prescribed velocity field; it is not the later inner-core numerical model.
 - `animations/`: three video pages linking to the existing public UMass movies.
 
 No build tools, paid services, or server are required. Publish the root of the `main` branch using GitHub Pages. For a user homepage, the public repository name is `<github-username>.github.io`.
@@ -30,4 +30,4 @@ All internal links are relative. Video files remain hosted on the UMass website;
 
 ## Triangle groups II
 
-`triangle-quotients/` is an interactive presentation with eight verified finite quotients. It animates the geometric tiling into exact cut-open triangulated surfaces with paired boundary sides. `quotient-data.zip` contains explicit generators, full chamber data, and independent verification scripts. The lecture notes and instructor-only homework solutions are kept separate from the public website.
+`triangle-quotients/` is an interactive presentation with eight verified finite quotients. It animates the geometric tiling into exact cut-open triangulated surfaces with paired boundary sides. `quotient-data.zip` contains explicit generators, full chamber data, and independent verification scripts.

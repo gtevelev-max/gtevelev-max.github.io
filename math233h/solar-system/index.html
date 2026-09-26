@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Interactive Keplerian solar system with Halley’s comet: radius, gravity, velocity, angular momentum and equal swept areas for Math 233H Lecture 7.">
-  <title>Solar System · Math 233H · Lecture 7</title>
-  <link rel="stylesheet" href="style.css?v=20260925-2">
-  <script defer src="mechanics.js?v=20260925-2"></script><script defer src="app.js?v=20260925-2"></script>
+  <meta name="description" content="Interactive Keplerian solar system with Halley’s comet: radius, gravity, velocity, angular momentum and equal swept areas.">
+  <title>Solar System · Motion Lab</title>
+  <link rel="stylesheet" href="style.css?v=20260926-public">
+  <script defer src="mechanics.js?v=20260926-public"></script><script defer src="app.js?v=20260926-public"></script>
 </head>
 <body>
   <header class="page-header">
-    <div><a class="back" href="../?v=20260925-2">← Math 233H / Lecture 7</a><h1>The geometry of an orbit</h1><p>One central force. A constant vector. Equal areas in equal times.</p></div>
-    <a class="other-demo" href="../rollercoaster/?v=20260925-2">Professor JT’s rollercoaster <span aria-hidden="true">↗</span></a>
+    <div><a class="back" href="../?v=20260926-public">← Motion Lab</a><h1>The geometry of an orbit</h1><p>One central force. A constant vector. Equal areas in equal times.</p></div>
+    <a class="other-demo" href="../rollercoaster/?v=20260926-public">Professor JT’s rollercoaster <span aria-hidden="true">↗</span></a>
   </header>
   <main class="layout">
     <section class="stage-column" aria-label="Solar system demonstration">
@@ -18,7 +18,7 @@
         <canvas id="space" tabindex="0" aria-label="Rotatable 3D solar system. Drag to rotate, use arrow keys to rotate, plus and minus to zoom, or use the view controls."></canvas>
         <div class="scene-heading"><span class="eyebrow">KEPLER’S SECOND LAW</span><strong id="sceneTitle">Earth in focus</strong><span id="sceneSubtitle">Distances in astronomical units</span></div>
         <div class="view-buttons" role="group" aria-label="Camera view"><button id="focusView" class="active" aria-pressed="true">Focus orbit</button><button id="systemView" aria-pressed="false">Whole system</button><button id="topView">Top view</button><button id="resetView" title="Reset camera">Reset view</button><button id="fullscreen" title="Enter fullscreen">Fullscreen ⤢</button></div>
-        <details class="fullscreen-panel" open><summary>Lecture controls</summary><div class="fullscreen-panel-body">
+        <details class="fullscreen-panel" open><summary>Simulation controls</summary><div class="fullscreen-panel-body">
           <div class="fullscreen-transport"><button id="playFs" aria-label="Pause animation">Ⅱ Pause</button><button id="restartFs" title="Return to the start">↺ Restart</button></div>
           <label for="focusFs">Body in focus</label><select id="focusFs"></select><div class="fullscreen-transport orbit-jumps"><button id="perihelionFs">Perihelion</button><button id="aphelionFs">Aphelion</button></div><p id="vectorScaleFs" class="fullscreen-scale-note"></p>
           <div class="fullscreen-toggles"><label><input id="showRadiusFs" type="checkbox" checked> Radius r</label><label><input id="showForceFs" type="checkbox" checked> Force F</label><label><input id="showVelocityFs" type="checkbox" checked> Velocity v</label><label><input id="showMomentumFs" type="checkbox" checked> Momentum h</label><label><input id="showAreasFs" type="checkbox" checked> Swept areas</label></div>
@@ -34,7 +34,7 @@
         <button class="play" id="play" aria-label="Pause animation">Ⅱ <span>Pause</span></button>
         <button id="restart" title="Return to the start">↺ <span>Restart</span></button>
         <div class="time-control"><div><label for="timeline">Focus orbit progress</label><output id="timeLabel">Day 0</output></div><input id="timeline" type="range" min="0" max="1000" value="0" aria-label="Time within one orbit of the focus body"></div>
-        <label class="speed-control" for="speed">Pace<select id="speed"><option value=".0002">Encounter</option><option value=".001">Near-Sun</option><option value=".025">Slow</option><option value=".08" selected>Lecture</option><option value=".25">Fast</option><option value="1">1 orbit / sec</option></select></label>
+        <label class="speed-control" for="speed">Pace<select id="speed"><option value=".0002">Encounter</option><option value=".001">Near-Sun</option><option value=".025">Slow</option><option value=".08" selected>Standard</option><option value=".25">Fast</option><option value="1">1 orbit / sec</option></select></label>
       </div>
       <div class="metrics" aria-label="Current values for the focused body">
         <div><span>Distance |r|</span><strong id="radiusValue">—</strong><small>AU</small></div>
@@ -58,6 +58,6 @@
       <section class="math-card"><h2>At this instant</h2><p class="formula">F = m r″ = −μm r / |r|³</p><div id="vectorValues"></div><p class="small-help">μ = 4π² AU³/year². Force is computed with the body’s mass and converted to newtons. Planet vectors use separate fixed display scales. Halley’s F and v arrows show direction only; its force uses an assumed teaching mass of 10¹⁴ kg, not a precise mass estimate. The purple h arrow starts at the Sun.</p></section>
     </aside>
   </main>
-  <section class="teaching-notes"><div><span class="eyebrow">A QUESTION FOR THE ROOM</span><h2>Where does an orbiting body move fastest?</h2><p>Pause and compare sectors near perihelion and aphelion. Each sector represents the same elapsed time. A smaller distance to the Sun requires a longer arc to sweep the same area. Focus Halley and compare Perihelion with Aphelion. Use Encounter pace to follow its close solar passage.</p><p><a href="../lecture-7-notes.pdf?v=20260925-triple-product">Read the Lecture 7 notes ↗</a></p></div><div><span class="eyebrow">ABOUT THIS MODEL</span><p>Ideal two-body motion around a fixed Sun, with orbital shapes and orientations held constant in J2000 axes. Planet–planet interactions and precession are omitted. Earth’s path uses the Earth–Moon barycenter as an approximation to Earth, and its force uses Earth’s mass. Halley uses JPL’s sample 1P/Halley elements (epoch MJD 49400), with q = 0.58597811 AU and e = 0.96714291. Its idealized period is 75.31 years; actual returns vary. The schematic tail points away from the Sun and is not a force vector. This is a teaching model, not a live ephemeris.</p><p>Orbital distances share a true linear scale; body sizes are schematic. The camera rotates the view without changing the physics. NASA/JPL sources: <a href="https://ssd.jpl.nasa.gov/planets/approx_pos.html" target="_blank" rel="noreferrer">orbital elements, Table 1 ↗</a> and <a href="https://ssd.jpl.nasa.gov/planets/phys_par.html" target="_blank" rel="noreferrer">planetary masses ↗</a>; <a href="https://ssd.jpl.nasa.gov/sb/elem_tables.html" target="_blank" rel="noreferrer">Halley’s orbital elements ↗</a> and <a href="https://science.nasa.gov/solar-system/comets/1p-halley/" target="_blank" rel="noreferrer">NASA’s Halley overview ↗</a>.</p></div></section>
-  <footer>Math 233H · Lecture 7 <span>Vectors, central forces &amp; planetary motion</span></footer>
+  <section class="teaching-notes"><div><span class="eyebrow">EXPLORE THE ORBIT</span><h2>Where does an orbiting body move fastest?</h2><p>Pause and compare sectors near perihelion and aphelion. Each sector represents the same elapsed time. A smaller distance to the Sun requires a longer arc to sweep the same area. Focus Halley and compare Perihelion with Aphelion. Use Encounter pace to follow its close solar passage.</p></div><div><span class="eyebrow">ABOUT THIS MODEL</span><p>Ideal two-body motion around a fixed Sun, with orbital shapes and orientations held constant in J2000 axes. Planet–planet interactions and precession are omitted. Earth’s path uses the Earth–Moon barycenter as an approximation to Earth, and its force uses Earth’s mass. Halley uses JPL’s sample 1P/Halley elements (epoch MJD 49400), with q = 0.58597811 AU and e = 0.96714291. Its idealized period is 75.31 years; actual returns vary. The schematic tail points away from the Sun and is not a force vector. This is a teaching model, not a live ephemeris.</p><p>Orbital distances share a true linear scale; body sizes are schematic. The camera rotates the view without changing the physics. NASA/JPL sources: <a href="https://ssd.jpl.nasa.gov/planets/approx_pos.html" target="_blank" rel="noreferrer">orbital elements, Table 1 ↗</a> and <a href="https://ssd.jpl.nasa.gov/planets/phys_par.html" target="_blank" rel="noreferrer">planetary masses ↗</a>; <a href="https://ssd.jpl.nasa.gov/sb/elem_tables.html" target="_blank" rel="noreferrer">Halley’s orbital elements ↗</a> and <a href="https://science.nasa.gov/solar-system/comets/1p-halley/" target="_blank" rel="noreferrer">NASA’s Halley overview ↗</a>.</p></div></section>
+  <footer>Motion Lab · Solar system <span>Vectors, central forces &amp; planetary motion</span></footer>
 </body></html>
