@@ -17,64 +17,67 @@ function create(){
  // map preserves front-to-back order while retaining precision near the focus.
  // Keeping vertex z inside the frustum avoids cutting handles as zoom changes.
  const writeDepth=fragmentDepth?'gl_FragDepthEXT=clamp(0.5-atan(viewPosition.z*depth)/3.141592653589793-depthBias,0.0,1.0);':'';
+ const palette=`vec3 handleColor(float h){float k=mod(h-1.0,5.0);if(k<.5)return vec3(.32,.84,.85);if(k<1.5)return vec3(.75,.57,.92);if(k<2.5)return vec3(.95,.57,.52);if(k<3.5)return vec3(.43,.70,.97);return vec3(.70,.85,.48);}`;
  function make(vs,fs){
   const p=gl.createProgram();for(const [type,src] of [[gl.VERTEX_SHADER,vs],[gl.FRAGMENT_SHADER,fs]]){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error('Surface '+(type===gl.VERTEX_SHADER?'vertex':'fragment')+' shader: '+gl.getShaderInfoLog(s));gl.attachShader(p,s);}gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error('Surface shader link: '+gl.getProgramInfoLog(p));return p;
  }
- const triangles=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute vec3 normal;attribute float face;uniform float selected;varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} vec3 fallbackNormal;${common}
- void main(){viewPosition=world(from,to);gl_Position=vec4(project(viewPosition),1.0);fallbackNormal=mix(vec3(0,0,1),rotation*normal,fold);color=mod(face,2.0)<.5?vec3(.57,.85,.73):vec3(.23,.49,.55);if(abs(face-selected)<.1)color=vec3(1,.76,.38);}`,
- fragmentHeader(true)+`varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} vec3 fallbackNormal;vec3 stableDirection(vec3 v){return v/max(max(max(abs(v.x),abs(v.y)),abs(v.z)),1.0e-30);}void main(){vec3 n=${derivatives?'cross(stableDirection(dFdx(viewPosition)),stableDirection(dFdy(viewPosition)))':'fallbackNormal'};float magnitude=length(n);if(magnitude>0.0)n/=magnitude;else n=vec3(0,0,1);float light=.55+.45*abs(dot(n,normalize(vec3(-.35,.65,1))));gl_FragColor=vec4(color*light,1);${writeDepth}}`);
- const lines=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute vec3 otherFrom;attribute vec3 otherTo;attribute float side;attribute float face;attribute float edge;uniform float selected;uniform float seam;uniform float seamFace;uniform float wire;uniform float route;uniform float edgeWidth;uniform vec2 viewport;varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} float visible;${common}
- void main(){viewPosition=world(from,to);vec3 p=project(viewPosition),q=project(world(otherFrom,otherTo));vec2 delta=(q.xy-p.xy)*viewport;float len=max(.000001,length(delta));vec2 normal=vec2(-delta.y,delta.x)/len;bool active=abs(edge-seam)<.1;bool chosen=abs(face-selected)<.1;float width=route>.5?2.6:(active||chosen?2.1:edgeWidth);p.xy+=side*normal*width/viewport;gl_Position=vec4(p,1);color=route>.5?vec3(1,.82,.34):active?(abs(face-seamFace)<.1?vec3(1,.70,.32):vec3(1,.89,.65)):chosen?vec3(1,.87,.55):vec3(.1,.24,.26);visible=(wire>.5||active||chosen||route>.5)?1.0:0.0;}`,
- fragmentHeader()+`varying vec3 color;varying float visible;void main(){if(visible<.5)discard;gl_FragColor=vec4(color,1);${writeDepth}}`);
- const picking=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute float face;varying ${fragmentPrecision} vec3 idColor;${common}
- void main(){viewPosition=world(from,to);gl_Position=vec4(project(viewPosition),1);float id=face+1.0;idColor=vec3(mod(id,256.0),mod(floor(id/256.0),256.0),floor(id/65536.0))/255.0;}`,
- fragmentHeader()+`varying vec3 idColor;void main(){gl_FragColor=vec4(idColor,1);${writeDepth}}`);
- const triangleBuffer=gl.createBuffer(),edgeBuffer=gl.createBuffer(),routeBuffer=gl.createBuffer();
- const uniforms=new Map();for(const p of [triangles,lines,picking]){const u={};for(const n of ['rotation','fold','scale','pan','depth','depthBias','selected','seam','seamFace','wire','route','edgeWidth','viewport'])u[n]=gl.getUniformLocation(p,n);uniforms.set(p,u);}
+ const triangles=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute vec3 normal;attribute float face;attribute float part;uniform float selected;uniform float structure;uniform float attachmentHandle;varying ${fragmentPrecision} float piece;varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} vec3 fallbackNormal;${common}${palette}
+ void main(){piece=part;viewPosition=world(from,to);gl_Position=vec4(project(viewPosition),1.0);fallbackNormal=mix(vec3(0,0,1),rotation*normal,fold);color=mod(face,2.0)<.5?vec3(.57,.85,.73):vec3(.23,.49,.55);if(structure>.5){color=part<-.5?vec3(.28,.39,.48):part<.5?vec3(.72,.80,.69):handleColor(part);if(part>.5&&attachmentHandle>.5&&abs(part-attachmentHandle)>.1)color=mix(color,vec3(.32,.43,.46),.60);if(mod(face,2.0)>.5)color*=.85;}if(abs(face-selected)<.1)color=vec3(1,.76,.38);}`,
+ fragmentHeader(true)+`uniform float openUnder;uniform float isolateHandle;uniform float attachmentHandle;varying ${fragmentPrecision} float piece;varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} vec3 fallbackNormal;vec3 stableDirection(vec3 v){return v/max(max(max(abs(v.x),abs(v.y)),abs(v.z)),1.0e-30);}void main(){if(openUnder>.5&&piece<-.5)discard;if(isolateHandle>.5&&piece>.5&&abs(piece-attachmentHandle)>.1)discard;vec3 n=${derivatives?'cross(stableDirection(dFdx(viewPosition)),stableDirection(dFdy(viewPosition)))':'fallbackNormal'};float magnitude=length(n);if(magnitude>0.0)n/=magnitude;else n=vec3(0,0,1);float light=.55+.45*abs(dot(n,normalize(vec3(-.35,.65,1))));gl_FragColor=vec4(color*light,1);${writeDepth}}`);
+ const lines=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute vec3 otherFrom;attribute vec3 otherTo;attribute float side;attribute float face;attribute float edge;attribute float part;varying ${fragmentPrecision} float piece;uniform float selected;uniform float seam;uniform float seamFace;uniform float wire;uniform float route;uniform float edgeWidth;uniform float attachmentHandle;uniform float allRims;uniform vec2 viewport;varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} float visible;${common}${palette}
+ void main(){piece=part;viewPosition=world(from,to);vec3 p=project(viewPosition),q=project(world(otherFrom,otherTo));vec2 delta=(q.xy-p.xy)*viewport;float len=max(.000001,length(delta));vec2 normal=vec2(-delta.y,delta.x)/len;bool rim=route>1.5;bool active=rim?abs(edge-attachmentHandle)<.1:abs(edge-seam)<.1;bool chosen=abs(face-selected)<.1;float width=rim?(active?3.0:1.5):route>.5?2.6:(active||chosen?2.1:edgeWidth);p.xy+=side*normal*width/viewport;gl_Position=vec4(p,1);color=rim?handleColor(edge):route>.5?vec3(1,.82,.34):active?(abs(face-seamFace)<.1?vec3(1,.70,.32):vec3(1,.89,.65)):chosen?vec3(1,.87,.55):vec3(.1,.24,.26);visible=rim?((allRims>.5||active)?1.0:0.0):((wire>.5||active||chosen||route>.5)?1.0:0.0);}`,
+ fragmentHeader()+`uniform float openUnder;uniform float isolateHandle;uniform float attachmentHandle;varying ${fragmentPrecision} float piece;varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} float visible;void main(){if(visible<.5)discard;if(openUnder>.5&&piece<-.5)discard;if(isolateHandle>.5&&piece>.5&&abs(piece-attachmentHandle)>.1)discard;gl_FragColor=vec4(color,1);${writeDepth}}`);
+ const picking=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute float face;attribute float part;varying ${fragmentPrecision} float piece;varying ${fragmentPrecision} vec3 idColor;${common}
+ void main(){piece=part;viewPosition=world(from,to);gl_Position=vec4(project(viewPosition),1);float id=face+1.0;idColor=vec3(mod(id,256.0),mod(floor(id/256.0),256.0),floor(id/65536.0))/255.0;}`,
+ fragmentHeader()+`uniform float openUnder;uniform float isolateHandle;uniform float attachmentHandle;varying ${fragmentPrecision} float piece;varying vec3 idColor;void main(){if(openUnder>.5&&piece<-.5)discard;if(isolateHandle>.5&&piece>.5&&abs(piece-attachmentHandle)>.1)discard;gl_FragColor=vec4(idColor,1);${writeDepth}}`);
+ const triangleBuffer=gl.createBuffer(),edgeBuffer=gl.createBuffer(),routeBuffer=gl.createBuffer(),rimBuffer=gl.createBuffer();
+ const uniforms=new Map();for(const p of [triangles,lines,picking]){const u={};for(const n of ['rotation','fold','scale','pan','depth','depthBias','selected','seam','seamFace','wire','route','edgeWidth','viewport','structure','attachmentHandle','allRims','openUnder','isolateHandle'])u[n]=gl.getUniformLocation(p,n);uniforms.set(p,u);}
  gl.clearColor(0,0,0,0);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
  const pathCache=new Map();
- let data,net,model,triangleArray,edgeArray,triangleCount=0,edgeCount=0,routeCount=0,walkKey='',lastFocus='',lastOptions,edgeSpecs=[],routeSpecs=[];
+ let data,net,model,triangleArray,edgeArray,triangleCount=0,edgeCount=0,routeCount=0,rimCount=0,walkKey='',lastFocus='',lastOptions,edgeSpecs=[],routeSpecs=[],rimSpecs=[];
  const cut=(f,w)=>[0,1,2].map(j=>j===2?0:w.reduce((s,v,i)=>s+v*net.positions[net.corners[f][i]][j],0));
  const target=p=>p.map((x,i)=>(x-model.focus[i])*model.scale);
  function upload(){
   const {raw}=model,{nf,vertices,positions,chambers,bary}=raw;
-  triangleArray=new Float32Array(nf*3*10);let at=0;
+  triangleArray=new Float32Array(nf*3*11);let at=0;
   for(let p=0;p<nf;p++){
    const ps=[0,1,2].map(k=>model.pos(vertices[3*p+k]));
    const n=unit(cross(sub(ps[1],ps[0]),sub(ps[2],ps[0])));
-   for(let k=0;k<3;k++){const w=Array.from(bary.subarray(9*p+3*k,9*p+3*k+3));triangleArray.set([...cut(chambers[p],w),...target(ps[k]),...n,chambers[p]],at);at+=10;}
+   for(let k=0;k<3;k++){const w=Array.from(bary.subarray(9*p+3*k,9*p+3*k+3));triangleArray.set([...cut(chambers[p],w),...target(ps[k]),...n,chambers[p],model.parts[p]],at);at+=11;}
   }
   gl.bindBuffer(gl.ARRAY_BUFFER,triangleBuffer);gl.bufferData(gl.ARRAY_BUFFER,triangleArray,gl.STATIC_DRAW);triangleCount=nf*3;
-  edgeArray=makeLines(edgeSpecs);gl.bindBuffer(gl.ARRAY_BUFFER,edgeBuffer);gl.bufferData(gl.ARRAY_BUFFER,edgeArray,gl.STATIC_DRAW);edgeCount=edgeArray.length/15;
-  uploadRoute();lastFocus=model.focus.join(',');
+  edgeArray=makeLines(edgeSpecs);gl.bindBuffer(gl.ARRAY_BUFFER,edgeBuffer);gl.bufferData(gl.ARRAY_BUFFER,edgeArray,gl.STATIC_DRAW);edgeCount=edgeArray.length/16;
+  uploadRoute();uploadRims();lastFocus=model.focus.join(',');
  }
  function rebase(){
   // Only destination coordinates change when inspecting a small handle.
   // Avoid rebuilding normals, source charts and millions of temporary arrays.
   const {raw}=model,p=raw.positions,v=raw.vertices,f=model.focus,s=model.scale;
-  for(let i=0;i<v.length;i++){const a=3*v[i],b=10*i+3;triangleArray[b]=(p[a]-f[0])*s;triangleArray[b+1]=(p[a+1]-f[1])*s;triangleArray[b+2]=(p[a+2]-f[2])*s;}
+  for(let i=0;i<v.length;i++){const a=3*v[i],b=11*i+3;triangleArray[b]=(p[a]-f[0])*s;triangleArray[b+1]=(p[a+1]-f[1])*s;triangleArray[b+2]=(p[a+2]-f[2])*s;}
   gl.bindBuffer(gl.ARRAY_BUFFER,triangleBuffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,triangleArray);
   const order=[0,0,1,1,0,1];
   for(let i=0;i<edgeSpecs.length;i++){
    const a=edgeSpecs[i].a.to,b=edgeSpecs[i].b.to;
-   for(let k=0;k<6;k++){const u=order[k]?b:a,w=order[k]?a:b,off=i*90+k*15;for(let j=0;j<3;j++){edgeArray[off+3+j]=(u[j]-f[j])*s;edgeArray[off+9+j]=(w[j]-f[j])*s;}}
+   for(let k=0;k<6;k++){const u=order[k]?b:a,w=order[k]?a:b,off=i*96+k*16;for(let j=0;j<3;j++){edgeArray[off+3+j]=(u[j]-f[j])*s;edgeArray[off+9+j]=(w[j]-f[j])*s;}}
   }
-  gl.bindBuffer(gl.ARRAY_BUFFER,edgeBuffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,edgeArray);uploadRoute();lastFocus=model.focus.join(',');
+  gl.bindBuffer(gl.ARRAY_BUFFER,edgeBuffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,edgeArray);uploadRoute();uploadRims();lastFocus=model.focus.join(',');
  }
  function makeLines(specs){
-  const result=new Float32Array(specs.length*6*15);let at=0;
-  for(const {f,e,a,b} of specs){const af=cut(f,a.w),bf=cut(f,b.w),ap=target(a.to),bp=target(b.to);
+  const result=new Float32Array(specs.length*6*16);let at=0;
+  for(const {f,e,a,b,part} of specs){const af=cut(f,a.w),bf=cut(f,b.w),ap=target(a.to),bp=target(b.to);
    for(const [which,side] of [[0,1],[0,-1],[1,-1],[1,-1],[0,-1],[1,1]]){
     // Reversing the endpoint reverses the transverse normal.
-    const values=which?[...bf,...bp,...af,...ap,side,f,e]:[...af,...ap,...bf,...bp,side,f,e];result.set(values,at);at+=15;
+    const values=which?[...bf,...bp,...af,...ap,side,f,e,part]:[...af,...ap,...bf,...bp,side,f,e,part];result.set(values,at);at+=16;
    }
   }return result;
  }
- function uploadRoute(){const values=makeLines(routeSpecs);gl.bindBuffer(gl.ARRAY_BUFFER,routeBuffer);gl.bufferData(gl.ARRAY_BUFFER,values,gl.DYNAMIC_DRAW);routeCount=values.length/15;}
+ function uploadRoute(){const values=makeLines(routeSpecs);gl.bindBuffer(gl.ARRAY_BUFFER,routeBuffer);gl.bufferData(gl.ARRAY_BUFFER,values,gl.DYNAMIC_DRAW);routeCount=values.length/16;}
+ function uploadRims(){const values=makeLines(rimSpecs);gl.bindBuffer(gl.ARRAY_BUFFER,rimBuffer);gl.bufferData(gl.ARRAY_BUFFER,values,gl.STATIC_DRAW);rimCount=values.length/16;}
  function prepare(d,n,m){
-  data=d;net=n;model=m;pathCache.clear();edgeSpecs=[];routeSpecs=[];walkKey='';
+  data=d;net=n;model=m;pathCache.clear();edgeSpecs=[];routeSpecs=[];rimSpecs=[];walkKey='';
+  model.handles.forEach((h,i)=>h.attachments.forEach(a=>a.rim.forEach(e=>rimSpecs.push({...e,e:i+1,part:i+1}))));
   for(let f=0;f<d.counts.triangles;f++)for(let side=0;side<3;side++){
-   const points=m.boundaries[f][side];for(let j=1;j<points.length;j++)edgeSpecs.push({f,e:d.faceEdges[f][side],a:points[j-1],b:points[j]});
+   const points=m.boundaries[f][side];for(let j=1;j<points.length;j++)edgeSpecs.push({f,e:d.faceEdges[f][side],a:points[j-1],b:points[j],part:m.partAt(f,points[j].w.map((x,k)=>(x+points[j-1].w[k])/2))});
   }
   upload();
  }
@@ -85,6 +88,7 @@ function create(){
   const shiftedRadius=(model.radius+Math.hypot(...model.focus.map((x,j)=>x-model.origin[j])))*model.scale;
   const depth=fragmentDepth?.18*Math.max(1,o.zoom):.9/Math.max(1,shiftedRadius);
   gl.uniformMatrix3fv(u.rotation,false,rotation);gl.uniform1f(u.fold,o.t);gl.uniform2f(u.scale,2*R/o.width,2*R/o.height);gl.uniform2f(u.pan,2*o.pan[0]/o.width,-2*o.pan[1]/o.height);gl.uniform1f(u.depth,depth);gl.uniform1f(u.depthBias,p===lines?2/16777215:0);gl.uniform1f(u.selected,o.selected);
+  gl.uniform1f(u.structure,o.structure?1:0);gl.uniform1f(u.attachmentHandle,(o.structure||o.isolateHandle)?(o.attachmentHandle??-1)+1:0);gl.uniform1f(u.allRims,model.genus<=10?1:0);gl.uniform1f(u.openUnder,o.openUnder&&o.t>.999?1:0);gl.uniform1f(u.isolateHandle,o.isolateHandle&&o.t>.999?1:0);
   if(p===lines){gl.uniform1f(u.seam,o.seam?.edge??-1);gl.uniform1f(u.seamFace,o.seam?.first.face??-1);gl.uniform1f(u.wire,o.wire?1:0);gl.uniform1f(u.edgeWidth,.85*(model.genus>100?Math.min(1,o.zoom/15):1));gl.uniform2f(u.viewport,o.width,o.height);}
  }
  function attributes(p,buffer,fields,stride){
@@ -96,17 +100,22 @@ function create(){
   if(lastFocus!==model.focus.join(','))rebase();
   const key=(o.walk||[]).join(',');if(key!==walkKey){walkKey=key;routeSpecs=[];
    for(let i=1;i<(o.walk||[]).length;i++){const a=o.walk[i-1],b=o.walk[i],side=data.neighbors[a].indexOf(b);if(side<0)continue;const middle=[.5,.5,.5];middle[side]=0;
-    for(const f of [a,b]){const cacheKey=f+':'+side;let points=pathCache.get(cacheKey);if(!points){points=model.path(f,[1/3,1/3,1/3],middle);pathCache.set(cacheKey,points);}for(let j=1;j<points.length;j++)routeSpecs.push({f,e:-2,a:points[j-1],b:points[j]});}
+    for(const f of [a,b]){const cacheKey=f+':'+side;let points=pathCache.get(cacheKey);if(!points){points=model.path(f,[1/3,1/3,1/3],middle);pathCache.set(cacheKey,points);}for(let j=1;j<points.length;j++)routeSpecs.push({f,e:-2,a:points[j-1],b:points[j],part:model.partAt(f,points[j].w.map((x,k)=>(x+points[j-1].w[k])/2))});}
    }uploadRoute();
   }
   const cy=Math.cos(o.yaw),sy=Math.sin(o.yaw),cp=Math.cos(o.pitch),sp=Math.sin(o.pitch),rotation=[cy,sp*sy,-cp*sy,0,cp,sp,sy,-sp*cy,cp*cy];
   gl.bindFramebuffer(gl.FRAMEBUFFER,null);
   gl.viewport(0,0,canvas.width,canvas.height);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  commonUniforms(triangles,o,rotation);attributes(triangles,triangleBuffer,[['from',3],['to',3],['normal',3],['face',1]],10);gl.drawArrays(gl.TRIANGLES,0,triangleCount);
-  commonUniforms(lines,o,rotation);const fields=[['from',3],['to',3],['otherFrom',3],['otherTo',3],['side',1],['face',1],['edge',1]];
-  gl.uniform1f(uniforms.get(lines).route,0);attributes(lines,edgeBuffer,fields,15);gl.drawArrays(gl.TRIANGLES,0,edgeCount);
-  if(routeCount){gl.uniform1f(uniforms.get(lines).route,1);attributes(lines,routeBuffer,fields,15);gl.drawArrays(gl.TRIANGLES,0,routeCount);}
+  commonUniforms(triangles,o,rotation);attributes(triangles,triangleBuffer,[['from',3],['to',3],['normal',3],['face',1],['part',1]],11);gl.drawArrays(gl.TRIANGLES,0,triangleCount);
+  commonUniforms(lines,o,rotation);const fields=[['from',3],['to',3],['otherFrom',3],['otherTo',3],['side',1],['face',1],['edge',1],['part',1]];
+  gl.uniform1f(uniforms.get(lines).route,0);attributes(lines,edgeBuffer,fields,16);gl.drawArrays(gl.TRIANGLES,0,edgeCount);
+  if(o.structure&&rimCount){gl.uniform1f(uniforms.get(lines).route,2);attributes(lines,rimBuffer,fields,16);gl.drawArrays(gl.TRIANGLES,0,rimCount);}
+  if(routeCount){gl.uniform1f(uniforms.get(lines).route,1);attributes(lines,routeBuffer,fields,16);gl.drawArrays(gl.TRIANGLES,0,routeCount);}
   ctx.drawImage(canvas,0,0,o.width,o.height);lastOptions={...o,rotation};
+  if(o.structure&&o.t>.999&&o.attachmentHandle>=0){
+   const h=model.handles[o.attachmentHandle],R=Math.min(o.width,o.height)*.445*o.zoom;
+   h.attachments.forEach((a,j)=>{const p=target(a.center),v=[0,1,2].map(k=>rotation[k]*p[0]+rotation[k+3]*p[1]+rotation[k+6]*p[2]);const x=o.width/2+o.pan[0]+v[0]*R,y=o.height/2+o.pan[1]-v[1]*R;if(x<0||x>o.width||y<0||y>o.height)return;const label=(o.attachmentHandle+1)+(j?'B':'A');ctx.font='bold 12px -apple-system,sans-serif';ctx.textAlign='center';const w=ctx.measureText(label).width+12;ctx.fillStyle='#102b32ee';ctx.fillRect(x-w/2,y-10,w,20);ctx.strokeStyle='#c9e6df';ctx.lineWidth=1;ctx.strokeRect(x-w/2,y-10,w,20);ctx.fillStyle='#e0f6ee';ctx.fillText(label,x,y+4);});
+  }
  }
  function pick(x,y){
   if(!lastOptions)return null;const o=lastOptions,w=canvas.width,h=canvas.height;
@@ -118,7 +127,7 @@ function create(){
   gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,w,h);gl.enable(gl.SCISSOR_TEST);gl.scissor(px,py,1,1);gl.disable(gl.DITHER);
   try{
    gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-   commonUniforms(picking,o,o.rotation);attributes(picking,triangleBuffer,[['from',3],['to',3],['normal',3],['face',1]],10);gl.drawArrays(gl.TRIANGLES,0,triangleCount);gl.readPixels(px,py,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
+   commonUniforms(picking,o,o.rotation);attributes(picking,triangleBuffer,[['from',3],['to',3],['normal',3],['face',1],['part',1]],11);gl.drawArrays(gl.TRIANGLES,0,triangleCount);gl.readPixels(px,py,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
   }finally{
    if(dither)gl.enable(gl.DITHER);else gl.disable(gl.DITHER);
    gl.scissor(...scissorBox);if(scissor)gl.enable(gl.SCISSOR_TEST);else gl.disable(gl.SCISSOR_TEST);

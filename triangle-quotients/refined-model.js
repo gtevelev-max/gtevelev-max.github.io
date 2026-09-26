@@ -48,10 +48,14 @@ function build(data,raw){
   const v=((cx-ax)*(w[1]-cy)+(ay-cy)*(w[0]-cx))/det;
   return [u,v,1-u-v];
  }
- function sample(f,w){
+ function locate(f,w){
   let best=null,bestScore=-Infinity;
   for(const p of byFace[f]){const q=coordinates(p,w);if(!q)continue;const score=Math.min(...q);if(score>bestScore){best={p,q};bestScore=score;}if(score>=-1e-10)break;}
   if(!best||bestScore<-.00001)throw Error('A point lies outside its source chamber chart.');
+  return best;
+ }
+ function sample(f,w){
+  const best=locate(f,w);
   return [0,1,2].map(j=>best.q.reduce((s,x,k)=>s+x*positions[3*vertices[3*best.p+k]+j],0));
  }
  const boundaries=Array.from({length:data.counts.triangles},()=>[[],[],[]]);
@@ -74,8 +78,31 @@ function build(data,raw){
   parameters.sort((a,b)=>a-b);
   return parameters.filter((x,i)=>!i||x-parameters[i-1]>1e-11).map(t=>{const w=lerp(a,b,t);return {w,to:sample(f,w)};});
  }
- return {kind:'refined',genus:meta.genus,raw,byFace,boundaries,weights,pos,sample,path,origin,radius,
-  center:f=>sample(f,[1/3,1/3,1/3]),validation:meta.verification,handles:(meta.tubes||[]).map(t=>({...t,footRadius:t.footRadii?.[0]??Math.min(...[0,1,2].map(k=>{const p=pos(vertices[3*t.patchStart+k]);return Math.hypot(p[0]-t.endpointCenters[0][0],p[1]-t.endpointCenters[0][1]);}))})),focus:origin.slice(),scale:.97/radius};
+ // These are parts of the existing embedding, not additional quotient cells.
+ // The final three rendering patches fold one original chamber underneath
+ // the perforated sheet. Each tube range includes its two attachment collars.
+ const parts=new Float32Array(nf),underside={patchStart:nf-3,patchEnd:nf,chamber:chambers[nf-1]};
+ if(nf<3||Array.from(chambers.subarray(nf-3)).some(f=>f!==underside.chamber))throw Error('The underside must be three patches of one original chamber.');
+ parts.fill(-1,underside.patchStart,underside.patchEnd);
+ const point=(p,k)=>({v:vertices[3*p+k],w:weights(p,k),to:pos(vertices[3*p+k])});
+ const handles=(meta.tubes||[]).map((t,h)=>{
+  const n=t.sourceChambers.length;
+  if(!Number.isInteger(t.patchStart)||!Number.isInteger(t.patchEnd)||t.patchStart<0||t.patchEnd>underside.patchStart||t.patchEnd-t.patchStart<4*n)throw Error('Invalid attachment patch range.');
+  for(let p=t.patchStart;p<t.patchEnd;p++){if(parts[p]!==0)throw Error('Overlapping handle patch ranges.');parts[p]=h+1;}
+  // The first and last collar quads retain the actual polygonal hole rims.
+  // Keep their source barycentrics so the outlines follow the same gluing
+  // animation as the adjacent chamber patches, including at chamber edges.
+  const attachments=t.endpointCenters.map((center,end)=>({center:[...center,0],rim:Array.from({length:n},(_,i)=>{
+   const p=end?t.patchEnd-2*n+2*i+1:t.patchStart+2*i;
+   return {f:chambers[p],a:point(p,1),b:point(p,end?2:0)};
+  })}));
+  return {...t,attachments,footRadius:t.footRadii?.[0]??Math.min(...[0,1,2].map(k=>{const p=pos(vertices[3*t.patchStart+k]);return Math.hypot(p[0]-t.endpointCenters[0][0],p[1]-t.endpointCenters[0][1]);}))};
+ });
+ // Boundary and gallery segments already split at rendering-patch edges.
+ // Their source midpoint therefore identifies the component for visibility.
+ const partAt=(f,w)=>parts[locate(f,w).p];
+ return {kind:'refined',genus:meta.genus,raw,byFace,boundaries,weights,pos,sample,partAt,path,origin,radius,parts,underside,
+  center:f=>sample(f,[1/3,1/3,1/3]),validation:meta.verification,handles,focus:origin.slice(),scale:.97/radius};
 }
 root.RefinedSurfaceModel={load,build};
 })(typeof window==='undefined'?globalThis:window);
