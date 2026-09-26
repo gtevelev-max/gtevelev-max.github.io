@@ -4,25 +4,25 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Triangle groups II · Finite quotients and surfaces</title>
 <meta name="description" content="Glue the actual triangle-group quotients into rotatable surfaces: Klein, Wiman, Fricke–Macbeath, and the genus-631 Mathieu surface, plus spheres and a torus.">
-<link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="style.css?v=complete-surfaces-3">
+<link rel="icon" href="../assets/favicon.svg"><link rel="stylesheet" href="style.css?v=render-fix-4">
 </head>
 <body>
 <header><div><a href="../">Jenia Tevelev</a><span class="sep">/</span><a href="../triangle-group/">Triangle groups I</a></div><span>Math 611 · Presentation II</span></header>
 <main>
 <div class="title-row"><div><p class="eyebrow">Finite quotients and Riemann surfaces</p><h1>When triangle words close up</h1></div><label class="group-label">Example<select id="example" aria-label="Finite quotient"><option value="klein">168 · Klein quartic</option><option value="a5">A₅ · Icosahedral sphere</option><option value="a6">A₆ · Wiman sextic</option><option value="macbeath">504 · Fricke–Macbeath curve</option><option value="m11">M₁₁ · Smallest Mathieu group</option><option value="torus">C₆ · Hexagonal torus</option><option value="a4">A₄ · Tetrahedral sphere</option><option value="s4">S₄ · Octahedral sphere</option></select></label></div>
-<nav class="chapters" aria-label="Presentation chapters"><button data-slide="0">1. Gluing region</button><button data-slide="1">2. A finite quotient</button><button data-slide="2">3. Identification</button><button data-slide="3">4. The surface</button><button data-slide="4">5. Euler characteristic</button><button data-slide="5">6. Words and loops</button></nav>
+<nav class="chapters" aria-label="Presentation chapters"><button data-slide="0">1. Tessellation</button><button data-slide="1">2. A finite quotient</button><button data-slide="2">3. Identification</button><button data-slide="3">4. The surface</button><button data-slide="4">5. Euler characteristic</button><button data-slide="5">6. Words and loops</button></nav>
 <div class="workspace">
 <section class="visual" aria-label="Animated triangle quotient">
 <div class="canvas-top"><span id="geometry-label">Loading exact quotient data…</span><span id="chamber-label"></span></div>
-<canvas id="scene" tabindex="0" aria-label="The gluing region, with one triangle per quotient chamber and paired boundary sides."></canvas>
+<canvas id="scene" tabindex="0" aria-label="The universal tessellation, followed by its gluing region and closed surface."></canvas>
 <div class="visual-bottom"><span id="view-caption"></span><div><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-in" aria-label="Zoom in">+</button><button id="turn-model">Turn 30°</button><button id="reset-view">Reset view</button><button id="fullscreen">Full screen</button></div></div>
-<div class="stage-controls" aria-label="Assembly stages"><button data-stage="0">1 · Gluing region</button><button data-stage="1">2 · Identify sides</button><button data-stage="3" id="stage-closed">3 · Glued surface</button></div>
+<div class="stage-controls" aria-label="Assembly stages"><button data-stage="0">1 · Tessellation</button><button data-stage="1">2 · Gluing region</button><button data-stage="3" id="stage-closed">3 · Glued surface</button></div>
 <div id="surface-controls"><label class="check"><input id="show-triangles" type="checkbox" checked> Show original triangle edges</label><span id="navigation-hint">Drag to pan · Scroll to zoom · Click a chamber or boundary edge</span></div>
-<div id="handle-controls" hidden><label>Handle <input id="handle-number" type="number" min="1" value="1" aria-label="Handle number"></label><button id="focus-handle">Inspect handle</button><button id="focus-gluing">Inspect attachment</button><button id="focus-chamber">Selected triangle</button><button id="whole-surface">Whole surface</button><span id="handle-info"></span></div>
-<div class="animation-controls"><button id="animate" class="primary">Animate quotient</button><label>Glue the quotient<input id="progress" type="range" min="0" max="1" step="0.002" value="0" aria-label="Quotient animation progress"></label><output id="progress-text">Gluing region</output></div>
-<p id="surface-status" class="small"></p><p class="diagram-note" id="diagram-note">Start with the region to be glued. Matching boundary sides become one edge on the surface.</p>
+<div id="handle-controls" hidden><label>Handle <input id="handle-number" type="number" min="1" value="1" aria-label="Handle number"></label><button id="focus-handle">Inspect handle</button><button id="focus-gluing">Inspect attachment</button><label class="handle-travel" title="Move the close-up along this handle">Along handle <input id="handle-position" type="range" min="0" max="1" step="0.005" value="0.5" aria-label="Position along handle"></label><button id="focus-chamber">Selected triangle</button><button id="whole-surface">Whole surface</button><span id="handle-info"></span></div>
+<div class="animation-controls"><button id="animate" class="primary">Animate quotient</button><label>Glue the quotient<input id="progress" type="range" min="0" max="1" step="0.002" value="0" aria-label="Quotient animation progress"></label><output id="progress-text">Tessellation → region</output></div>
+<p id="surface-status" class="small"></p><p class="diagram-note" id="diagram-note">Start with the tessellated plane. Keep the gluing region, then join its matching boundary sides.</p>
 </section>
-<aside aria-label="Presentation explanation"><div class="aside-heading"><span id="chapter-number">01</span><h2 id="chapter-title">The gluing region</h2></div><div id="narrative"></div><div class="equation" id="equation"></div><div id="facts" class="facts"></div><div class="slide-nav"><button id="previous">← Previous</button><span id="slide-position">1 / 6</span><button id="next">Next →</button></div></aside>
+<aside aria-label="Presentation explanation"><div class="aside-heading"><span id="chapter-number">01</span><h2 id="chapter-title">From the tessellation to a surface</h2></div><div id="narrative"></div><div class="equation" id="equation"></div><div id="facts" class="facts"></div><div class="slide-nav"><button id="previous">← Previous</button><span id="slide-position">1 / 6</span><button id="next">Next →</button></div></aside>
 </div>
 <section class="exploration" aria-label="Chambers, edge identifications, and words">
 <div><h2>A chamber and its neighbors</h2><label>Chamber <input id="face-number" type="number" min="0" value="0" aria-label="Chamber number"></label><p id="face-info"></p><div class="neighbor-buttons"><button id="side-0">Cross a</button><button id="side-1">Cross b</button><button id="side-2">Cross c</button></div><canvas id="chamber-detail" aria-label="Selected triangle with labeled vertices and its three neighboring chambers"></canvas></div>
@@ -34,7 +34,7 @@
 <div id="error" role="alert" hidden></div>
 <footer>Jenia Tevelev · Math 611 · <a href="../triangle-group/">Triangle groups I</a> · <a href="../">All demonstrations</a></footer>
 </main>
-<script src="geometry.js?v=complete-surfaces-3"></script><script src="data.js?v=complete-surfaces-3"></script><script src="cut-net.js?v=complete-surfaces-3"></script><script src="surface-models.js?v=complete-surfaces-3"></script><script src="klein-embedding.js?v=complete-surfaces-3"></script><script src="macbeath-embedding.js?v=complete-surfaces-3"></script><script src="refined-model.js?v=complete-surfaces-3"></script><script src="refined-view.js?v=complete-surfaces-3"></script>
-<script src="surface-manifest.js?v=complete-surfaces-3"></script>
-<script src="surface-view.js?v=complete-surfaces-3"></script><script src="fundamental-region.js?v=complete-surfaces-3"></script><script src="app.js?v=complete-surfaces-3"></script>
+<script src="geometry.js?v=render-fix-4"></script><script src="data.js?v=render-fix-4"></script><script src="cut-net.js?v=render-fix-4"></script><script src="surface-models.js?v=render-fix-4"></script><script src="klein-embedding.js?v=render-fix-4"></script><script src="macbeath-embedding.js?v=render-fix-4"></script><script src="refined-model.js?v=render-fix-4"></script><script src="refined-view.js?v=render-fix-4"></script>
+<script src="surface-manifest.js?v=render-fix-4"></script>
+<script src="surface-view.js?v=render-fix-4"></script><script src="fundamental-region.js?v=render-fix-4"></script><script src="cover-patch.js?v=render-fix-4"></script><script src="app.js?v=render-fix-4"></script>
 </body></html>

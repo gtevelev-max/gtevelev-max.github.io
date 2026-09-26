@@ -26,3 +26,11 @@ The Klein region contains all 336 original triangles and has 88 exposed sides, p
 `surface-models.zip` contains numerical source data, builders, original-chamber correspondence, model hashes, primary-source citations, licenses, and portable verification instructions for all eight examples. The large generated A6/M11 intermediate JSON files are regenerated from the included quotient inputs. Their packed final web assets are distributed alongside the application in `surface-data/`; the archive provides a hash-checked download helper. `quotient-data.zip` contains the group enumeration and chamber-gluing certificates.
 
 Both applications work offline when their complete folders, including `surface-data/`, are copied locally, using a modern browser with WebGL and DecompressionStream support. The depth buffer is used for chamber edges and galleries as well as filled triangles.
+
+## Rendering and animation update
+
+The animation begins with the visible tessellation of the covering plane (or the complete sphere). Only chambers outside the chosen gluing region fade away. The retained region stays fixed, then its paired sides assemble into the closed surface.
+
+Camera framing uses each model’s actual bounding sphere. Refined models use a monotone depth map written from interpolated view depth, so zoom no longer clips remote pieces; a full-model depth bound is used when fragment-depth support is unavailable. Surface shading follows the actual intermediate mesh, and edge depth bias is limited to two 24-bit depth units. Picking uses the same depth format as drawing.
+
+A6 and M11 have mathematically valid but very thin tube embeddings. Their global view is an overview; it cannot show every small chamber at screen resolution. Inspect handle magnifies a tube using the original double-precision coordinates. The Along handle slider follows it; Inspect attachment shows the endpoint collar. The source complex and final embedding are unchanged.

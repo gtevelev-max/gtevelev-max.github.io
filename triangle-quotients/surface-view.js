@@ -13,7 +13,7 @@ function build(data,M){
  if(!['klein','macbeath'].includes(data.id)){const model=root.QuotientSurfaceModels.build(data,M);if(model?.kind==='torus'){const sample=model.sample;model.sample=(f,w)=>sample(f,w).map(x=>x*.80);model.center=f=>model.sample(f,[1/3,1/3,1/3]);}return model;}
  const e=data.id==='klein'?root.KLEIN_EMBEDDING:root.MACBEATH_EMBEDDING;
  if(!e||e.positions.length!==data.counts.vertices)throw Error('Missing polyhedral surface embedding.');
- const radius=Math.max(...e.positions.map(p=>Math.hypot(...p))),vertices=e.positions.map(p=>p.map(x=>1.18*x/radius));
+ const radius=Math.max(...e.positions.map(p=>Math.hypot(...p))),vertices=e.positions.map(p=>p.map(x=>x/radius));
  const corners=data.faceVertices.map(vs=>vs.map(v=>vertices[v]));
  return {kind:'polyhedron',genus:data.genus,corners,vertexPositions:vertices,
   sample:(f,w)=>combine(corners[f],w),center:f=>combine(corners[f],[1/3,1/3,1/3]),
@@ -77,7 +77,7 @@ function create(){
    for(let i=0;i<values.length;i+=12){const a=values.slice(i,i+6),b=values.slice(i+6,i+12),dx=(b[0]-a[0])*width/2,dy=(b[1]-a[1])*height/2,length=Math.hypot(dx,dy);if(length<1e-7)continue;const ox=-dy/length*lineWidth/width,oy=dx/length*lineWidth/height,shift=(p,s)=>[p[0]+s*ox,p[1]+s*oy,...p.slice(2)];strips.push(...shift(a,1),...shift(a,-1),...shift(b,1),...shift(b,1),...shift(a,-1),...shift(b,-1));}
    gl.uniform1f(offset,bias);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(strips),gl.DYNAMIC_DRAW);gl.drawArrays(gl.TRIANGLES,0,strips.length/6);
   }
-  stroke(lines,-.0006,.85);stroke(gold,-.001,2.1);stroke(route,-.0012,2.6);
+  stroke(lines,-.000001,.85);stroke(gold,-.0000015,2.1);stroke(route,-.000002,2.6);
   ctx.drawImage(canvas,0,0,width,height);frame={width,height,R,pan};
  }
  function pick(x,y){if(model?.kind==='refined')return refinedRenderer.pick(x,y);let best=-Infinity,face=null;for(const {f,v} of hit){const [a,b,c]=v,det=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(det)<1e-9)continue;const u=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/det,w=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/det,k=1-u-w;if(Math.min(u,w,k)<-.001)continue;const z=u*a[2]+w*b[2]+k*c[2];if(z>best){best=z;face=f;}}return face;}

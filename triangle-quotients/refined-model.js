@@ -34,7 +34,8 @@ function build(data,raw){
  const byFace=Array.from({length:data.counts.triangles},()=>[]);
  let lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];
  for(let i=0;i<nv;i++)for(let j=0;j<3;j++){lo[j]=Math.min(lo[j],positions[3*i+j]);hi[j]=Math.max(hi[j],positions[3*i+j]);}
- const origin=lo.map((x,i)=>(x+hi[i])/2),radius=Math.max(...hi.map((x,i)=>(x-lo[i])/2))*1.2;
+ const origin=lo.map((x,i)=>(x+hi[i])/2);let radius=0;
+ for(let i=0;i<nv;i++)radius=Math.max(radius,Math.hypot(positions[3*i]-origin[0],positions[3*i+1]-origin[1],positions[3*i+2]-origin[2]));
  const pos=v=>Array.from(positions.subarray(3*v,3*v+3));
  for(let p=0;p<nf;p++)byFace[chambers[p]].push(p);
  if(byFace.some(ps=>ps.length===0))throw Error('An original chamber is missing from the surface.');
@@ -74,7 +75,7 @@ function build(data,raw){
   return parameters.filter((x,i)=>!i||x-parameters[i-1]>1e-11).map(t=>{const w=lerp(a,b,t);return {w,to:sample(f,w)};});
  }
  return {kind:'refined',genus:meta.genus,raw,byFace,boundaries,weights,pos,sample,path,origin,radius,
-  center:f=>sample(f,[1/3,1/3,1/3]),validation:meta.verification,handles:(meta.tubes||[]).map(t=>({...t,footRadius:Math.min(...[0,1,2].map(k=>{const p=pos(vertices[3*t.patchStart+k]);return Math.hypot(p[0]-t.endpointCenters[0][0],p[1]-t.endpointCenters[0][1]);}))})),focus:origin.slice(),scale:1.1/radius};
+  center:f=>sample(f,[1/3,1/3,1/3]),validation:meta.verification,handles:(meta.tubes||[]).map(t=>({...t,footRadius:Math.min(...[0,1,2].map(k=>{const p=pos(vertices[3*t.patchStart+k]);return Math.hypot(p[0]-t.endpointCenters[0][0],p[1]-t.endpointCenters[0][1]);}))})),focus:origin.slice(),scale:.97/radius};
 }
 root.RefinedSurfaceModel={load,build};
 })(typeof window==='undefined'?globalThis:window);

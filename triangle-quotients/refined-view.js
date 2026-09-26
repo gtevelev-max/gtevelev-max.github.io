@@ -9,22 +9,28 @@ const unit=a=>{const d=Math.hypot(...a)||1;return a.map(x=>x/d);};
 function create(){
  const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{alpha:true,antialias:true,preserveDrawingBuffer:true});
  if(!gl)throw Error('WebGL is required for the glued surface.');
- const common=`uniform mat3 rotation;uniform float fold;uniform vec2 scale;uniform vec2 pan;uniform float depth;vec3 world(vec3 a,vec3 b){return mix(a,rotation*b,fold);}vec3 project(vec3 p){return vec3(p.xy*scale+pan,-p.z*depth);}`;
+ const fragmentDepth=!!gl.getExtension('EXT_frag_depth'),derivatives=!!gl.getExtension('OES_standard_derivatives');
+ const fragmentPrecision=gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER,gl.HIGH_FLOAT)?.precision?'highp':'mediump';
+ const common=`uniform mat3 rotation;uniform float fold;uniform vec2 scale;uniform vec2 pan;uniform ${fragmentPrecision} float depth;uniform ${fragmentPrecision} float depthBias;varying ${fragmentPrecision} vec3 viewPosition;vec3 world(vec3 a,vec3 b){return mix(a,rotation*b,fold);}vec3 project(vec3 p){return vec3(p.xy*scale+pan,${fragmentDepth?'0.0':'-p.z*depth-2.0*depthBias'});}`;
+ const fragmentHeader=(useNormals=false)=>(fragmentDepth?'#extension GL_EXT_frag_depth : enable\n':'')+(useNormals&&derivatives?'#extension GL_OES_standard_derivatives : enable\n':'')+`precision ${fragmentPrecision} float;varying ${fragmentPrecision} vec3 viewPosition;uniform float depth;uniform float depthBias;`;
+ // Transform the interpolated depth, not just the vertices. A monotone depth
+ // map preserves front-to-back order while retaining precision near the focus.
+ // Keeping vertex z inside the frustum avoids cutting handles as zoom changes.
+ const writeDepth=fragmentDepth?'gl_FragDepthEXT=clamp(0.5-atan(viewPosition.z*depth)/3.141592653589793-depthBias,0.0,1.0);':'';
  function make(vs,fs){
-  const p=gl.createProgram();for(const [type,src] of [[gl.VERTEX_SHADER,vs],[gl.FRAGMENT_SHADER,fs]]){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));gl.attachShader(p,s);}gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;
+  const p=gl.createProgram();for(const [type,src] of [[gl.VERTEX_SHADER,vs],[gl.FRAGMENT_SHADER,fs]]){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error('Surface '+(type===gl.VERTEX_SHADER?'vertex':'fragment')+' shader: '+gl.getShaderInfoLog(s));gl.attachShader(p,s);}gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error('Surface shader link: '+gl.getProgramInfoLog(p));return p;
  }
- const triangles=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute vec3 normal;attribute float face;uniform float selected;varying vec3 color;${common}
- void main(){vec3 p=project(world(from,to));gl_Position=vec4(p,1.0);vec3 n=normalize(mix(vec3(0,0,1),rotation*normal,fold));float l=.55+.45*abs(dot(n,normalize(vec3(-.35,.65,1))));vec3 base=mod(face,2.0)<.5?vec3(.57,.85,.73):vec3(.23,.49,.55);if(abs(face-selected)<.1)base=vec3(1,.76,.38);color=base*l;}`,
- `precision mediump float;varying vec3 color;void main(){gl_FragColor=vec4(color,1);}`);
- const lines=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute vec3 otherFrom;attribute vec3 otherTo;attribute float side;attribute float face;attribute float edge;uniform float selected;uniform float seam;uniform float seamFace;uniform float wire;uniform float route;uniform vec2 viewport;varying vec3 color;varying float visible;${common}
- void main(){vec3 p=project(world(from,to)),q=project(world(otherFrom,otherTo));vec2 delta=(q.xy-p.xy)*viewport;float len=max(.000001,length(delta));vec2 normal=vec2(-delta.y,delta.x)/len;bool active=abs(edge-seam)<.1;bool chosen=abs(face-selected)<.1;float width=route>.5?2.6:(active||chosen?2.1:.85);p.xy+=side*normal*width/viewport;p.z-=route>.5?.0012:.0006;gl_Position=vec4(p,1);color=route>.5?vec3(1,.82,.34):active?(abs(face-seamFace)<.1?vec3(1,.70,.32):vec3(1,.89,.65)):chosen?vec3(1,.87,.55):vec3(.1,.24,.26);visible=(wire>.5||active||chosen||route>.5)?1.0:0.0;}`,
- `precision mediump float;varying vec3 color;varying float visible;void main(){if(visible<.5)discard;gl_FragColor=vec4(color,1);}`);
- const picking=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute float face;varying vec3 idColor;${common}
- void main(){gl_Position=vec4(project(world(from,to)),1);float id=face+1.0;idColor=vec3(mod(id,256.0),mod(floor(id/256.0),256.0),floor(id/65536.0))/255.0;}`,
- `precision mediump float;varying vec3 idColor;void main(){gl_FragColor=vec4(idColor,1);}`);
- const pickFrame=gl.createFramebuffer(),pickTexture=gl.createTexture(),pickDepth=gl.createRenderbuffer();let pickWidth=0,pickHeight=0;
+ const triangles=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute vec3 normal;attribute float face;uniform float selected;varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} vec3 fallbackNormal;${common}
+ void main(){viewPosition=world(from,to);gl_Position=vec4(project(viewPosition),1.0);fallbackNormal=mix(vec3(0,0,1),rotation*normal,fold);color=mod(face,2.0)<.5?vec3(.57,.85,.73):vec3(.23,.49,.55);if(abs(face-selected)<.1)color=vec3(1,.76,.38);}`,
+ fragmentHeader(true)+`varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} vec3 fallbackNormal;vec3 stableDirection(vec3 v){return v/max(max(max(abs(v.x),abs(v.y)),abs(v.z)),1.0e-30);}void main(){vec3 n=${derivatives?'cross(stableDirection(dFdx(viewPosition)),stableDirection(dFdy(viewPosition)))':'fallbackNormal'};float magnitude=length(n);if(magnitude>0.0)n/=magnitude;else n=vec3(0,0,1);float light=.55+.45*abs(dot(n,normalize(vec3(-.35,.65,1))));gl_FragColor=vec4(color*light,1);${writeDepth}}`);
+ const lines=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute vec3 otherFrom;attribute vec3 otherTo;attribute float side;attribute float face;attribute float edge;uniform float selected;uniform float seam;uniform float seamFace;uniform float wire;uniform float route;uniform vec2 viewport;varying ${fragmentPrecision} vec3 color;varying ${fragmentPrecision} float visible;${common}
+ void main(){viewPosition=world(from,to);vec3 p=project(viewPosition),q=project(world(otherFrom,otherTo));vec2 delta=(q.xy-p.xy)*viewport;float len=max(.000001,length(delta));vec2 normal=vec2(-delta.y,delta.x)/len;bool active=abs(edge-seam)<.1;bool chosen=abs(face-selected)<.1;float width=route>.5?2.6:(active||chosen?2.1:.85);p.xy+=side*normal*width/viewport;gl_Position=vec4(p,1);color=route>.5?vec3(1,.82,.34):active?(abs(face-seamFace)<.1?vec3(1,.70,.32):vec3(1,.89,.65)):chosen?vec3(1,.87,.55):vec3(.1,.24,.26);visible=(wire>.5||active||chosen||route>.5)?1.0:0.0;}`,
+ fragmentHeader()+`varying vec3 color;varying float visible;void main(){if(visible<.5)discard;gl_FragColor=vec4(color,1);${writeDepth}}`);
+ const picking=make(`precision highp float;attribute vec3 from;attribute vec3 to;attribute float face;varying ${fragmentPrecision} vec3 idColor;${common}
+ void main(){viewPosition=world(from,to);gl_Position=vec4(project(viewPosition),1);float id=face+1.0;idColor=vec3(mod(id,256.0),mod(floor(id/256.0),256.0),floor(id/65536.0))/255.0;}`,
+ fragmentHeader()+`varying vec3 idColor;void main(){gl_FragColor=vec4(idColor,1);${writeDepth}}`);
  const triangleBuffer=gl.createBuffer(),edgeBuffer=gl.createBuffer(),routeBuffer=gl.createBuffer();
- const uniforms=new Map();for(const p of [triangles,lines,picking]){const u={};for(const n of ['rotation','fold','scale','pan','depth','selected','seam','seamFace','wire','route','viewport'])u[n]=gl.getUniformLocation(p,n);uniforms.set(p,u);}
+ const uniforms=new Map();for(const p of [triangles,lines,picking]){const u={};for(const n of ['rotation','fold','scale','pan','depth','depthBias','selected','seam','seamFace','wire','route','viewport'])u[n]=gl.getUniformLocation(p,n);uniforms.set(p,u);}
  gl.clearColor(0,0,0,0);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
  const pathCache=new Map();
  let data,net,model,triangleArray,edgeArray,triangleCount=0,edgeCount=0,routeCount=0,walkKey='',lastFocus='',lastOptions,edgeSpecs=[],routeSpecs=[];
@@ -74,7 +80,11 @@ function create(){
  }
  function commonUniforms(p,o,rotation){
   gl.useProgram(p);const u=uniforms.get(p),R=Math.min(o.width,o.height)*.445*o.zoom;
-  gl.uniformMatrix3fv(u.rotation,false,rotation);gl.uniform1f(u.fold,o.t);gl.uniform2f(u.scale,2*R/o.width,2*R/o.height);gl.uniform2f(u.pan,2*o.pan[0]/o.width,-2*o.pan[1]/o.height);gl.uniform1f(u.depth,.18*Math.max(1,o.zoom));gl.uniform1f(u.selected,o.selected);
+  // In the fallback, bound the whole rotated surface after rebasing. Zoom
+  // changes only the screen magnification; it never shrinks the depth range.
+  const shiftedRadius=(model.radius+Math.hypot(...model.focus.map((x,j)=>x-model.origin[j])))*model.scale;
+  const depth=fragmentDepth?.18*Math.max(1,o.zoom):.9/Math.max(1,shiftedRadius);
+  gl.uniformMatrix3fv(u.rotation,false,rotation);gl.uniform1f(u.fold,o.t);gl.uniform2f(u.scale,2*R/o.width,2*R/o.height);gl.uniform2f(u.pan,2*o.pan[0]/o.width,-2*o.pan[1]/o.height);gl.uniform1f(u.depth,depth);gl.uniform1f(u.depthBias,p===lines?2/16777215:0);gl.uniform1f(u.selected,o.selected);
   if(p===lines){gl.uniform1f(u.seam,o.seam?.edge??-1);gl.uniform1f(u.seamFace,o.seam?.first.face??-1);gl.uniform1f(u.wire,o.wire?1:0);gl.uniform2f(u.viewport,o.width,o.height);}
  }
  function attributes(p,buffer,fields,stride){
@@ -90,6 +100,7 @@ function create(){
    }uploadRoute();
   }
   const cy=Math.cos(o.yaw),sy=Math.sin(o.yaw),cp=Math.cos(o.pitch),sp=Math.sin(o.pitch),rotation=[cy,sp*sy,-cp*sy,0,cp,sp,sy,-sp*cy,cp*cy];
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
   gl.viewport(0,0,canvas.width,canvas.height);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   commonUniforms(triangles,o,rotation);attributes(triangles,triangleBuffer,[['from',3],['to',3],['normal',3],['face',1]],10);gl.drawArrays(gl.TRIANGLES,0,triangleCount);
   commonUniforms(lines,o,rotation);const fields=[['from',3],['to',3],['otherFrom',3],['otherTo',3],['side',1],['face',1],['edge',1]];
@@ -99,15 +110,19 @@ function create(){
  }
  function pick(x,y){
   if(!lastOptions)return null;const o=lastOptions,w=canvas.width,h=canvas.height;
-  gl.bindFramebuffer(gl.FRAMEBUFFER,pickFrame);
-  if(pickWidth!==w||pickHeight!==h){
-   gl.bindTexture(gl.TEXTURE_2D,pickTexture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
-   gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,pickTexture,0);gl.bindRenderbuffer(gl.RENDERBUFFER,pickDepth);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,w,h);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,pickDepth);pickWidth=w;pickHeight=h;
-  }
+  // The offscreen canvas has already been copied into the visible 2D canvas.
+  // Reusing its default framebuffer gives selection exactly the same depth
+  // format as the drawing and avoids a separate lower-precision depth buffer.
   const px=Math.max(0,Math.min(w-1,Math.floor(x*w/o.width))),py=Math.max(0,Math.min(h-1,h-1-Math.floor(y*h/o.height))),pixel=new Uint8Array(4);
-  gl.viewport(0,0,w,h);gl.enable(gl.SCISSOR_TEST);gl.scissor(px,py,1,1);gl.disable(gl.DITHER);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  commonUniforms(picking,o,o.rotation);attributes(picking,triangleBuffer,[['from',3],['to',3],['normal',3],['face',1]],10);gl.drawArrays(gl.TRIANGLES,0,triangleCount);gl.readPixels(px,py,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
-  gl.disable(gl.SCISSOR_TEST);gl.enable(gl.DITHER);gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  const dither=gl.isEnabled(gl.DITHER),scissor=gl.isEnabled(gl.SCISSOR_TEST),scissorBox=gl.getParameter(gl.SCISSOR_BOX);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,w,h);gl.enable(gl.SCISSOR_TEST);gl.scissor(px,py,1,1);gl.disable(gl.DITHER);
+  try{
+   gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+   commonUniforms(picking,o,o.rotation);attributes(picking,triangleBuffer,[['from',3],['to',3],['normal',3],['face',1]],10);gl.drawArrays(gl.TRIANGLES,0,triangleCount);gl.readPixels(px,py,1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);
+  }finally{
+   if(dither)gl.enable(gl.DITHER);else gl.disable(gl.DITHER);
+   gl.scissor(...scissorBox);if(scissor)gl.enable(gl.SCISSOR_TEST);else gl.disable(gl.SCISSOR_TEST);
+  }
   const face=pixel[0]+256*pixel[1]+65536*pixel[2]-1;return face>=0&&face<data.counts.triangles?face:null;
  }
 
