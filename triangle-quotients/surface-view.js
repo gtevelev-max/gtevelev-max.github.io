@@ -10,12 +10,12 @@ const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
 const unit=a=>{const n=Math.hypot(...a)||1;return a.map(x=>x/n);};
 const combine=(vs,w)=>[0,1,2].map(j=>vs.reduce((s,v,i)=>s+w[i]*v[j],0));
 function build(data,M){
- if(data.id!=='klein'){const model=root.QuotientSurfaceModels.build(data,M);if(model?.kind==='torus'){const sample=model.sample;model.sample=(f,w)=>sample(f,w).map(x=>x*.80);model.center=f=>model.sample(f,[1/3,1/3,1/3]);}return model;}
- const e=root.KLEIN_EMBEDDING;
- if(!e||e.positions.length!==data.counts.vertices)throw Error('Missing Klein surface embedding.');
+ if(!['klein','macbeath'].includes(data.id)){const model=root.QuotientSurfaceModels.build(data,M);if(model?.kind==='torus'){const sample=model.sample;model.sample=(f,w)=>sample(f,w).map(x=>x*.80);model.center=f=>model.sample(f,[1/3,1/3,1/3]);}return model;}
+ const e=data.id==='klein'?root.KLEIN_EMBEDDING:root.MACBEATH_EMBEDDING;
+ if(!e||e.positions.length!==data.counts.vertices)throw Error('Missing polyhedral surface embedding.');
  const radius=Math.max(...e.positions.map(p=>Math.hypot(...p))),vertices=e.positions.map(p=>p.map(x=>1.18*x/radius));
  const corners=data.faceVertices.map(vs=>vs.map(v=>vertices[v]));
- return {kind:'klein',genus:3,corners,vertexPositions:vertices,
+ return {kind:'polyhedron',genus:data.genus,corners,vertexPositions:vertices,
   sample:(f,w)=>combine(corners[f],w),center:f=>combine(corners[f],[1/3,1/3,1/3]),
   sources:e.sources,validation:e.verification};
 }
@@ -29,10 +29,10 @@ function create(){
  const buffer=gl.createBuffer(),p=gl.getAttribLocation(program,'p'),c=gl.getAttribLocation(program,'color'),offset=gl.getUniformLocation(program,'offset');
  gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.enableVertexAttribArray(p);gl.enableVertexAttribArray(c);gl.vertexAttribPointer(p,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(c,3,gl.FLOAT,false,24,12);
  gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.clearColor(0,0,0,0);
- let mesh=[],edges=[],model,data,net,hit=[],frame;
+ let mesh=[],edges=[],model,data,net,hit=[],frame,refinedRenderer;
  function prepare(d,n,m){
-  data=d;net=n;model=m;mesh=[];edges=[];
-  const resolution=m.kind==='klein'?1:m.kind==='torus'?32:8;
+  data=d;net=n;model=m;mesh=[];edges=[];if(m.kind==='refined'){if(!refinedRenderer)refinedRenderer=root.RefinedSurfaceRenderer.create();refinedRenderer.prepare(d,n,m);return;}
+  const resolution=m.kind==='polyhedron'?1:m.kind==='torus'?32:8;
   const refinement=root.QuotientSurfaceModels.refinement(resolution);
   for(let f=0;f<d.counts.triangles;f++){
    const cut=n.corners[f].map(v=>[...n.positions[v],0]);
@@ -46,7 +46,7 @@ function create(){
   }
  }
  function rotate(v,yaw,pitch){const x=v[0]*Math.cos(yaw)+v[2]*Math.sin(yaw),z=-v[0]*Math.sin(yaw)+v[2]*Math.cos(yaw);return [x,v[1]*Math.cos(pitch)-z*Math.sin(pitch),v[1]*Math.sin(pitch)+z*Math.cos(pitch)];}
- function draw(ctx,options){
+ function draw(ctx,options){if(model?.kind==='refined')return refinedRenderer.draw(ctx,options);
   const {width,height,dpr,t,zoom,pan,yaw,pitch,selected,seam,wire,walk}=options;
   if(canvas.width!==Math.round(width*dpr))canvas.width=Math.round(width*dpr);if(canvas.height!==Math.round(height*dpr))canvas.height=Math.round(height*dpr);gl.viewport(0,0,canvas.width,canvas.height);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   const R=Math.min(width,height)*.445*zoom;
@@ -80,7 +80,7 @@ function create(){
   stroke(lines,-.0006,.85);stroke(gold,-.001,2.1);stroke(route,-.0012,2.6);
   ctx.drawImage(canvas,0,0,width,height);frame={width,height,R,pan};
  }
- function pick(x,y){let best=-Infinity,face=null;for(const {f,v} of hit){const [a,b,c]=v,det=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(det)<1e-9)continue;const u=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/det,w=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/det,k=1-u-w;if(Math.min(u,w,k)<-.001)continue;const z=u*a[2]+w*b[2]+k*c[2];if(z>best){best=z;face=f;}}return face;}
+ function pick(x,y){if(model?.kind==='refined')return refinedRenderer.pick(x,y);let best=-Infinity,face=null;for(const {f,v} of hit){const [a,b,c]=v,det=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(det)<1e-9)continue;const u=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/det,w=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/det,k=1-u-w;if(Math.min(u,w,k)<-.001)continue;const z=u*a[2]+w*b[2]+k*c[2];if(z>best){best=z;face=f;}}return face;}
  return {prepare,draw,pick};
 }
 root.QuotientSurfaceView={build,create};
