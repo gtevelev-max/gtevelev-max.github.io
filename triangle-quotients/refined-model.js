@@ -8,7 +8,7 @@ async function load(id){
  if(cache.has(id))return cache.get(id);if(loading.has(id))return loading.get(id);
  const manifest=root.REFINED_SURFACE_MANIFEST?.[id];
  if(!root.REFINED_SURFACE_PACKED?.[id]&&manifest){
-  const script=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src+'?v=complete-surfaces-3';s.onload=resolve;s.onerror=()=>reject(Error('Could not load the complete surface model. Please reload the page.'));document.head.append(s);});
+  const script=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src+'?v='+(manifest.version||'balanced-area-1');s.onload=resolve;s.onerror=()=>reject(Error('Could not load the complete surface model. Please reload the page.'));document.head.append(s);});
   const work=(async()=>{await script(manifest.files[0]);await Promise.all(manifest.files.slice(1).map(script));return decode(id);})();loading.set(id,work);try{return await work;}finally{loading.delete(id);}
  }
  return decode(id);
@@ -75,7 +75,7 @@ function build(data,raw){
   return parameters.filter((x,i)=>!i||x-parameters[i-1]>1e-11).map(t=>{const w=lerp(a,b,t);return {w,to:sample(f,w)};});
  }
  return {kind:'refined',genus:meta.genus,raw,byFace,boundaries,weights,pos,sample,path,origin,radius,
-  center:f=>sample(f,[1/3,1/3,1/3]),validation:meta.verification,handles:(meta.tubes||[]).map(t=>({...t,footRadius:Math.min(...[0,1,2].map(k=>{const p=pos(vertices[3*t.patchStart+k]);return Math.hypot(p[0]-t.endpointCenters[0][0],p[1]-t.endpointCenters[0][1]);}))})),focus:origin.slice(),scale:.97/radius};
+  center:f=>sample(f,[1/3,1/3,1/3]),validation:meta.verification,handles:(meta.tubes||[]).map(t=>({...t,footRadius:t.footRadii?.[0]??Math.min(...[0,1,2].map(k=>{const p=pos(vertices[3*t.patchStart+k]);return Math.hypot(p[0]-t.endpointCenters[0][0],p[1]-t.endpointCenters[0][1]);}))})),focus:origin.slice(),scale:.97/radius};
 }
 root.RefinedSurfaceModel={load,build};
 })(typeof window==='undefined'?globalThis:window);
