@@ -1,6 +1,6 @@
 # Triangle groups II: finite quotients and glued surfaces
 
-Open `index.html` and choose a quotient. Every example has a closed three-dimensional surface. For the torus and higher-genus examples, the gluing view starts with the actual developed fundamental region: adjacent triangles are already joined, and matching exposed boundary sides are identified to form the surface. The hyperbolic examples use the Klein disc, where geodesics are straight line segments. The spherical examples use a topological cut disk. The animation goes directly from its region to the glued surface, retaining the same original chamber labels.
+Open `index.html` and choose a quotient. Every example has a closed three-dimensional surface. The animation begins with the surrounding tessellation, fades away chambers outside the chosen gluing region, then glues its paired boundary sides. Retained triangles remain in the same positions during the first transition. Hyperbolic examples use the Klein disc, where geodesics are straight line segments; Euclidean examples use the plane. Spherical examples begin with the complete tessellated sphere and open a topological cut chart before gluing. Original chamber labels are preserved throughout.
 
 | Quotient | Signature | Original triangles | Genus | Surface |
 | --- | --- | ---: | ---: | --- |
