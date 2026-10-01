@@ -11,3 +11,30 @@
 .genus-range{font-size:10px;color:var(--muted)}.focus-label{display:flex;flex-direction:column;font-size:10px;color:var(--muted);gap:5px;margin:2px 0 9px}.focus-label select{font-size:11px;background:var(--white);border:1px solid var(--line);border-radius:5px;padding:7px 8px;width:100%}@media(max-width:760px){.focus-label{grid-column:1/-1;flex-direction:row;align-items:center;gap:12px;margin:7px 0}.focus-label select{width:auto;flex:1}.demonstration:fullscreen .explore-panel{display:block;padding:7px 16px}.demonstration:fullscreen .explore-panel>*:not(.focus-label){display:none}.demonstration:fullscreen .focus-label{display:flex;margin:0}}
 @media(max-width:760px){.demonstration{display:flex;flex-direction:column}.stage-layout{display:contents}.workspace-bar{order:0}.plot-panel{order:1}.transport{order:2}.parameter-status{order:3}.explore-panel{order:4}.space-meta{max-width:100px}.genus-control{gap:7px}.genus-range{font-size:9px}.demonstration:fullscreen .plot-panel{flex:1}.demonstration:fullscreen .canvas-wrap{min-height:210px}}
 @media(min-width:761px){.plot-panel{display:flex;flex-direction:column}.canvas-wrap{flex:1;min-height:440px}}
+
+/* Keep playback above the plot and fit the viewer to the browser height. */
+.demonstration{display:flex;flex-direction:column;height:80vh;height:80dvh}
+.workspace-bar{flex:none;order:0;min-height:61px;padding-top:12px;padding-bottom:12px}
+.transport{flex:none;order:1;border-top:0;border-bottom:1px solid var(--line);padding-top:12px;padding-bottom:12px}
+.stage-layout{flex:1;order:2;min-height:0}
+.plot-panel{display:flex;flex-direction:column;min-height:0}
+.plot-heading,.plot-caption{flex:none}
+.canvas-wrap{flex:1;height:auto;min-height:0}
+.explore-panel{min-height:0;overflow:auto;overscroll-behavior:contain}
+.parameter-status{flex:none;order:3;border-top:1px solid var(--line);padding:9px 22px;min-height:0}
+.demonstration:fullscreen{height:100vh;height:100dvh}
+.demonstration:fullscreen .canvas-wrap{min-height:0}
+@media(max-width:760px){
+  .stage-layout{display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) clamp(70px,15dvh,130px)}
+  .plot-panel{order:0}
+  .explore-panel{order:1;align-content:start;padding-top:10px;padding-bottom:10px}
+  .workspace-bar{flex-wrap:nowrap;gap:8px}
+  .space-meta{display:none}
+  .workspace-bar>#fullscreen{margin-left:auto;flex:none}
+  .transport{gap:8px;padding-top:9px;padding-bottom:9px}
+  .timeline{margin-top:2px}
+  .plot-heading{padding-top:10px;padding-bottom:7px}
+  .plot-caption{min-height:0;padding-bottom:7px}
+  .parameter-status{padding:7px 16px}
+  .demonstration:fullscreen .stage-layout{grid-template-rows:minmax(0,1fr) auto}
+}

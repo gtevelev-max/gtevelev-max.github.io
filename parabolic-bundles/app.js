@@ -19,12 +19,12 @@
 
   function dimensions() {
     const r=canvas.getBoundingClientRect();
-    state.width=Math.max(250,r.width);state.height=Math.max(200,r.height);state.dpr=Math.min(window.devicePixelRatio||1,2);
+    state.width=Math.max(1,r.width);state.height=Math.max(1,r.height);state.dpr=Math.min(window.devicePixelRatio||1,2);
     canvas.width=Math.round(state.width*state.dpr);canvas.height=Math.round(state.height*state.dpr);
     ctx.setTransform(state.dpr,0,0,state.dpr,0,0);draw();
   }
   function plot() {
-    const left=state.width<500?43:56, right=state.width<500?23:31, top=57, bottom=61;
+    const left=state.width<500?43:56, right=state.width<500?23:31, top=Math.min(65,state.height*.28), bottom=Math.min(61,state.height*.3);
     const width=state.width-left-right,height=state.height-top-bottom;
     return {left,right,top,bottom,width,height,x0:state.view.center-state.view.span/2,x1:state.view.center+state.view.span/2,yspan:state.view.span*height/width};
   }
@@ -66,8 +66,8 @@
     const xmin=ev?0:a.x0,xmax=ev?1:a.x1,ymin=ev?state.view.center-state.view.span/2:state.view.imaginary-a.yspan/2,ymax=ev?state.view.center+state.view.span/2:state.view.imaginary+a.yspan/2;
     for(let x=Math.ceil(xmin/xs)*xs;x<=xmax+xs*.001;x+=xs){const px=ev?a.left+x*a.width:screen([x,0])[0];line(px,a.top,px,a.top+a.height,Math.abs(x)<xs*.001?'#bfcbbd':'#e7ece2');text(axisFmt(x,Math.max(0,-Math.floor(Math.log10(xs)))),px,a.top+a.height+16);}
     for(let y=Math.ceil(ymin/ys)*ys;y<=ymax+ys*.001;y+=ys){const py=ev?screen([y,0])[1]:screen([0,y])[1];line(a.left,py,a.left+a.width,py,Math.abs(y)<ys*.001?'#bfcbbd':'#e7ece2');text(axisFmt(y,Math.max(0,-Math.floor(Math.log10(ys)))),a.left-10,py,'#778477','right');}
-    if(ev){text('ρ',a.left+a.width,a.top+a.height+39,'#536850','right','italic 13px Georgia');text('Re(λ / q)',a.left,a.top-19,'#536850','left','italic 13px Georgia');}
-    else{text('Re(λ / q)',a.left+a.width,a.top+a.height+39,'#536850','right','italic 13px Georgia');text('Im(λ / q)',a.left,a.top-19,'#536850','left','italic 13px Georgia');}
+    if(ev){text('ρ',a.left,a.top+a.height+39,'#536850','left','italic 13px Georgia');text('Re(λ / q)',a.left,a.top-19,'#536850','left','italic 13px Georgia');}
+    else{text('Re(λ / q)',a.left,a.top+a.height+39,'#536850','left','italic 13px Georgia');text('Im(λ / q)',a.left,a.top-19,'#536850','left','italic 13px Georgia');}
     ctx.strokeStyle='#dce2d9';ctx.lineWidth=1;ctx.strokeRect(a.left,a.top,a.width,a.height);
     if(ev&&opts.walls){for(const w of state.walls){const x=a.left+w.rho*a.width;line(x,a.top,x,a.top+a.height,'#b17c3580',1,[3,4]);}text('calibrated stability walls',a.left+a.width/2,a.top+13,'#9a753c','center','9px -apple-system, sans-serif');}
     if(ev&&opts.crossings&&state.data.g===3){for(const r of [.07522256980768560,.9747674718513930]){const x=a.left+r*a.width;line(x,a.top,x,a.top+a.height,'#9973a08a',1,[2,5]);}}
@@ -203,7 +203,7 @@
   new ResizeObserver(dimensions).observe($('canvas-wrap'));
   async function init(){
     try{const r=await fetch('data/manifest.json');if(r.ok){const m=await r.json();state.supported=m.gValues||m.genera||[];if(state.supported.length){$('genus').min=Math.min(...state.supported);$('genus').max=Math.max(...state.supported);$('genus').title='Computed genera: '+state.supported.join(', ');$('genus-range').textContent=`${Math.min(...state.supported)}–${Math.max(...state.supported)}`;}}}catch(_){}
-    const requested=Number(new URL(location.href).searchParams.get('g')||3);await loadGenus(requested);
+    const requested=Number(new URL(location.href).searchParams.get('g')||8);await loadGenus(requested);
   }
   // Expose a small read-only inspection surface for reproducibility and UI checks.
   window.quantumSpectrum={getState:()=>({g:state.data?.g,rho:state.rho,mode:state.mode,focus:state.focus,view:{...state.view},options:{...opts},branchCount:state.data?.branches.length,terminalValues:state.data?.clusters.map(c=>c.value),wallValues:state.walls.map(w=>({a:w.a,rho:w.rho}))})};

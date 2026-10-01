@@ -7,8 +7,8 @@
   <meta name="description" content="An interactive animation of the quantum spectrum of parabolic-bundle moduli spaces, its terminal clusters, and calibrated stability walls.">
   <title>Parabolic Bundles: Quantum Spectrum</title>
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20261001b">
+  <script src="app.js?v=20261001b" defer></script>
 </head>
 <body>
   <main class="page-shell">
@@ -23,12 +23,19 @@
       <div class="workspace-bar">
         <form id="genus-form" class="genus-control">
           <label for="genus">Genus <span class="math">g</span></label>
-          <input id="genus" type="number" min="2" max="20" step="1" value="3" inputmode="numeric" required>
+          <input id="genus" type="number" min="2" max="10" step="1" value="8" inputmode="numeric" required>
           <button type="submit" class="quiet">Apply</button>
           <span class="genus-range" id="genus-range"></span>
         </form>
-        <div class="space-meta" id="space-meta"><span><span class="math">n</span> = 7 marked points</span><span>Loading spectrum…</span></div>
+        <div class="space-meta" id="space-meta"><span><span class="math">n</span> = 17 marked points</span><span>Loading spectrum…</span></div>
         <button class="icon-button" id="fullscreen" aria-label="Enter full screen" title="Full screen">⛶</button>
+      </div>
+
+      <div class="transport">
+        <div class="playback-buttons"><button id="restart" class="icon-button" aria-label="Return to rho zero" title="Return to start">↤</button><button id="play" class="play-button" aria-label="Play animation"><span id="play-symbol">▶</span><span id="play-label">Play</span></button><button id="end" class="icon-button" aria-label="Go to rho one" title="Go to the final spectrum">↦</button></div>
+        <div class="timeline"><div id="wall-ticks" class="wall-ticks" aria-hidden="true"></div><div id="crossing-ticks" class="wall-ticks crossing-ticks" aria-hidden="true" hidden></div><input id="rho-slider" aria-label="Parameter rho" type="range" min="0" max="1" step="0.0001" value="0"><div class="timeline-labels"><span>0 <span class="timeline-end">singular limit</span></span><span>1 <span class="timeline-end">final clusters</span></span></div></div>
+        <label class="rho-control" for="rho">ρ <input id="rho" type="number" min="0" max="1" step="0.001" value="0.000"></label>
+        <label class="speed-control" for="speed">Speed<select id="speed"><option value="0.25">¼×</option><option value="0.5">½×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
       </div>
 
       <div class="stage-layout">
@@ -76,12 +83,6 @@
         </aside>
       </div>
 
-      <div class="transport">
-        <div class="playback-buttons"><button id="restart" class="icon-button" aria-label="Return to rho zero" title="Return to start">↤</button><button id="play" class="play-button" aria-label="Play animation"><span id="play-symbol">▶</span><span id="play-label">Play</span></button><button id="end" class="icon-button" aria-label="Go to rho one" title="Go to the final spectrum">↦</button></div>
-        <div class="timeline"><div id="wall-ticks" class="wall-ticks" aria-hidden="true"></div><div id="crossing-ticks" class="wall-ticks crossing-ticks" aria-hidden="true" hidden></div><input id="rho-slider" aria-label="Parameter rho" type="range" min="0" max="1" step="0.0001" value="0"><div class="timeline-labels"><span>0 <span class="timeline-end">singular limit</span></span><span>1 <span class="timeline-end">final clusters</span></span></div></div>
-        <label class="rho-control" for="rho">ρ <input id="rho" type="number" min="0" max="1" step="0.001" value="0.000"></label>
-        <label class="speed-control" for="speed">Speed<select id="speed"><option value="0.25">¼×</option><option value="0.5">½×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
-      </div>
       <p class="parameter-status" id="parameter-status" role="status" aria-live="polite">The spectrum is normalized by <span class="math">q</span>.</p>
     </section>
 
