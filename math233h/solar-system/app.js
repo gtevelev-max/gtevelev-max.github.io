@@ -5,14 +5,14 @@
   let width = 800, height = 600, yaw = -.45, tilt = .78, zoom = 1, view = 'focus', focusIndex = 2, time = 0;
   let playing = !window.matchMedia('(prefers-reduced-motion: reduce)').matches, lastFrame = null, metricsAt = 0;
   const enabled = bodyList.map(() => true), paths = bodyList.map(p => O.orbit(p, 300));
-  const colors = {r:'#65d4e2',force:'#ffae7a',v:'#addec4',h:'#c1a3fa'};
+  const colors = {r:'#65d4e2',force:'#ffae7a',v:'#addec4',h:'#c1a3fa',e:'#f28dc2'};
   let sectors = [], sectorPlanet = -1, sectorCount = -1, dragging = null;
   let labelBoxes = [];
   const stars = Array.from({length:95}, (_,j) => ({x: ((j*73.713)%97)/97, y:((j*27.129)%89)/89, a:.11+((j*7)%13)/80, s: j%9===0 ? 1.1 : .6}));
   $('focus').innerHTML = bodyList.map((p,j) => `<option value="${j}"${j===2?' selected':''}>${p.menuName || p.name}</option>`).join('');
   ['focus','interval','speed'].forEach(id => { $(id+'Fs').innerHTML=$(id).innerHTML; $(id+'Fs').value=$(id).value; });
   $('planets').innerHTML = bodyList.map((p,j) => `<label class="planet-toggle${p.kind==='comet'?' comet-toggle':''}"><input type="checkbox" checked data-planet="${j}" aria-label="Show ${p.name}"><span class="planet-dot" style="background:${p.color}"></span>${p.kind==='comet'?'Comet · Halley':p.name}</label>`).join('');
-  const checkIds = ['showRadius','showForce','showVelocity','showMomentum','showAreas'];
+  const checkIds = ['showRadius','showForce','showVelocity','showMomentum','showEccentricity','showAreas'];
   const flags = Object.fromEntries(checkIds.map(id => [id, $(id).checked]));
   checkIds.forEach(id => {
     $(id).addEventListener('change', () => {flags[id] = $(id).checked; $(id+'Fs').checked=flags[id]; render();});
@@ -45,17 +45,22 @@
   function arrow(origin, vector, color, label, width=2.4) {
     const a=project(origin), b=project(O.add(origin,vector));
     if(!inFrame(a)||!inFrame(b))return;
+    const labelAt=(x,y,size=14)=>{
+      tag(label,x,y,color,size);
+      // Keep the crowded comet/system body labels clear of vector labels.
+      labelBoxes.push({x:x-3,y:y-size-3,w:ctx.measureText(label).width+6,h:size+8});
+    };
     const dx=b[0]-a[0],dy=b[1]-a[1],length=Math.hypot(dx,dy);
     if(length<2){
       ctx.beginPath();ctx.arc(a[0],a[1],6,0,O.TAU);ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
       if(b[2]>=a[2]){ctx.beginPath();ctx.arc(a[0],a[1],2,0,O.TAU);ctx.fillStyle=color;ctx.fill();}
       else{ctx.beginPath();ctx.moveTo(a[0]-3,a[1]-3);ctx.lineTo(a[0]+3,a[1]+3);ctx.moveTo(a[0]+3,a[1]-3);ctx.lineTo(a[0]-3,a[1]+3);ctx.stroke();}
-      tag(label,a[0]+10,a[1]-10,color);return;
+      labelAt(a[0]+10,a[1]-10,13);return;
     }
     const ux=dx/length,uy=dy/length,head=Math.min(10,length*.3);
     ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0]-ux*head*.7,b[1]-uy*head*.7);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();
     ctx.beginPath();ctx.moveTo(b[0],b[1]);ctx.lineTo(b[0]-ux*head+uy*head*.43,b[1]-uy*head-ux*head*.43);ctx.lineTo(b[0]-ux*head-uy*head*.43,b[1]-uy*head+ux*head*.43);ctx.closePath();ctx.fillStyle=color;ctx.fill();
-    tag(label,b[0]+8,b[1]-8,color,14);
+    labelAt(b[0]+8,b[1]-8);
   }
   function makeSectors() {
     const count=Number($('interval').value);
@@ -140,6 +145,10 @@
       const p=focused();
       if(flags.showRadius)arrow([0,0,0],current.r,colors.r,'r',1.9);
       if(flags.showMomentum)arrow([0,0,0],O.scale(current.h,.65*p.a/Math.sqrt(O.MU*p.a*(1-p.e*p.e))),colors.h,'h');
+      // Dimensionless e is enlarged to show its direction, including nearly circular orbits.
+      // A circular orbit has e = 0 and no distinguished perihelion direction.
+      const eccentricityMagnitude=O.norm(current.eccentricityVector);
+      if(flags.showEccentricity&&eccentricityMagnitude>1e-10)arrow([0,0,0],O.scale(current.eccentricityVector,.5*extent()/eccentricityMagnitude),colors.e,'e (direction)');
       if(flags.showVelocity)arrow(current.r,O.scale(current.v,p.kind==='comet'?.40*p.a/current.speed:.55*p.a/Math.sqrt(O.MU/p.a)),colors.v,p.kind==='comet'?'v (direction)':'v');
       const referenceForce = p.mass * O.AU_METERS / O.YEAR_SECONDS ** 2 * O.MU / p.a ** 2;
       if(flags.showForce)arrow(current.r,O.scale(current.force,p.kind==='comet'?.30*p.a/O.norm(current.force):.40*p.a/referenceForce),colors.force,p.kind==='comet'?'F (direction)':'F');
@@ -166,7 +175,8 @@
     if(document.activeElement!==$('timelineFs'))$('timelineFs').value=Math.round(O.mod(time,p.period)/p.period*1000);
     const forceExponent = Math.floor(Math.log10(O.norm(s.force)));
     const forceDisplay = vector(O.scale(s.force,10**-forceExponent));
-    $('vectorValues').innerHTML=`<div class="vector-line"><span>r · AU</span><span>${vector(s.r)}</span></div><div class="vector-line"><span>v · AU/yr</span><span>${vector(s.v)}</span></div><div class="vector-line"><span>F · 10<sup>${forceExponent}</sup> N</span><span>${forceDisplay}</span></div><div class="vector-line"><span>|F|</span><span>${O.norm(s.force).toExponential(3)} N</span></div><div class="vector-line"><span>h · AU²/yr</span><span>${vector(s.h)}</span></div><div class="vector-line"><span>${p.assumedMass?'Assumed mass':'Mass'}</span><span>${p.mass.toExponential(4)} kg</span></div>`;
+    const eVector=`(${s.eccentricityVector.map(x=>(Math.abs(x)<.0000005?0:x).toFixed(6)).join(', ')})`;
+    $('vectorValues').innerHTML=`<div class="vector-line"><span>r · AU</span><span>${vector(s.r)}</span></div><div class="vector-line"><span>v · AU/yr</span><span>${vector(s.v)}</span></div><div class="vector-line"><span>F · 10<sup>${forceExponent}</sup> N</span><span>${forceDisplay}</span></div><div class="vector-line"><span>|F|</span><span>${O.norm(s.force).toExponential(3)} N</span></div><div class="vector-line"><span>h · AU²/yr</span><span>${vector(s.h)}</span></div><div class="vector-line"><span>e</span><span>${eVector}</span></div><div class="vector-line"><span>|e| · unitless</span><span>${O.norm(s.eccentricityVector).toFixed(6)}</span></div><div class="vector-line"><span>${p.assumedMass?'Assumed mass':'Mass'}</span><span>${p.mass.toExponential(4)} kg</span></div>`;
   }
   function updateLabels() {
     const p=focused(),count=Number($('interval').value),number=enabled.filter(Boolean).length;
@@ -182,6 +192,8 @@
     $('focusHint').textContent=cometFocus?'Halley’s retrograde orbit: e = 0.9671. Compare Perihelion and Aphelion; Encounter pace follows the close solar passage.':'Compare nearly circular Earth, eccentric Mercury, and Halley’s long comet orbit.';
     $('vectorScale').textContent=cometFocus?'Halley: F and v arrows show direction only. Numerical magnitudes remain exact for this model. Force uses an assumed teaching mass of 10¹⁴ kg.':'Arrow lengths use separate fixed scales for this orbit; numerical magnitudes are shown below.';
     $('vectorScaleFs').textContent=cometFocus?'Halley: F & v show direction only; mass assumed 10¹⁴ kg.':'Vector lengths use separate fixed display scales.';
+    $('vectorScale').textContent+=' The pink e arrow is enlarged to show direction only; its magnitude is the dimensionless eccentricity.';
+    $('vectorScaleFs').textContent+=' Pink e: direction only; |e| is eccentricity.';
     if(cometFocus)$('scaleNote').textContent='Halley: F & v show direction only · tail is schematic';
     $('focusView').classList.toggle('active',view==='focus');$('systemView').classList.toggle('active',view==='system');
     $('focusView').setAttribute('aria-pressed',view==='focus');$('systemView').setAttribute('aria-pressed',view==='system');

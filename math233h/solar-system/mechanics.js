@@ -58,8 +58,11 @@
     const r = rotate(p, [p.a * (Math.cos(E) - p.e), b * Math.sin(E), 0]);
     const v = rotate(p, [-p.a * Math.sin(E) * Eprime, b * Math.cos(E) * Eprime, 0]);
     const radius = norm(r), acc = scale(r, -MU / radius ** 3), h = cross(r, v);
+    // Dimensionless conserved vector toward perihelion. A circular orbit gives
+    // the zero vector (up to roundoff), so it has no distinguished direction.
+    const eccentricityVector = add(scale(cross(v, h), 1 / MU), scale(r, -1 / radius));
     const force = scale(acc, p.mass * AU_METERS / YEAR_SECONDS ** 2);
-    return { r, v, acc, force, h, radius, speed: norm(v), E, M, areaRate: norm(h) / 2 };
+    return { r, v, acc, force, h, eccentricityVector, radius, speed: norm(v), E, M, areaRate: norm(h) / 2 };
   }
   function state(p, years) { return stateAtMean(p, p.M0 + TAU * years / p.period); }
   function positionAtE(p, E) { return rotate(p, [p.a*(Math.cos(E)-p.e),p.a*Math.sqrt(1-p.e*p.e)*Math.sin(E),0]); }
