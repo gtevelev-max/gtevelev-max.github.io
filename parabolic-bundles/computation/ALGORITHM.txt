@@ -1,0 +1,138 @@
+QUANTUM SPECTRUM DATA: DERIVATION AND LIMITS
+
+Source: Jenia Tevelev, Spherical Polygons and Parabolic Reflections,
+version 8: finite core construction, terminal core lengths, and global
+LG torsion/action identification. The animation displays lambda/q,
+equivalently the spectral normalization q=1.
+
+1. Full spectrum from cores
+
+For 1 <= k <= g put n_k=2k+1 and T_k=k(k+1)/2. Let (w,t) range over
+the T_k points of the maximal-minor algebra of the manuscript's k x (k+1)
+pencil S_k(w,t;rho). Each contributes the value (-1)^(g-k) w with
+multiplicity binomial(2g+1,g-k). There are g(g+1)(g+2)/6 displayed
+representatives before accidental value coincidences; the total weighted
+dimension is g*4^(g-1). Multiplicities are never assigned from numerical
+root clustering.
+
+2. Direct multiplication matrices (diagnostic implementation)
+
+Let f_j be the k+1 maximal minors. Separate their degree-k homogeneous
+coefficients L, independent of rho, from their coefficients B in the
+T_k monomials w^a t^b of total degree < k. Since L is invertible,
+the degree-k monomials reduce to -L^(-1)B. Multiplication by w or t is
+therefore a shift in all columns of total degree < k-1, with the final
+degree columns given by these reductions. This is implemented in
+core_engine.py (using w=4k W to reduce coefficient growth).
+
+The raw eigendiagonal spectrum() routine in that file is a diagnostic
+prototype, NOT the production data source. Its failure tests demonstrate
+severe conditioning near rho=1 and small rho at high k. Small trace errors
+alone do not validate its individual roots.
+
+3. Exact univariate torsion equations used in production
+
+Use the manuscript's elliptic curve in ordinary Weierstrass coordinates:
+
+  y^2 = x^3 + b x^2 - 4 rho x - 4 b rho,
+  b = t^2/4-rho-1,
+  P = (2+t, -Q/2),  Q=(t+2)^2-4 rho.
+
+Let psi_n be the usual division polynomials (psi_1=1, psi_2=2y), and
+define s_n=psi_n(P)/Q^floor(n^2/4). Direct substitution gives
+
+  s_0=0, s_1=1, s_2=-1, s_3=t+1-rho, s_4=(rho-1)t.
+
+The usual division recurrences give EXACTLY
+
+  s_(2m+1) = Q s_(m+2) s_m^3 - s_(m-1) s_(m+1)^3,  m even;
+  s_(2m+1) =   s_(m+2) s_m^3 - Q s_(m-1) s_(m+1)^3, m odd;
+  s_(2m)   = -s_m (s_(m+2) s_(m-1)^2 - s_(m-2) s_(m+1)^2).
+
+These follow simply by subtracting the powers floor(n^2/4) in each
+division recurrence; no empirically guessed coefficient pattern is used.
+For n=2k+1, the implementation checks deg_t(s_n)=T_k exactly. The
+manuscript identifies this odd torsion condition with the determinantal
+core. Remove the factors of each proper odd divisor, by exact polynomial
+division, to obtain the primitive-order factors. Exact polynomial
+arithmetic is over Q(rho)[t].
+
+At each sampled rational rho, evaluate those coefficients exactly and
+isolate all roots with Arb complex balls. The code requires the complete
+degree count with proof-enabled root isolation. Precision starts at320
+bits and increases to640,1280,2560,5120,10240 bits when required.
+
+4. Recovering the actual potential value
+
+For a primitive odd order d, start b_0=0,b_1=1,b_2=t/(rho-1), and use
+
+  b_(i+1)=(b_i^2-1)/(b_(i-1)*(1-rho*b_i^2)).
+
+The endpoint b_(d-1)=1 is checked to absolute error < 1e-35 before
+conversion to browser double precision. The critical value is the
+manuscript's actual regular potential:
+
+  w_d = sum_(i=1)^(d-2) 1/(b_i b_(i+1))
+        - sum_(i=1)^(d-1) t/(1-rho b_i^2)
+        + rho sum_(i=1)^(d-2) b_i b_(i+1).
+
+For d dividing n_k, include (w_(n_k),t)=((n_k/d)w_d,t). This explicitly
+handles imprimitive torsion and avoids dividing by its zero diagonal
+coordinates. Finally check every resulting pair against the ORIGINAL
+pencil S_k: the smallest singular value of its row-scaled matrix must
+be <1e-10 relative to the largest singular value. Typical observed
+residuals are 1e-16. Distinct roots are isolated before rounding; several
+very close values can have the same browser double representation.
+
+5. Terminal colors and branch tracking
+
+At rho=1 a k-core has values
+
+  w_(k,ell)=4(-1)^ell(2k-1-2ell), 0<=ell<k,
+
+with lengths ell+1. The corresponding global terminal color is
+j=g-k+ell. Its value and total multiplicity are
+
+  v_(g,j)=4(-1)^j(2g-1-2j),
+  mu_(g,j)=sum_(s=0)^j binomial(2g+1,s)(j-s+1).
+
+The numerical last positive frame is rho=.99999. Its assignment to the
+separated terminal values must have exactly the counts 1,2,...,k.
+Track backwards with a Hungarian assignment on a scaled joint (w,t)
+distance, separately within each primitive-order component. The color
+assignment is independently checked by re-isolating roots at the midpoint
+of every interval and comparing composed matchings. Permutations inside
+one terminal color are harmless and occur near terminal coalescence;
+cross-color discrepancies require correction/refinement. Conjugate roots
+must have the same terminal color. Tracking is numerical continuation,
+not an additional theorem about individual exceptional objects.
+
+6. Endpoints and scope
+
+rho=1 is included as the EXACT finite algebra specialization above. It
+is not computed by diagonalizing a defective floating-point matrix.
+The ordinary terminal LG critical scheme can be positive-dimensional;
+its coordinate algebra is not the finite spectrum used here.
+
+rho=0 is NOT an ordinary finite spectral fiber: the coefficient ring
+contains rho^(-1), and some eigenvalues diverge. The data begin at1e-4.
+The user interface must call rho=0 a singular limit and must not label
+the first finite sample as an evaluation at zero. No all-genus Newton
+slope conjecture is used in these data.
+
+The implemented arithmetic formulas apply to any positive integer k,
+but supported interactive genera are only the generated and checked
+range. In the five-point case the three moving roots are those of
+
+  P_2 = w^3+(rho^(-1)-5)w^2
+        -(45rho+30+5rho^(-1))w
+        -(27rho^2+115rho+25+25rho^(-1)),
+
+and the remaining value is -3-rho with multiplicity5. In the seven-point
+case the factors are P_3=H_7 (six roots, multiplicity1), -P_2(-w)
+(three roots, multiplicity7), and w-3-rho (multiplicity21). Independent
+verification reconstructs these full coefficient polynomials, checks
+first and second moments in every generated genus, conjugacy, all
+counts, and all terminal histograms. Different-core crossings retain
+their core and terminal colors; sorting all eigenvalues by real part
+at each frame would give incorrect ancestry.

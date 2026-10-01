@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf9f5">
+  <meta name="description" content="An interactive animation of the quantum spectrum of parabolic-bundle moduli spaces, its terminal clusters, and calibrated stability walls.">
+  <title>Parabolic Bundles: Quantum Spectrum</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="page-shell">
+    <nav class="top-nav" aria-label="Breadcrumb"><a href="../">← Jenia Tevelev</a><span>Interactive mathematics</span></nav>
+    <header class="page-header">
+      <p class="eyebrow">Geometry in motion</p>
+      <h1>Parabolic Bundles:<br><em>Quantum Spectrum</em></h1>
+      <p class="lede">Follow the eigenvalues as <span class="math">ρ</span> travels from 0 to 1. Watch the branches assemble into the final clusters, and explore the geometry along the way.</p>
+    </header>
+
+    <section class="demonstration" aria-label="Quantum spectrum demonstration" id="demonstration">
+      <div class="workspace-bar">
+        <form id="genus-form" class="genus-control">
+          <label for="genus">Genus <span class="math">g</span></label>
+          <input id="genus" type="number" min="2" max="20" step="1" value="3" inputmode="numeric" required>
+          <button type="submit" class="quiet">Apply</button>
+          <span class="genus-range" id="genus-range"></span>
+        </form>
+        <div class="space-meta" id="space-meta"><span><span class="math">n</span> = 7 marked points</span><span>Loading spectrum…</span></div>
+        <button class="icon-button" id="fullscreen" aria-label="Enter full screen" title="Full screen">⛶</button>
+      </div>
+
+      <div class="stage-layout">
+        <div class="plot-panel">
+          <div class="plot-heading">
+            <div class="view-tabs" role="group" aria-label="Plot view">
+              <button id="complex-view" class="active" aria-pressed="true">Complex plane</button>
+              <button id="evolution-view" aria-pressed="false">Cluster evolution</button>
+            </div>
+            <span class="normalization">Normalized spectrum <span class="math">λ / q</span></span>
+          </div>
+          <div class="canvas-wrap" id="canvas-wrap">
+            <canvas id="spectrum" tabindex="0" aria-label="Quantum eigenvalues in the complex plane. Use the arrow keys to pan and plus or minus to zoom. Numerical values are available below."></canvas>
+            <div class="chart-badge"><span id="phase-dot"></span><span id="phase-label">Preparing the spectrum</span></div>
+            <div class="chart-tools" role="group" aria-label="Plot scale">
+              <button id="zoom-out" aria-label="Zoom out" title="Zoom out (−)">−</button>
+              <button id="zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button>
+              <span></span>
+              <button id="fit-terminal" title="Final spectrum occupies 90% of the horizontal scale">Fit final</button>
+              <button id="fit-all" title="Fit all sampled eigenvalues">Fit all</button>
+            </div>
+            <div id="tooltip" class="tooltip" hidden></div>
+            <div id="loading" class="loading" role="status">Loading the spectral branches…</div>
+          </div>
+          <div class="plot-caption"><span id="plot-hint">Drag to pan · scroll to zoom · click a final cluster to focus</span><span id="clipped-count"></span></div>
+        </div>
+
+        <aside class="explore-panel" aria-label="Display options">
+          <div class="aside-heading"><span class="eyebrow">Explore</span><button class="text-button" id="reset-options">Reset view</button></div>
+          <label class="focus-label" for="cluster-focus">Follow a cluster<select id="cluster-focus"><option value="all">All clusters</option></select></label>
+          <label class="toggle-row"><span>Branch trails<small>See where eigenvalues travel</small></span><input id="trails" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle-row"><span>Final clusters<small>Mark the targets at <span class="math">ρ</span> = 1</small></span><input id="targets" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle-row"><span>Multiplicity<small>Scale markers by spectral weight</small></span><input id="multiplicity" type="checkbox"><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle-row"><span>Color by cluster<small>Track the final destination</small></span><input id="colors" type="checkbox" checked><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle-row"><span>Spectral crossings<small>Mark the timeline &amp; evolution view</small></span><input id="crossings" type="checkbox"><span class="switch" aria-hidden="true"></span></label>
+          <div class="wall-options">
+            <label class="toggle-row"><span>Stability walls<small>A calibrated geometric guide</small></span><input id="walls" type="checkbox"><span class="switch" aria-hidden="true"></span></label>
+            <div id="wall-settings" hidden>
+              <label class="calibration-label" for="calibration">Calibration <span class="math">b</span><input id="calibration" type="number" min="0.05" max="20" step="0.05" value="1"></label>
+              <p class="small-note">Use <span class="math">q</span><sub>ref</sub> = e<sup>−b</sup> to place the walls on this interval. These are stability walls, not spectral collisions.</p>
+              <div id="wall-list" class="wall-list"></div>
+            </div>
+          </div>
+          <div class="live-summary"><span class="eyebrow" id="summary-label">At this parameter</span><p id="live-summary">Choose a genus, then press Play.</p></div>
+        </aside>
+      </div>
+
+      <div class="transport">
+        <div class="playback-buttons"><button id="restart" class="icon-button" aria-label="Return to rho zero" title="Return to start">↤</button><button id="play" class="play-button" aria-label="Play animation"><span id="play-symbol">▶</span><span id="play-label">Play</span></button><button id="end" class="icon-button" aria-label="Go to rho one" title="Go to the final spectrum">↦</button></div>
+        <div class="timeline"><div id="wall-ticks" class="wall-ticks" aria-hidden="true"></div><div id="crossing-ticks" class="wall-ticks crossing-ticks" aria-hidden="true" hidden></div><input id="rho-slider" aria-label="Parameter rho" type="range" min="0" max="1" step="0.0001" value="0"><div class="timeline-labels"><span>0 <span class="timeline-end">singular limit</span></span><span>1 <span class="timeline-end">final clusters</span></span></div></div>
+        <label class="rho-control" for="rho">ρ <input id="rho" type="number" min="0" max="1" step="0.001" value="0.000"></label>
+        <label class="speed-control" for="speed">Speed<select id="speed"><option value="0.25">¼×</option><option value="0.5">½×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+      </div>
+      <p class="parameter-status" id="parameter-status" role="status" aria-live="polite">The spectrum is normalized by <span class="math">q</span>.</p>
+    </section>
+
+    <section class="cluster-section" aria-labelledby="cluster-heading">
+      <div class="section-heading"><div><p class="eyebrow">The destination</p><h2 id="cluster-heading">Final clusters at <span class="math">ρ</span> = 1</h2></div><button class="quiet" id="show-all">Show all clusters</button></div>
+      <p class="section-intro">Select a cluster to follow only the branches that arrive there. Select it again to restore the full spectrum.</p>
+      <div class="cluster-grid" id="clusters" aria-label="Final cluster filters"></div>
+    </section>
+
+    <div class="notes-grid">
+      <details class="notes"><summary>What am I seeing?<span>+</span></summary><div class="notes-body">
+        <p>The points represent the eigenvalues of quantum multiplication by the first Chern class, normalized as <span class="math">λ/q</span>, for the moduli space with <span class="math">n = 2g + 1</span> marked points. The parameter <span class="math">ρ</span> runs along the positive real interval.</p>
+        <p>At <span class="math">ρ = 1</span>, the terminal values are <span class="math">4(−1)<sup>k</sup>(2g − 1 − 2k)</span>, for <span class="math">k = 0,…,g − 1</span>. A marker may represent several eigenvalues; the cluster cards give the total multiplicities. With <strong>Multiplicity</strong> enabled, marker radius grows logarithmically with multiplicity, so large and small clusters remain visible. Marker area is not proportional to multiplicity.</p>
+        <p><strong>Fit final</strong> sets the horizontal span so that the interval between the outermost terminal values occupies exactly 90% of the plotting width. Zoom, pan, and <strong>Fit all</strong> let you inspect branches outside that interval. Both complex-plane axes use the same unit scale.</p>
+        <p>In <strong>Cluster evolution</strong>, the horizontal axis is <span class="math">ρ</span> and the vertical axis is the <em>real part</em> of <span class="math">λ/q</span>. Conjugate branches can overlap in this projection; use the complex plane to see their imaginary parts.</p>
+      </div></details>
+      <details class="notes"><summary>Computation &amp; geometric walls<span>+</span></summary><div class="notes-body">
+        <p id="computation-note">Branches are computed from the spectral equations and continued numerically. Animation interpolates between sampled parameter values; the terminal spectrum is exact.</p>
+        <p>The point <span class="math">ρ = 0</span> is a singular limit of the full family. The demonstration does not assign a finite full spectrum to it. Near-zero previews use the smallest positive sampled parameter, reported below the animation.</p>
+        <p>The optional wall guide uses <span class="math">val = −log</span> and a reference value <span class="math">q</span><sub>ref</sub> = e<sup>−b</sup>. It marks <span class="math">ρ = exp(−(n − 4d − 2γ)b/d)</span>, corresponding to the weight wall <span class="math">a = 2d/(n − 2γ)</span>, where <span class="math">d ≥ 1</span>, <span class="math">γ ≥ 0</span>, and <span class="math">2d + γ ≤ g</span>. Changing <span class="math">b</span> changes the displayed locations. They are not canonical singularities of the complex coefficient <span class="math">ρ</span>. The terminal chamber is lightly shaded in the evolution view; the plotted algebra is always that of the terminal moduli space, so eigenvalues are not removed at a wall.</p>
+        <p>The separate <strong>Spectral crossings</strong> option marks the two verified coincidences of distinct spectral branches for <span class="math">g = 3</span>, at approximately <span class="math">ρ = 0.07522257</span> and <span class="math">ρ = 0.97476747</span>. These are coincidences of eigenvalues, not assertions that the corresponding critical points degenerate. Crossings for higher genera are not tabulated here.</p>
+        <p>Based on the spectral construction in <em>Spherical Polygons and Parabolic Reflections</em> by Jenia Tevelev.</p>
+        <p>Read the <a href="computation/ALGORITHM.txt">algorithm and conventions</a>, inspect the <a href="computation/verification.json">numerical checks</a>, or obtain the <a href="computation/generate_spectrum.py">SageMath generator</a>.</p>
+        <p id="validation-note" class="small-note"></p>
+      </div></details>
+    </div>
+    <details class="spectrum-table notes"><summary>Numerical spectrum at the current parameter<span>+</span></summary><div class="notes-body"><p class="small-note" id="table-note"></p><div class="table-scroll"><table><thead><tr><th scope="col">Branch</th><th scope="col">Final cluster</th><th scope="col">Re(λ/q)</th><th scope="col">Im(λ/q)</th><th scope="col">Multiplicity</th></tr></thead><tbody id="spectrum-table"></tbody></table></div></div></details>
+    <footer><a href="../">Jenia Tevelev</a><span>·</span>Parabolic bundles and quantum cohomology<span>·</span><span>Space: play / pause</span></footer>
+  </main>
+</body>
+</html>

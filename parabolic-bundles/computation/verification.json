@@ -1,0 +1,561 @@
+{
+  "scope": "This does not import the generator or its numerical engine. Core polynomials\n1--3 are independently transcribed from the manuscript. For larger cores,\nmoment, symmetry, endpoint and counting checks are necessary checks, not a\ncertificate that every stored point solves the defining equations.\n",
+  "wall_tests": {
+    "2": [
+      {
+        "a": "2/5",
+        "rho": 0.36787944117144233,
+        "types": [
+          [
+            1,
+            0
+          ]
+        ],
+        "rank_change": 1
+      }
+    ],
+    "3": [
+      {
+        "a": "2/7",
+        "rho": 0.049787068367863944,
+        "types": [
+          [
+            1,
+            0
+          ]
+        ],
+        "rank_change": 3
+      },
+      {
+        "a": "2/5",
+        "rho": 0.36787944117144233,
+        "types": [
+          [
+            1,
+            1
+          ]
+        ],
+        "rank_change": 7
+      }
+    ],
+    "4": [
+      {
+        "a": "2/9",
+        "rho": 0.006737946999085467,
+        "types": [
+          [
+            1,
+            0
+          ]
+        ],
+        "rank_change": 5
+      },
+      {
+        "a": "2/7",
+        "rho": 0.049787068367863944,
+        "types": [
+          [
+            1,
+            1
+          ]
+        ],
+        "rank_change": 27
+      },
+      {
+        "a": "2/5",
+        "rho": 0.36787944117144233,
+        "types": [
+          [
+            1,
+            2
+          ]
+        ],
+        "rank_change": 36
+      },
+      {
+        "a": "4/9",
+        "rho": 0.6065306597126334,
+        "types": [
+          [
+            2,
+            0
+          ]
+        ],
+        "rank_change": 1
+      }
+    ]
+  },
+  "data": [
+    {
+      "g": 2,
+      "file": "g-2.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 4,
+      "rank": 8,
+      "failures": [],
+      "warnings": [],
+      "maxima": {
+        "conjugacy_relative_error": 0.0,
+        "colored_conjugacy_relative_error": 0.0,
+        "core_moment_1_relative_error": 7.872490538251113e-16,
+        "core_moment_2_relative_error": 3.8358260160708315e-16,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 7.916372871240246e-16,
+        "global_moment_1_relative_error": 2.2956899569978444e-16,
+        "global_moment_2_relative_error": 3.731816073627312e-16
+      },
+      "cancellation_cases": [],
+      "cancellation_case_count": 0
+    },
+    {
+      "g": 3,
+      "file": "g-3.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 10,
+      "rank": 48,
+      "failures": [],
+      "warnings": [],
+      "maxima": {
+        "conjugacy_relative_error": 5.537376272012257e-271,
+        "colored_conjugacy_relative_error": 5.537376272012257e-271,
+        "core_moment_1_relative_error": 8.881784185899021e-16,
+        "core_moment_2_relative_error": 3.8197484749347116e-15,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 2.532699341584798e-14,
+        "global_moment_1_relative_error": 3.8518360303995766e-16,
+        "global_moment_2_relative_error": 4.264925360070673e-16
+      },
+      "cancellation_cases": [],
+      "cancellation_case_count": 0
+    },
+    {
+      "g": 4,
+      "file": "g-4.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 20,
+      "rank": 256,
+      "failures": [],
+      "warnings": [
+        "Cores above 3 checked by counts, moments, conjugacy and endpoints only; no independent full-polynomial certificate."
+      ],
+      "maxima": {
+        "conjugacy_relative_error": 4.949180411900112e-244,
+        "colored_conjugacy_relative_error": 4.949180411900112e-244,
+        "core_moment_1_relative_error": 3.2613766266125634e-15,
+        "core_moment_2_relative_error": 3.8197484749347116e-15,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 2.532699341584798e-14,
+        "global_moment_1_relative_error": 4.66849562842375e-16,
+        "global_moment_2_relative_error": 5.657977660519226e-16
+      },
+      "cancellation_cases": [],
+      "cancellation_case_count": 0
+    },
+    {
+      "g": 5,
+      "file": "g-5.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 35,
+      "rank": 1280,
+      "failures": [],
+      "warnings": [
+        "Cores above 3 checked by counts, moments, conjugacy and endpoints only; no independent full-polynomial certificate."
+      ],
+      "maxima": {
+        "conjugacy_relative_error": 1.1076846828809659e-213,
+        "colored_conjugacy_relative_error": 1.1076846828809659e-213,
+        "core_moment_1_relative_error": 6.809367884366028e-15,
+        "core_moment_2_relative_error": 2.4157250798643505e-13,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 2.532699341584798e-14,
+        "global_moment_1_relative_error": 5.803612900421767e-16,
+        "global_moment_2_relative_error": 5.28789360450065e-16
+      },
+      "cancellation_cases": [],
+      "cancellation_case_count": 0
+    },
+    {
+      "g": 6,
+      "file": "g-6.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 56,
+      "rank": 6144,
+      "failures": [],
+      "warnings": [
+        "Cores above 3 checked by counts, moments, conjugacy and endpoints only; no independent full-polynomial certificate."
+      ],
+      "maxima": {
+        "conjugacy_relative_error": 8.19254523071996e-211,
+        "colored_conjugacy_relative_error": 8.19254523071996e-211,
+        "core_moment_1_relative_error": 6.809367884366028e-15,
+        "core_moment_2_relative_error": 2.4157250798643505e-13,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 2.532699341584798e-14,
+        "global_moment_1_relative_error": 6.91005231249422e-16,
+        "global_moment_2_relative_error": 7.864271313328924e-16
+      },
+      "cancellation_cases": [],
+      "cancellation_case_count": 0
+    },
+    {
+      "g": 7,
+      "file": "g-7.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 84,
+      "rank": 28672,
+      "failures": [],
+      "warnings": [
+        "Cores above 3 checked by counts, moments, conjugacy and endpoints only; no independent full-polynomial certificate.",
+        "Some core-moment checks are limited by cancellation of floating-point input; inspect cancellation_cases."
+      ],
+      "maxima": {
+        "conjugacy_relative_error": 4.0515009853615616e-39,
+        "colored_conjugacy_relative_error": 4.0515009853615616e-39,
+        "core_moment_1_relative_error": 2.8888003100746573e-13,
+        "core_moment_2_relative_error": 1.769112765765902e-11,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 2.532699341584798e-14,
+        "global_moment_1_relative_error": 6.861129900695001e-16,
+        "global_moment_2_relative_error": 8.012620228906271e-16
+      },
+      "cancellation_cases": [
+        [
+          7,
+          0.0001,
+          2
+        ],
+        [
+          7,
+          0.00011219691769016,
+          2
+        ],
+        [
+          7,
+          0.00012588148339173,
+          2
+        ]
+      ],
+      "cancellation_case_count": 3
+    },
+    {
+      "g": 8,
+      "file": "g-8.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 120,
+      "rank": 131072,
+      "failures": [],
+      "warnings": [
+        "Cores above 3 checked by counts, moments, conjugacy and endpoints only; no independent full-polynomial certificate.",
+        "Some core-moment checks are limited by cancellation of floating-point input; inspect cancellation_cases."
+      ],
+      "maxima": {
+        "conjugacy_relative_error": 4.0515009853615616e-39,
+        "colored_conjugacy_relative_error": 4.0515009853615616e-39,
+        "core_moment_1_relative_error": 2.8888003100746573e-13,
+        "core_moment_2_relative_error": 1.769112765765902e-11,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 2.532699341584798e-14,
+        "global_moment_1_relative_error": 7.926243454211597e-16,
+        "global_moment_2_relative_error": 8.433554632167406e-16
+      },
+      "cancellation_cases": [
+        [
+          7,
+          0.0001,
+          2
+        ],
+        [
+          7,
+          0.00011219691769016,
+          2
+        ],
+        [
+          7,
+          0.00012588148339173,
+          2
+        ]
+      ],
+      "cancellation_case_count": 3
+    },
+    {
+      "g": 9,
+      "file": "g-9.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 165,
+      "rank": 589824,
+      "failures": [],
+      "warnings": [
+        "Cores above 3 checked by counts, moments, conjugacy and endpoints only; no independent full-polynomial certificate.",
+        "Some core-moment checks are limited by cancellation of floating-point input; inspect cancellation_cases."
+      ],
+      "maxima": {
+        "conjugacy_relative_error": 4.0515009853615616e-39,
+        "colored_conjugacy_relative_error": 4.0515009853615616e-39,
+        "core_moment_1_relative_error": 6.075140390748857e-13,
+        "core_moment_2_relative_error": 2.5184144206843216e-09,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 2.532699341584798e-14,
+        "global_moment_1_relative_error": 8.881831722241856e-16,
+        "global_moment_2_relative_error": 7.685529594262527e-16
+      },
+      "cancellation_cases": [
+        [
+          7,
+          0.0001,
+          2
+        ],
+        [
+          9,
+          0.0001,
+          2
+        ],
+        [
+          7,
+          0.00011219691769016,
+          2
+        ],
+        [
+          9,
+          0.00011219691769016,
+          2
+        ],
+        [
+          7,
+          0.00012588148339173,
+          2
+        ],
+        [
+          9,
+          0.00012588148339173,
+          2
+        ],
+        [
+          9,
+          0.00014123514430817,
+          2
+        ],
+        [
+          9,
+          0.00015846147860902,
+          2
+        ],
+        [
+          9,
+          0.00017778889472558,
+          2
+        ],
+        [
+          9,
+          0.0001994736598775,
+          2
+        ],
+        [
+          9,
+          0.00022380329798631,
+          2
+        ],
+        [
+          9,
+          0.00025110040202957,
+          2
+        ],
+        [
+          9,
+          0.00028172691138478,
+          2
+        ],
+        [
+          9,
+          0.00031608891087742,
+          2
+        ],
+        [
+          9,
+          0.00035464201516487,
+          2
+        ],
+        [
+          9,
+          0.00039789740984926,
+          2
+        ],
+        [
+          9,
+          0.00044642862941986,
+          2
+        ],
+        [
+          9,
+          0.00050087916189551,
+          2
+        ],
+        [
+          9,
+          0.00056197098099908,
+          2
+        ],
+        [
+          9,
+          0.00063051411899413,
+          2
+        ],
+        [
+          9,
+          0.00070741740711269,
+          2
+        ],
+        [
+          9,
+          0.0007937005259841,
+          2
+        ]
+      ],
+      "cancellation_case_count": 22
+    },
+    {
+      "g": 10,
+      "file": "g-10.json",
+      "passed": true,
+      "frame_count": 295,
+      "branch_count": 220,
+      "rank": 2621440,
+      "failures": [],
+      "warnings": [
+        "Cores above 3 checked by counts, moments, conjugacy and endpoints only; no independent full-polynomial certificate.",
+        "Some core-moment checks are limited by cancellation of floating-point input; inspect cancellation_cases."
+      ],
+      "maxima": {
+        "conjugacy_relative_error": 4.0515009853615616e-39,
+        "colored_conjugacy_relative_error": 4.0515009853615616e-39,
+        "core_moment_1_relative_error": 6.075140390748857e-13,
+        "core_moment_2_relative_error": 2.5184144206843216e-09,
+        "low_core_polynomial_residual": 1.877845152389739e-16,
+        "low_core_coefficient_error": 2.532699341584798e-14,
+        "global_moment_1_relative_error": 1.1090665706844032e-15,
+        "global_moment_2_relative_error": 1.150941065930607e-15
+      },
+      "cancellation_cases": [
+        [
+          7,
+          0.0001,
+          2
+        ],
+        [
+          9,
+          0.0001,
+          2
+        ],
+        [
+          7,
+          0.00011219691769016,
+          2
+        ],
+        [
+          9,
+          0.00011219691769016,
+          2
+        ],
+        [
+          7,
+          0.00012588148339173,
+          2
+        ],
+        [
+          9,
+          0.00012588148339173,
+          2
+        ],
+        [
+          9,
+          0.00014123514430817,
+          2
+        ],
+        [
+          9,
+          0.00015846147860902,
+          2
+        ],
+        [
+          9,
+          0.00017778889472558,
+          2
+        ],
+        [
+          9,
+          0.0001994736598775,
+          2
+        ],
+        [
+          9,
+          0.00022380329798631,
+          2
+        ],
+        [
+          9,
+          0.00025110040202957,
+          2
+        ],
+        [
+          9,
+          0.00028172691138478,
+          2
+        ],
+        [
+          9,
+          0.00031608891087742,
+          2
+        ],
+        [
+          9,
+          0.00035464201516487,
+          2
+        ],
+        [
+          9,
+          0.00039789740984926,
+          2
+        ],
+        [
+          9,
+          0.00044642862941986,
+          2
+        ],
+        [
+          9,
+          0.00050087916189551,
+          2
+        ],
+        [
+          9,
+          0.00056197098099908,
+          2
+        ],
+        [
+          9,
+          0.00063051411899413,
+          2
+        ],
+        [
+          9,
+          0.00070741740711269,
+          2
+        ],
+        [
+          9,
+          0.0007937005259841,
+          2
+        ]
+      ],
+      "cancellation_case_count": 22
+    }
+  ],
+  "passed": true
+}

@@ -7,6 +7,7 @@ The homepage links to the [personal website](https://websites.umass.edu/tevelev/
 ## Contents
 
 - `index.html`, `style.css`, `assets/`: personal homepage.
+- [Parabolic Bundles: Quantum Spectrum](parabolic-bundles/): animated spectra for genera 2–10, terminal-cluster filters, scalable complex-plane and evolution views, and calibrated wall guides.
 - [Motion and geometry](math233h/): interactive rollercoaster and solar-system demonstrations.
 - [Professor JT’s rollercoaster](math233h/rollercoaster/): analytic space curves, Frenet frames, acceleration components, and osculating geometry.
 - [The solar system](math233h/solar-system/): Keplerian motion of eight planets and an approximate Halley comet orbit, central force and angular momentum vectors, and equal-time swept areas. Halley’s force and velocity arrows show direction only; its force calculation uses an explicitly assumed teaching mass.
@@ -31,3 +32,22 @@ All internal links are relative. Video files remain hosted on the UMass website;
 ## Triangle groups II
 
 `triangle-quotients/` is an interactive presentation with eight verified finite quotients. It animates the geometric tiling into exact cut-open triangulated surfaces with paired boundary sides. `quotient-data.zip` contains explicit generators, full chamber data, and independent verification scripts.
+
+## Parabolic bundles: quantum spectrum
+
+The demonstration displays the spectrum of quantum multiplication by the first Chern class, normalized by `q`, as the positive real coefficient `rho` approaches 1. The initial scale gives the final spectrum 90% of the horizontal plotting width. Users can zoom, pan, fit all sampled paths, isolate final clusters, display multiplicities, and compare stability-wall guides with spectral crossings.
+
+The included range is `2 <= g <= 10`. Each dataset contains 295 parameter frames, starting at `rho = 0.0001` and ending with the exact terminal spectrum. The value `rho = 0` is a singular limit with escaping eigenvalues, so the interface explicitly labels its near-zero preview. Animation interpolates between verified samples. Stability-wall positions depend on the displayed calibration; they do not change the dimension of the fixed quantum algebra being plotted.
+
+The [algorithm and mathematical conventions](parabolic-bundles/computation/ALGORITHM.txt), [numerical checks](parabolic-bundles/computation/verification.json), and [cluster-tracking checks](parabolic-bundles/computation/tracking-verification.json) accompany the data. Exact elliptic division polynomials and arbitrary-precision Arb root isolation generate the trajectories; every sampled point is checked against the original determinantal pencil. Independent tests check the low-genus polynomials, multiplicities, moments, conjugation, terminal values, and wall formulas.
+
+To regenerate with SageMath, run from the repository root:
+
+```sh
+sage -python parabolic-bundles/computation/generate_spectrum.py --max-g 10
+sage -python parabolic-bundles/computation/verify_tracking.py 10
+python3 parabolic-bundles/computation/publish_data.py
+python3 parabolic-bundles/computation/verify_data.py
+```
+
+The site itself has no runtime dependencies or build step. Homepage cards are stored alphabetically by title.
