@@ -8,7 +8,9 @@ The homepage links to the [personal website](https://websites.umass.edu/tevelev/
 
 - `index.html`, `style.css`, `assets/`: personal homepage.
 - [Parabolic Bundles: Quantum Spectrum](parabolic-bundles/): animated spectra for genera 2–10, terminal-cluster filters, scalable complex-plane and evolution views, and calibrated wall guides.
-- [Motion and geometry](math233h/): interactive rollercoaster and solar-system demonstrations.
+- [Curves, motion and surfaces](math233h/): interactive Math233H demonstrations.
+- [Polar curves](math233h/polar-curves/): signed radii, analytic tangents, tracing intervals, and physical Kepler conics.
+- [The shape of an equation](math233h/surfaces/): quadrics and verified classical algebraic surfaces with plane sections.
 - [Professor JT’s rollercoaster](math233h/rollercoaster/): analytic space curves, Frenet frames, acceleration components, and osculating geometry.
 - [The solar system](math233h/solar-system/): Keplerian motion of eight planets and an approximate Halley comet orbit, central force and angular momentum vectors, and equal-time swept areas. Halley’s force and velocity arrows show direction only; its force calculation uses an explicitly assumed teaching mass.
 - `triangle-group/index.html`: self-contained explorer, starting with (2,3,6).
