@@ -1,0 +1,393 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{newtxtext,newtxmath}
+\usepackage[margin=0.73in,top=0.68in,bottom=0.69in,headheight=14pt,headsep=14pt,footskip=25pt]{geometry}
+\usepackage{microtype}
+\usepackage{tikz,tikz-cd}
+\usetikzlibrary{arrows.meta,calc,positioning}
+\usepackage{booktabs,tabularx,array,longtable,enumitem,needspace,xcolor}
+\usepackage{fancyhdr,lastpage,titlesec,xurl}
+\definecolor{navy}{HTML}{17334D}
+\definecolor{teal}{HTML}{167D8D}
+\definecolor{muted}{HTML}{59616A}
+\usepackage[pdfencoding=auto,psdextra,colorlinks=true,linkcolor=navy,urlcolor=navy,citecolor=navy]{hyperref}
+\hypersetup{pdftitle={Math 611: The Mathieu Groups},pdfauthor={Jenia Tevelev},bookmarksdepth=2}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\sffamily\footnotesize\color{muted}MATH 611\quad LECTURE 9 / OCTOBER 6}
+\fancyhead[R]{\sffamily\footnotesize\color{muted}Fall 2026}
+\fancyfoot[C]{\sffamily\small\thepage\ /\ \pageref*{LastPage}}
+\renewcommand{\headrulewidth}{0.35pt}
+\titleformat{\section}{\large\bfseries\color{navy}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{navy}}{\thesubsection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{13pt}{7pt}
+\titlespacing*{\subsection}{0pt}{11pt}{5pt}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4.5pt}
+\setlength{\emergencystretch}{2em}
+\setlist{topsep=4pt,parsep=2pt}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newenvironment{toolnote}{\begin{quote}\small\color{navy}}{\end{quote}}
+\newenvironment{checkpoint}{\begin{quote}\small\color{navy}}{\end{quote}}
+\newcommand{\F}{\mathbb F}\newcommand{\Z}{\mathbb Z}
+\newcommand{\R}{\mathbb R}\newcommand{\C}{\mathbb C}\newcommand{\HH}{\mathbb H}
+\DeclareMathOperator{\GL}{GL}\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\PSL}{PSL}\DeclareMathOperator{\Isom}{Isom}
+\DeclareMathOperator{\Aut}{Aut}\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\ord}{ord}\DeclareMathOperator{\Stab}{Stab}
+\renewcommand{\qedsymbol}{\ensuremath{\square}}
+
+\DeclareMathOperator{\Syl}{Syl}
+\newcommand{\M}{M_{11}}
+\newcommand{\cyc}[1]{\langle #1\rangle}
+\newcommand{\pageheading}[1]{\clearpage\section{#1}}
+\raggedbottom
+
+\newcommand{\demolink}[2]{\href{https://gtevelev-max.github.io/mathieu/\##1}{#2}}
+\newcommand{\demobox}[2]{\begin{toolnote}\textbf{Demonstration.} \demolink{#1}{#2}\end{toolnote}}
+\begin{document}
+\begin{center}
+{\large University of Massachusetts Amherst}\\[3pt]
+{\large Math 611: Graduate Algebra I\quad Fall 2026}\\[7pt]
+{\LARGE\bfseries The Mathieu Groups}\\[4pt]
+{\large Permutations, designs, simplicity, and codes}\\[6pt]
+Lecture 9\quad Tuesday, October 6, 2026\\[3pt]
+Jenia Tevelev
+\end{center}
+
+
+\hypertarget{overview}{}\hypertarget{permutations}{}
+\section{First, a permutation group}
+
+Let $\Omega_{11}=\F_{11}=\{0,1,\ldots,10\}$. Define
+\[
+\begin{aligned}
+ \rho&=(0\,1\,2\,3\,4\,5\,6\,7\,8\,9\,10),\\
+ \iota&=(3\,4\,5\,10)(6\,8\,9\,7),\\
+ \jmath&=(3\,6\,5\,9)(4\,7\,10\,8),\qquad
+ \boxed{M_{11}=\langle\rho,\iota,\jmath\rangle\le S_{11}.}
+\end{aligned}
+\]
+These are the permutations in Homework 2, Problem 21. This is our starting definition. We will combine exact finite computations with short mathematical arguments to establish its order, simplicity, and relation to the homework's design. None of these conclusions is assumed in the definition.
+
+All products act from right to left. The labels are residues modulo $11$, not the ATLAS labels $1,\ldots,11$. We use $[a,b]=aba^{-1}b^{-1}$ and $D_{2n}$ for the dihedral group of order $2n$.
+
+\subsection*{Why was this a discovery?}
+Mathieu's starting question concerned substitutions of variables and unusually high transitivity. Symmetric and alternating groups supply obvious highly transitive examples; the surprise is that much smaller groups can still move several specified points arbitrarily. His papers of 1861 and 1873 introduced the exceptional groups now named after him. The latter paper explicitly concerns five-fold transitivity on 24 quantities. [1,2]
+
+The five Mathieu groups are $M_{11},M_{12},M_{22},M_{23},M_{24}$. They were the first examples of what we now call \emph{sporadic} simple groups. The word is retrospective: in the classification, a finite simple group is cyclic of prime order, alternating, of Lie type, or one of 26 exceptions. No further sporadic example appeared for nearly a century; Janko's discovery in the mid-1960s began a new period. [5]
+
+Witt's 1938 papers supplied the design viewpoint. [3] It explains what these permutations preserve and connects the groups to incidence geometry. Later, coding theory supplied another realization of the same exceptional structures.
+
+There is a literal connection to functions of variables. Once the pentads are constructed, form the polynomial
+\[
+ F(z_0,\ldots,z_{10})=\sum_{B\in\mathcal B_{11}}\prod_{i\in B}z_i.
+\]
+Its permutation stabilizer is exactly the design automorphism group: a permutation preserves $F$ precisely when it permutes its 66 distinct monomials. We will identify that stabilizer with our concrete $M_{11}$.
+
+
+\demobox{permutations?group=11}{Permutations and words.} Enter a word, follow its action from right to left, and inspect its disjoint cycles. The demonstration uses the short input names \texttt{r,i,j} for $\rho,\iota,\jmath$. Each chapter includes its algorithm and links back to these notes. The group selector compares all five Mathieu groups.
+
+\hypertarget{designs}{}
+\pageheading{Designs: from quadratic residues to pentads and hexads}
+Put $R=\{1,3,4,5,9\}\subset\F_{11}$. Its eleven translates form a \emph{biplane}: a symmetric $2$-$(11,5,2)$ design. Thus there are eleven points and eleven five-point blocks, with exactly two blocks through every pair.
+
+Here is the reason the difference calculation matters. A translate $R+b$ contains $x,y$ precisely when $x-b,y-b\in R$. The number of such translates is therefore the multiplicity of $x-y$ among differences of elements of $R$. The demonstration checks that every nonzero difference occurs twice. The same calculation gives two points in the intersection of any two distinct blocks. For the incidence matrix $A$, this means
+\[
+ AA^{\mathsf T}=3I+2J,\qquad A\mathbf1=5\mathbf1.
+\]
+The diagonal entries count the five points of one block; off-diagonal entries count intersections. This identity will connect the design with a code.
+
+\begin{definition}
+A Steiner system $S(t,k,v)$ is a collection of $k$-subsets of a $v$-set such that every $t$-subset belongs to exactly one block.
+\end{definition}
+The homework constructs a stronger design on twelve points. Let
+\[
+ \Omega_{12}=\F_{11}\cup\{\infty\},\quad
+ L=\PSL_2(\F_{11}),\quad H=R\cup\{\infty\},\quad
+ \mathcal B_{12}=L\cdot H.
+\]
+We use the fractional linear action; $z\mapsto z+1$ and $z\mapsto-1/z$ generate $L$. A breadth-first search of the orbit of $H$ gives 132 distinct six-point blocks, called \emph{hexads}. The incidence check visits the five-subsets of every block and finds each exactly once. Thus $\mathcal B_{12}$ is an $S(5,6,12)$.
+
+\textbf{What is proved by the finite check?} The orbit search stops only when the set of discovered blocks is closed under both generators. It has then found the entire orbit, not a sample. An incidence dictionary then verifies the defining property on \emph{every} five-set. The equality
+\[
+ |\mathcal B_{12}|\binom65=\binom{12}{5}
+\]
+is a useful count, but by itself would not rule out repeated or missing five-sets.
+
+Derive at $\infty$:
+\[
+ \mathcal B_{11}=\{B\setminus\{\infty\}:\infty\in B\in\mathcal B_{12}\}.
+\]
+A four-set $T\subset\F_{11}$ extends uniquely because $T\cup\{\infty\}$ extends uniquely to a hexad. Hence $\mathcal B_{11}$ is an $S(4,5,11)$ with 66 \emph{pentads}. The residue biplane has only eleven blocks; it is not the 66-block Witt design on the same points.
+
+\demobox{designs?group=11}{Designs and completion.} Compare the biplane with the pentads. Select points and watch the possible completions shrink. Switch to $M_{12}$ and build the same hexads using the smaller group $L$, of order 660. The long orbit and intersection tables belong here, where a block can be inspected as a set of points.
+
+\hypertarget{orders}{}
+\pageheading{Orders from stabilizer chains}
+The computer first checks that $\rho,\iota,\jmath$ preserve the pentads. It then computes successive point stabilizers in $G=\langle\rho,\iota,\jmath\rangle$. The orbit lengths are $11,10,9,8$, followed by a trivial stabilizer. Orbit--stabilizer gives
+\[
+ |G|=11\cdot10\cdot9\cdot8=7920.
+\]
+At each of the first four stages the orbit contains all remaining points, so the action is sharply $4$-transitive. The three-point stabilizer is the quaternion group $\langle\iota,\jmath\rangle\simeq Q_8$ from the homework.
+
+\textbf{Why is this the full design automorphism group?} An automorphism fixing $0,1,2,3$ must also fix the fifth point of the unique pentad containing them. Only six points remain free. Testing their $6!$ permutations against the block set leaves only the identity. This is an upper bound on the stabilizer in the \emph{full} automorphism group, independent of the chosen generators. Consequently
+\[
+ G=\Aut(\mathcal B_{11})=M_{11}.
+\]
+All three generators are even, so $M_{11}\le A_{11}$.
+
+\textbf{Adjoining a twelfth point.} Extend the three generators by fixing $\infty$, and adjoin $w:z\mapsto-1/z$. Define
+\[
+ M_{12}=\langle\rho,\iota,\jmath,w\rangle\le S(\Omega_{12}).
+\]
+Since $wH$ is the complement of $H$, and $L$ permutes the hexads, complements of hexads are hexads. An automorphism of the derived design extends by fixing $\infty$: it preserves hexads containing $\infty$ and then their complements. Conversely, restriction of an automorphism fixing $\infty$ preserves the derived design. Thus the full twelve-point design automorphism group has point stabilizer $M_{11}$. Our generated group is transitive because $w$ moves $\infty$ and $M_{11}$ is transitive on the other points. Therefore
+\[
+ M_{12}=\Aut(\mathcal B_{12}),\qquad |M_{12}|=12|M_{11}|=95040,
+\]
+and the action is sharply $5$-transitive.
+
+\textbf{The algorithm behind the calculation.} A \emph{base} is an ordered list of points whose pointwise stabilizer is trivial. At one stage, a search of the next point's orbit records representatives $t_a$ taking the base point to $a$. If $s$ is a generator, then
+\[
+ t_{s(a)}^{-1}s\,t_a
+\]
+fixes the base point. These \emph{Schreier generators} generate the stabilizer. Repeating this construction produces a stabilizer chain; strong generators describe all its levels. This is the idea of the Schreier--Sims algorithm. The order is the product of the successive orbit lengths. Membership is tested by successively multiplying by $t_{g(b)}^{-1}$ to fix the next base point, a process called \emph{sifting}.
+
+\demobox{orders?group=24}{Orders without enumeration.} Step through the chain for $M_{24}$, then sift a generator and a transposition. The presentation checks the exported Schreier relations. It never lists the 244 million elements of $M_{24}$. The design-rigidity check for $M_{11}$ is in the preceding chapter.
+
+\hypertarget{simplicity}{}
+\pageheading{Simplicity: what the computer supplies, and what we prove}
+Set $a=\rho$ and $b=\iota\rho\iota^{-1}$. The demonstration supplies an exact generation witness: it expresses $\iota$ and $\jmath$ as words in $a,b$, checks the identities on all eleven letters, and verifies $G=\langle a,b\rangle$. The useful point is that the two generators are \emph{conjugate elements of prime order}. Their long word expansions are displayed in the demonstration rather than read aloud in the proof.
+
+\begin{theorem}
+$M_{11}$ is a nonabelian simple group.
+\end{theorem}
+\begin{proof}
+Let $1\ne N\lhd G$. Its orbits on the eleven points form a $G$-invariant partition, since $g(N\alpha)=N(g\alpha)$. Transitivity of $G$ makes their sizes equal. As 11 is prime, the orbits are either singletons or one orbit. The singleton case would make $N$ act trivially, contrary to faithfulness and $N\ne1$. Thus $N$ is transitive, so $11\mid|N|$.
+
+Cauchy's theorem supplies a subgroup of order 11 in $N$. It is Sylow in $G$, since $11^2\nmid7920$. By Sylow conjugacy and normality, $\langle a\rangle\le N$. Then $b\in N$ as well. The generation witness gives $N=G$. Finally $G$ contains $Q_8$, so it is nonabelian.
+\end{proof}
+
+Prime-degree transitivity forced a normal subgroup to contain an eleven-cycle. Generation by conjugates of that cycle finished the proof. This is the same strategy as the normal-subgroup argument for the group of order 168 in Homework 2.
+
+\begin{corollary}
+$M_{12}$ is simple.
+\end{corollary}
+\begin{proof}
+Let $1\ne N\lhd M_{12}$. A doubly transitive action is primitive, so $N$ is transitive. Its intersection with a point stabilizer $M_{11}$ is normal in that simple group. If the intersection is $M_{11}$, transitivity gives $N=M_{12}$. Otherwise $N$ is regular and has order 12.
+
+Identify the twelve points with a regular normal subgroup $N$. The point stabilizer then acts on $N$ by conjugation. Double transitivity would make it transitive on $N\setminus\{1\}$, so all nonidentity elements would have the same order. Cauchy's theorem gives elements of orders 2 and 3 in a group of order 12, a contradiction.
+\end{proof}
+
+\demobox{permutations?group=11}{The finite witness in the simplicity proof.} Verify the words in $a,b$. A successful relation check alone does not prove simplicity: the argument above explains how normality, prime degree, Cauchy's theorem, and Sylow conjugacy use the witness.
+
+\hypertarget{sylow}{}
+\pageheading{Sylow subgroups and the geometry they remember}
+The Sylow subgroup orders in $M_{11}$ are $16,9,5,11$. The demonstration computes their generators, structures, normalizers, and conjugacy counts for all five Mathieu groups. The interpretation of a normalizer is the same in every case:
+\[
+ \Syl_p(G)\simeq G/N_G(P),\qquad n_p=[G:N_G(P)].
+\]
+The congruence $n_p\equiv1\pmod p$ checks an answer; it does not usually determine it.
+
+\begin{proposition}
+For $P=\langle\rho\rangle\le M_{11}$, the normalizer is the affine group
+\[
+ N_G(P)=\{z\mapsto az+b:a\in R,\ b\in\F_{11}\}\simeq C_{11}\rtimes C_5.
+\]
+\end{proposition}
+\begin{proof}
+A permutation $f$ normalizing translations satisfies $f(z+1)=f(z)+a$ for some $a\ne0$. Hence $f(z)=az+b$; conversely these affine maps normalize translations. Multiplication by a generator of $\F_{11}^{\times}$ is a ten-cycle on the nonzero points, hence odd. Thus multiplication by $a$ is even exactly when $a$ is a square. Since $G\le A_{11}$, only square multipliers are possible. They all occur: diagonal determinant-one matrices in $\SL_2(\F_{11})$ induce the maps $z\mapsto s^2z$, which preserve the derived design.
+\end{proof}
+In particular $n_{11}=7920/55=144$. There are two conjugacy classes of nonidentity powers of $\rho$: two powers are conjugate exactly when the ratio of their exponents is a square. Since $-1$ is a nonsquare, $\rho$ is not conjugate to $\rho^{-1}$. Conjugate Sylow subgroups need not have all their generators conjugate.
+
+\textbf{At the prime 3.} The pointwise stabilizer of a pair has structure $C_3^2\rtimes Q_8$, verified from explicit permutations. Its normal subgroup $P\simeq C_3^2$ fixes that pair and is regular on the remaining nine points. Those nine points may therefore be identified with the affine plane $\F_3^2$, with $P$ acting by translations.
+
+An element normalizing $P$ preserves its fixed pair. Conversely the setwise pair stabilizer normalizes the pointwise pair stabilizer and its unique Sylow 3-subgroup. Hence $N_G(P)$ is exactly the setwise pair stabilizer. The Sylow 3-subgroups are thus in equivariant bijection with the 55 unordered pairs. A nonidentity element fixes exactly its pair, so different Sylow 3-subgroups intersect trivially.
+
+\textbf{At the prime 2.} The subgroup is semidihedral:
+\[
+ SD_{16}=\langle r,s:r^8=s^2=1,\ srs^{-1}=r^3\rangle.
+\]
+The computer supplies permutations satisfying these relations and generating sixteen elements. Comparing with the dihedral relation $srs^{-1}=r^{-1}$ shows how the automorphism in a semidirect product affects the result. Every Sylow subgroup is nilpotent, although $M_{11}$ itself is nonabelian simple.
+
+\demobox{sylow?group=11}{Sylow subgroups.} Select a prime and enumerate just that subgroup. Compare its element orders and center with those in $M_{12}$ or $M_{24}$. Explicit generators and the larger normalizer tables stay in the presentation.
+
+\hypertarget{triangles}{}
+\pageheading{Triangle quotients and surface actions}
+The demonstration gives permutations $x,y\in M_{11}$ with exact orders $2,4$ and with $xy$ of order 11. It separately verifies that $\langle x,y\rangle=M_{11}$. Thus the presentation rule gives an epimorphism
+\[
+ T'(2,4,11)=\langle X,Y:X^2=Y^4=(XY)^{11}=1\rangle
+ \twoheadrightarrow M_{11},\qquad X\mapsto x,\quad Y\mapsto y.
+\]
+The prime on $T'$ denotes the orientation-preserving triangle group, as in Lectures 7--8. Since $1/2+1/4+1/11<1$, this group is infinite and hyperbolic. The kernel is normal, infinite, and of index 7920. The triangle relations therefore \emph{do not present the finite simple group}. ATLAS gives a finite presentation with additional relations [4]; verifying a relation in the image would not prove that a proposed list of relations is sufficient.
+
+\textbf{A geometric realization.} Every nontrivial finite-order element of an orientation-preserving hyperbolic triangle group is conjugate to a power of a vertex rotation. The images of the three vertex generators have their exact original orders, so no nontrivial such power lies in the kernel. The kernel is torsion-free. Consequently its quotient of the hyperbolic plane is a closed orientable surface with a faithful $M_{11}$-action.
+
+More generally, a generating triangle pair of orders $p,q,r$ in a finite group $G$, with $1/p+1/q+1/r<1$, gives
+\[
+ 2-2g=|G|\left(\frac1p+\frac1q+\frac1r-1\right).
+\]
+The covering degree is $|G|$, not the degree of a permutation representation of $G$. For our $M_{11}$ pair, the genus is 631. This constructs an action; it makes no minimal-genus or full-automorphism-group claim.
+
+\demobox{triangles?group=11}{Triangle quotients.} Inspect $x,y,xy$ and switch groups. The included computation finds and certifies generating pairs for all five Mathieu groups. The other pairs are witnesses found by the stated search, not claims of minimal triangle signatures or ATLAS standard generators.
+
+\textbf{Search versus proof.} A seeded search forms words and uses powers to obtain elements of small order. This proposes candidate pairs. Computing the exact order of the subgroup they generate proves that an accepted pair generates the whole group. Merely finding the desired three element orders would not suffice.
+
+\hypertarget{representations}{}
+\pageheading{Permutation actions, representations, and an invariant}
+Let $G$ permute the coordinate vectors of $\C^n$. The line of constant vectors is fixed, and
+\[
+ U=\{(z_0,\ldots,z_{n-1}):\textstyle\sum z_i=0\}
+\]
+is an invariant complement. Its character is $\chi_U(g)=\#\operatorname{Fix}(g)-1$.
+
+\begin{proposition}
+If the action is doubly transitive, the complex representation on $U$ is irreducible.
+\end{proposition}
+\begin{proof}
+A matrix commuting with every permutation in a doubly transitive group has one constant value on its diagonal and one constant value off the diagonal. It is of the form $aI+bJ$ and acts as a scalar on $U$.
+
+If $0\ne V\ne U$ were invariant, its orthogonal complement would also be invariant, since permutation matrices are unitary. Orthogonal projection onto $V$, extended by zero on the constant line, would commute with $G$. Its restriction to $U$ would be a scalar idempotent, hence zero or the identity, a contradiction.
+\end{proof}
+This gives faithful irreducible representations of dimensions $10,11,21,22,23$ from the natural actions of the five Mathieu groups. Faithfulness follows from the action on the differences $e_i-e_j$.
+
+\textbf{A second action of $M_{11}$.} The orbit of the residue biplane consists of twelve biplanes. The presentation computes this orbit; each pentad belongs to two of them. This gives a faithful, triply transitive action of $M_{11}$ on twelve objects and hence another irreducible complex representation, of dimension 11. Its point stabilizer is classically identified with $\PSL_2(11)$ [4]; the identification is not inferred just from its order 660. Other natural actions are on 55 pairs and 66 pentads.
+
+\textbf{Why degree five appears.} Return to the pentad polynomial $F$. Four-fold transitivity makes every invariant of degree at most four symmetric under $S_{11}$: monomials with the same exponent pattern are in one orbit. Degree five first distinguishes pentads from nonpentads. The exceptional quintic, modulo symmetric forms, is unique. This agrees with the Molien-series computation in [9].
+
+There is also a useful identity. With $e_j$ denoting the elementary symmetric polynomial and $D=\sum_i\partial/\partial z_i$, unique completion of four-sets gives
+\[
+ DF=e_4,\qquad De_5=7e_4,\qquad D(7F-e_5)=0.
+\]
+Thus $7F-e_5$ is unchanged by translating all coordinates together and descends to $\C^{11}/\C\mathbf1$. These are direct consequences of the design; they do not assert that the full projective automorphism group of the quintic hypersurface has been determined.
+
+\demobox{representations?group=11}{Representations and invariants.} Count fixed points in each conjugacy class, check the character inner product, inspect the twelve biplanes, and verify the derivative identity using the same incidence dictionary.
+
+\hypertarget{codes}{}
+\pageheading{The biplane becomes a perfect code}
+A linear code over $\F_q$ is a subspace of $\F_q^n$. The weight of a vector counts its nonzero coordinates; Hamming distance counts coordinates where two vectors differ. For a linear code, the minimum nonzero weight equals the minimum distance between distinct codewords.
+
+Let $A$ be the biplane incidence matrix and put $B=2A-J$. The incidence identity gives
+\[
+ BB^{\mathsf T}=12I-J.
+\]
+Reduce modulo 3 and let $C$ be the row span of $B$ in $\F_3^{11}$. Gaussian elimination finds dimension 6, and enumeration of its $3^6$ words finds minimum nonzero weight 5. Thus $C$ is a ternary $[11,6,5]$ Golay code. Its weight-five words have exactly the 66 pentads as supports, each for $c$ and $-c$.
+
+\begin{proposition}
+Every vector in $\F_3^{11}$ is within distance two of exactly one codeword.
+\end{proposition}
+\begin{proof}
+Balls of radius two around distinct codewords are disjoint: otherwise their centers would be at distance at most four, contradicting the minimum distance. Each ball has
+\[
+ 1+\binom{11}{1}2+\binom{11}{2}2^2=3^5
+\]
+vectors. There are $3^6$ codewords, so the disjoint balls contain $3^{11}$ vectors, the entire ambient space.
+\end{proof}
+This is the meaning of \emph{perfect}. Six ternary information symbols can be encoded in eleven symbols, correcting any two altered coordinates. Minimum distance proves uniqueness; the volume count proves existence. Neither statement should be replaced by trying a few examples.
+
+\textbf{How the demonstration decodes.} It scans all codewords, counts differing coordinates, and retains every minimizer. This is practical for 729 words and makes ties visible. A syndrome decoder would replace repeated scanning by a precomputed table of correctable errors. Beyond the guaranteed radius, even a unique nearest codeword may be different from the word sent.
+
+\demobox{codes?group=11}{Golay codes and decoding.} Choose a word, alter coordinates, and recover it. Add one extra error to see the limitation of the guarantee. The full weight tables, row-reduced basis, and worked coordinate examples are displayed here. Check that the minimum-weight supports recover the design.
+
+\textbf{A five-dimensional representation over $\F_3$.} Plain coordinate permutations $\iota,\jmath$ do not preserve this particular code. Signed lifts $T(e_i)=\varepsilon_i e_{g(i)}$ do. The computation gives explicit signs, checks preservation of every codeword, and verifies that the generated monomial group has order 7920. Forgetting signs therefore gives an isomorphism onto $M_{11}$, so the lifts define a representation, not merely unrelated signed matrices.
+
+\pageheading{The small module and the large Mathieu groups}
+Put $C_0=\{c\in C:\sum c_i=0\}$. Each row of $B$ has sum $-1$, so $C_0$ has dimension 5. For $c,d\in C$, the identity $BB^{\mathsf T}=-J$ over $\F_3$ gives
+\[
+ c\cdot d=-\Bigl(\sum c_i\Bigr)\Bigl(\sum d_i\Bigr).
+\]
+Thus $C_0\subseteq C^\perp$; equal dimensions give equality. Signed permutation matrices preserve the dot product, so the lifts preserve $C_0$.
+
+The computed orbits on $C_0$ have sizes $1,132,110$. An invariant subspace must be a union of whole orbits containing zero, and its size must be a power of 3. Of $1,133,111,243$, only $1$ and $243$ are powers of 3. Hence this module is irreducible. The action is nontrivial and is therefore faithful by simplicity. We obtain $M_{11}\hookrightarrow\GL_5(\F_3)$.
+
+Extending a word by $c_\infty=\sum c_i$ gives a self-dual $[12,6,6]$ code. Its minimum-weight supports are the hexads. Its full monomial symmetry group is $2.M_{12}$; quotienting by the global sign gives $M_{12}$ on the supports [7]. The central quotient is essential.
+
+\subsection*{The large family from the binary Golay code}
+Over $\F_2$, define
+\[
+ g(t)=t^{11}+t^9+t^7+t^6+t^5+t+1,\qquad
+ C_{23}=\{a(t)g(t):\deg a<12\}\subset\F_2^{23}.
+\]
+The coefficients in degrees $0,\ldots,22$ are the coordinates. Appending parity gives a 24-coordinate code $C_{24}$. Enumeration finds parameters $[23,12,7]$ and $[24,12,8]$. The weight-eight supports of $C_{24}$ form $W_{24}=S(5,8,24)$ and span the code. Thus preserving the octads is equivalent to preserving the code.
+
+Define $M_{24}=\Aut(C_{24})$ as a coordinate permutation group. Fixing the parity point $\infty$ gives $M_{23}$; fixing also point 22 gives $M_{22}$. These are the classical large Mathieu groups; their simplicity is cited [5,8], not proved by a table of orders. The demonstration computes the code automorphism group by partition backtracking and gives its explicit permutation generators.
+\[
+\begin{array}{c|c|c|c}
+G&\text{design}&\text{degree}&\text{transitivity}\\\hline
+M_{11}&S(4,5,11)&11&\text{sharply }4\\
+M_{12}&S(5,6,12)&12&\text{sharply }5\\
+M_{22}&S(3,6,22)&22&3\\
+M_{23}&S(4,7,23)&23&4\\
+M_{24}&S(5,8,24)&24&5
+\end{array}
+\]
+The binary length-23 code is perfect for three-error correction by the same disjoint-ball and volume argument. Its extended length-24 code still corrects three errors but is not perfect. Deriving the octads once or twice explains the other two large Witt designs.
+
+\demobox{codes?group=24}{The binary code and its octads.} Compare the punctured and extended codes. Then use the group selector in the orders, Sylow, and triangle chapters to see what changes in the large family.
+
+\hypertarget{methods}{}
+\pageheading{Algorithms, proof responsibilities, and further questions}
+The demonstration makes three kinds of statement, and labels them separately.
+\begin{itemize}[leftmargin=*,itemsep=4pt]
+\item \textbf{Live finite calculation:} permutation products, block orbits, incidence checks, small Sylow enumeration, codewords and decoding. Each computation exhausts the stated finite set.
+\item \textbf{Generated exact data:} SageMath/GAP stabilizers, normalizers, class representatives, code automorphisms, and generation of triangle pairs. The source exports actual permutations and reproducible checks.
+\item \textbf{Mathematical argument or cited theorem:} simplicity, irreducibility, perfect decoding, identification of the classical large groups, and the surface interpretation of a triangle kernel. A numerical output is not a substitute for these implications.
+\end{itemize}
+Breadth-first search with a hash set is suited to hundreds of blocks. Gaussian elimination and enumeration of $q^k$ combinations are suited to the small codes. A stabilizer chain is suited to a group with millions of elements. Code automorphisms require a different search: partition refinement uses incidence or code structure to discard incompatible coordinate permutations, and backtracking explores the remaining choices. This avoids a naive search through all $24!$ permutations.
+
+\demobox{methods}{Algorithms and evidence.} Run the browser checks or download the source archive. From its folder, run \texttt{sage -python scripts/generate\_mathieu.py}, then \texttt{node tests/verify\_data.cjs}. No network connection is needed to use the downloaded presentation.
+
+\subsection*{An optional puzzle realization}
+The plane $\mathbb P^2(\F_3)$ has thirteen points and four points on each line. Place twelve counters and one hole on its points. If the hole is at $p$ on a line $\{p,q,r,s\}$, move the counter at $q$ into the hole and swap the other two counters. The move is $(p\,q)(r\,s)$. Sequences returning the hole to its initial point give a group on twelve counters, identified with $M_{12}$ in Conway's construction [7]. Allowing different final hole positions gives a groupoid-like extension: allowable compositions depend on where the hole is. This is a different realization of the small group, not an additional sporadic group.
+
+\subsection*{Questions to work through}
+\begin{enumerate}[label=\textbf{\arabic*.},leftmargin=*,itemsep=3pt]
+\small
+\item In an $S(t,k,v)$, prove that the number of blocks through a fixed $s$-set is $\binom{v-s}{t-s}/\binom{k-s}{t-s}$. Explain why an incidence count alone does not certify a design.
+\item Prove the general simplicity criterion used above: a faithful transitive group of prime degree $p$, with $p^2\nmid|G|$, generated by conjugates of a $p$-cycle, is simple.
+\item Explain why the Sylow 3-subgroups of $M_{11}$ correspond to pairs. Use this to count its subgroups of order 3, using the subgroup explorer for the finite inputs.
+\item Why does the character formula subtract one? Why does a weight distribution alone not establish the three-orbit assertion for $C_0$?
+\item Use a minimum-weight codeword to construct a received word for which one error beyond the guaranteed radius gives a wrong unique answer, or a tie. Confirm the example in the decoder.
+\item In the triangle construction, identify the separate roles of exact element orders, generation, and the hyperbolic triangle-group torsion theorem.
+\end{enumerate}
+
+\pageheading{Solutions, a classroom route, and sources}
+\textbf{1.} Count pairs $(T,B)$ with $S\subseteq T\subseteq B$ and $|T|=t$. Every $T$ has one containing block, and each block through $S$ contributes $\binom{k-s}{t-s}$ choices. Equal total incidence counts could conceal repeated and missing $t$-sets; the dictionary check rules them out.
+
+\textbf{2.} Normal orbits form equal-sized blocks in a prime-sized set, so a nontrivial normal subgroup is transitive. Cauchy's theorem and Sylow conjugacy put a chosen subgroup of order $p$ inside it. Normality puts all the conjugate generators inside it. Faithfulness rules out a nontrivial subgroup with singleton orbits. The simple cyclic group of order $p$ is allowed by the statement.
+
+\textbf{3.} The normalizer is the setwise stabilizer of the fixed pair, so the conjugacy orbit of a Sylow subgroup is the orbit of that pair. Each $C_3^2$ has four subgroups of order 3. A shared nonidentity element would have the same fixed pair and hence the same Sylow subgroup. Thus the total is $55\cdot4=220$.
+
+\textbf{4.} The trace of a permutation matrix counts fixed coordinates; removing the constant line subtracts its character 1. A weight distribution counts vectors, but does not show that the group is transitive on each weight class. Orbit search supplies that separate assertion.
+
+\textbf{5.} Let $c$ have minimum weight $d$, and choose $y$ supported on $\lfloor(d-1)/2\rfloor+1$ of its nonzero coordinates, agreeing there with $c$. If zero was sent, the error count exceeds the guarantee. When $d$ is odd, $y$ is closer to $c$ than to zero. When $d$ is even, zero and $c$ are equally near and are both nearest: a still nearer codeword would violate the minimum distance. The decoder displays the relevant outcome.
+
+\textbf{6.} The relations give a homomorphism; generation makes it onto. Exact orders and the torsion theorem make the kernel torsion-free. Hyperbolicity gives the surface interpretation; finite index gives its compactness and the Euler-characteristic formula. Surjectivity alone does not imply a torsion-free kernel.
+
+\textbf{A 75-minute route.} Spend 8 minutes on the historical question and permutations; 15 on the residue and Witt designs with live completion; 10 on stabilizer chains; 12 on the simplicity proof; 10 on the Sylow normalizer and pair geometry; 8 on the triangle quotient; and 12 on perfect decoding. The larger-group comparisons, representation proofs, invariant, and puzzle are extensions. The browser's \emph{Present} button hides navigation for projection; arrow keys move between chapters.
+
+\textbf{Sources.} Homework 2, Problems 20--21, supplies the small-group labels and constructions. Lectures 7--8 supply the triangle-group theorem. Primary references and reproducible algorithm sources follow.
+\begin{enumerate}[label={[\arabic*]},leftmargin=*,itemsep=1pt]
+\footnotesize
+\item E. Mathieu, \emph{M\'emoire sur l'\'etude des fonctions de plusieurs quantit\'es\ldots}, J. Math. Pures Appl. (2) 6 (1861), 241--323. \href{https://www.numdam.org/item/JMPA_1861_2_6__241_0/}{Original-paper record}.
+\item E. Mathieu, \emph{Sur la fonction cinq fois transitive de 24 quantit\'es}, J. Math. Pures Appl. (2) 18 (1873), 25--46. \href{https://www.numdam.org/item/JMPA_1873_2_18__25_0/}{Original-paper record}.
+\item E. Witt, \emph{Die 5-fach transitiven Gruppen von Mathieu} and \emph{\"Uber Steinersche Systeme}, Abh. Math. Sem. Univ. Hamburg 12 (1938), 256--264 and 265--275. \href{https://doi.org/10.1007/BF02948947}{First paper}; \href{https://doi.org/10.1007/BF02948948}{second paper}.
+\item ATLAS of Finite Group Representations, \href{https://brauer.maths.qmul.ac.uk/Atlas/v3/spor/M11/}{$M_{11}$ data}, \href{https://brauer.maths.qmul.ac.uk/Atlas/v3/pres/M11G1-P1}{presentation}, and \href{https://brauer.maths.qmul.ac.uk/Atlas/v3/permrep/M11G1-p12B0}{degree-12 representation}.
+\item H. Cuypers, \href{https://www.win.tue.nl/~hansc/mathieu.pdf}{\emph{The Mathieu groups and their geometries}}, especially §§1, 6--7.
+\item ATLAS, \href{https://brauer.maths.qmul.ac.uk/Atlas/spor/M12/}{$M_{12}$}: standard generators and full presentation.
+\item J. H. Conway, N. D. Elkies, and J. L. Martin, \href{https://arxiv.org/abs/math/0508630}{\emph{The Mathieu group $M_{12}$ and its pseudogroup extension $M_{13}$}}, especially §§2--3 (puzzle and ternary-code monomial symmetry).
+\item ATLAS, \href{https://brauer.maths.qmul.ac.uk/Atlas/spor/M24/}{$M_{24}$}; the binary-code and Steiner parameters are also checked independently in the supplied script.
+\item C. G\'omez-Gonz\'ales, A. J. Sutherland, and J. Wolfson, \href{https://arxiv.org/abs/2310.09375}{\emph{Generalized versality, special points, and resolvent degree for the sporadic groups}} (2024), Appendix A.
+\item M. J. E. Golay, \href{https://pierre-hyvernat.apps.math.cnrs.fr/data/Enseignement/2223/info602/TP-Golay/golay_paper.pdf}{\emph{Notes on Digital Coding}}, Proc. IRE 37 (1949), 657.
+\item \href{https://doc.sagemath.org/html/en/reference/coding/sage/coding/linear_code.html}{SageMath: linear-code algorithms}; \href{https://docs.gap-system.org/doc/ref/chap43.html}{GAP: permutation-group algorithms}. The supplied data were generated with SageMath 10.9 and GAP 4.15.1.
+\end{enumerate}
+\end{document}

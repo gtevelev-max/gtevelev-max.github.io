@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="description" content="An interactive Math 611 lecture: all five Mathieu groups, Witt designs, stabilizer chains, Sylow subgroups, triangle quotients and Golay codes. Exact, reproducible computations.">
+ <title>The Mathieu groups · Math 611</title>
+ <link rel="stylesheet" href="style.css">
+ <script defer src="data/mathieu.js"></script><script defer src="core.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+ <a class="skip" href="#stage">Skip to demonstration</a>
+ <header class="topbar">
+  <a class="brand" href="#overview"><span class="brand-mark">M</span><span>The Mathieu groups<small>MATH 611 · JENIA TEVELEV</small></span></a>
+  <div class="top-controls"><label for="group-select">Explore</label><select id="group-select" aria-label="Mathieu group"><option value="11">M₁₁</option><option value="12">M₁₂</option><option value="22">M₂₂</option><option value="23">M₂₃</option><option value="24">M₂₄</option></select><button id="present" class="quiet">Present</button><a id="notes-link" class="button quiet" href="notes/math611_lecture_9_m11_ver2.pdf">Lecture notes ↗</a></div>
+ </header>
+ <div class="layout">
+  <aside class="sidebar"><div class="eyebrow">A COMPUTATIONAL LECTURE</div><nav id="chapters" aria-label="Presentation chapters"></nav><div class="sidebar-bottom"><span class="status-dot"></span> Exact finite computations<br><a href="#methods">Algorithms &amp; sources</a><a href="source.zip" download>Download sources ↓</a></div></aside>
+  <main id="stage" tabindex="-1"></main>
+ </div>
+ <footer class="bottom"><span id="position"></span><span class="keyboard-hint">← → to change chapters · F to present</span><div><button id="previous" class="quiet" aria-label="Previous chapter">← Previous</button><button id="next">Next →</button></div></footer>
+ <div class="sr-only" id="announcement" aria-live="polite"></div>
+ <noscript>This interactive presentation requires JavaScript. The <a href="notes/math611_lecture_9_m11_ver2.pdf">lecture notes</a> and <a href="scripts/generate_mathieu.py">reproducible SageMath computation</a> remain available.</noscript>
+</body></html>

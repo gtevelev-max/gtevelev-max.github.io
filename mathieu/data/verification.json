@@ -1,0 +1,39 @@
+{
+  "sage": "10.9",
+  "gap": "4.15.1",
+  "data_sha256": "4fdc972818b6ff9db070e811d89fd95f0389d606cb87728705ce8b1689a6700d",
+  "checks": {
+    "M11": {
+      "order": 7920,
+      "schreier_relations": 106,
+      "t_subsets": 330,
+      "classes_sum": 7920
+    },
+    "M12": {
+      "order": 95040,
+      "schreier_relations": 165,
+      "t_subsets": 792,
+      "classes_sum": 95040
+    },
+    "M22": {
+      "order": 443520,
+      "schreier_relations": 368,
+      "t_subsets": 1540,
+      "classes_sum": 443520
+    },
+    "M23": {
+      "order": 10200960,
+      "schreier_relations": 529,
+      "t_subsets": 8855,
+      "classes_sum": 10200960
+    },
+    "M24": {
+      "order": 244823040,
+      "schreier_relations": 973,
+      "t_subsets": 42504,
+      "classes_sum": 244823040
+    },
+    "binary_octad_span_rank": 12,
+    "all_passed": true
+  }
+}

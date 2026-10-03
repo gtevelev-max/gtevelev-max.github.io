@@ -7,6 +7,7 @@ The homepage links to the [personal website](https://websites.umass.edu/tevelev/
 ## Contents
 
 - `index.html`, `style.css`, `assets/`: personal homepage.
+- [Mathieu groups](mathieu/): all five groups through exact permutation, design, Sylow, triangle-quotient, representation, and Golay-code computations, with linked Math 611 lecture notes and reproducible sources.
 - [Parabolic Bundles: Quantum Spectrum](parabolic-bundles/): animated spectra for genera 2–10, terminal-cluster filters, scalable complex-plane and evolution views, and calibrated wall guides.
 - [Curves, motion and surfaces](math233h/): interactive Math233H demonstrations.
 - [Polar curves](math233h/polar-curves/): signed radii, analytic tangents, tracing intervals, and physical Kepler conics.

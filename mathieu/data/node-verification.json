@@ -1,0 +1,120 @@
+{
+  "groups": {
+    "11": {
+      "order": 7920,
+      "blocks": 66,
+      "incidences": 330,
+      "schreierRelations": 106,
+      "sylows": 4,
+      "classes": 10,
+      "triangle": [
+        2,
+        4,
+        11
+      ]
+    },
+    "12": {
+      "order": 95040,
+      "blocks": 132,
+      "incidences": 792,
+      "schreierRelations": 165,
+      "sylows": 4,
+      "classes": 15,
+      "triangle": [
+        2,
+        4,
+        11
+      ]
+    },
+    "22": {
+      "order": 443520,
+      "blocks": 77,
+      "incidences": 1540,
+      "schreierRelations": 368,
+      "sylows": 5,
+      "classes": 12,
+      "triangle": [
+        2,
+        4,
+        11
+      ]
+    },
+    "23": {
+      "order": 10200960,
+      "blocks": 253,
+      "incidences": 8855,
+      "schreierRelations": 529,
+      "sylows": 6,
+      "classes": 17,
+      "triangle": [
+        2,
+        4,
+        23
+      ]
+    },
+    "24": {
+      "order": 244823040,
+      "blocks": 759,
+      "incidences": 42504,
+      "schreierRelations": 973,
+      "sylows": 6,
+      "classes": 26,
+      "triangle": [
+        2,
+        3,
+        23
+      ]
+    }
+  },
+  "codes": {
+    "binary23": {
+      "words": 4096,
+      "distance": 7,
+      "weights": {
+        "0": 1,
+        "7": 253,
+        "8": 506,
+        "11": 1288,
+        "12": 1288,
+        "15": 506,
+        "16": 253,
+        "23": 1
+      }
+    },
+    "binary24": {
+      "words": 4096,
+      "distance": 8,
+      "weights": {
+        "0": 1,
+        "8": 759,
+        "12": 2576,
+        "16": 759,
+        "24": 1
+      }
+    },
+    "ternary11": {
+      "words": 729,
+      "distance": 5,
+      "weights": {
+        "0": 1,
+        "5": 132,
+        "6": 132,
+        "8": 330,
+        "9": 110,
+        "11": 24
+      }
+    },
+    "ternary12": {
+      "words": 729,
+      "distance": 6,
+      "weights": {
+        "0": 1,
+        "6": 264,
+        "9": 440,
+        "12": 24
+      }
+    }
+  },
+  "checks": 11970,
+  "passed": true
+}
