@@ -7,3 +7,8 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
 .lecture-label{display:block;margin:12px 0 5px;font-size:10px;color:var(--muted)}.headline-equation.long{font-size:21px}@media(max-width:560px){.headline-equation.long{font-size:18px}.lecture-label{font-size:9px}}
+
+/* Keep the single playback control beside the explorer heading. */
+.workspace-actions{display:flex;align-items:center;gap:10px;flex:none}.workspace-actions .play-button{width:90px;height:44px;font-size:12px}.workspace-actions .icon-button{width:40px;height:40px}
+@media(max-width:800px){.workspace-bar{flex-wrap:wrap}.workspace-bar>div:first-child{flex:1}.headline-equation{order:2;flex-basis:100%;margin:0}.workspace-actions{order:1}}
+@media(max-width:560px){.workspace-actions{order:1;gap:7px}.workspace-bar>div:first-child{min-width:0}.workspace-bar .workspace-actions .icon-button{width:36px;height:40px}.workspace-actions .play-button{width:86px}}
