@@ -2,7 +2,8 @@
 // These are graphs of functions on their original domains. We never clear a
 // denominator to draw an implicit surface or assign a value at a missing point.
 const punctured = (x,y) => x !== 0 || y !== 0;
-const colors = ['#176c70','#b75037','#7958a5'];
+const colors = ['#ad5805','#c62850','#783bcc'];
+const renderColors = ['#ffb339','#ff5584','#c779ff'];
 const path = (name, point, result) => ({name,point,result});
 export const limitExamples = [
   {
@@ -24,7 +25,7 @@ export const limitExamples = [
     domain:'All (x,y) except (0,0). A narrow ridge follows x = y².',
     zCenter:0,zScale:.65,radius:1,
     paths:[path('line y = x: (t,t)',t=>[t,t],'0'),path('vertical line: (0,t)',t=>[0,t],'0'),path('parabola x = y²: (t²,t)',t=>[t*t,t],'1/2')],
-    proof:'<p>On any nonvertical line y = kx, <b>g(x,kx) = k²x/(1 + k⁴x²) → 0</b>. On the remaining vertical line x = 0, g = 0 as well.</p><p>But on x = y², <b>g(t²,t) = t⁴/(2t⁴) = 1/2</b> for t ≠ 0. Hence there is no two-variable limit.</p><p>The purple parabola is evaluated directly. As the disk shrinks, the ridge can be too narrow for the sampled mesh; the exact path still detects it.</p>',
+    proof:'<p>On any nonvertical line y = kx, <b>g(x,kx) = k²x/(1 + k⁴x²) → 0</b>. On the remaining vertical line x = 0, g = 0 as well.</p><p>But on x = y², <b>g(t²,t) = t⁴/(2t⁴) = 1/2</b> for t ≠ 0. Hence there is no two-variable limit.</p><p>The purple parabola is evaluated directly. The surface mesh follows curves of the form x = ky², keeping both narrow ridges visible as the disk shrinks.</p>',
     prompt:'Compare the purple parabola with the straight paths. All fixed directions can agree while the full limit fails.'
   },
   {
@@ -72,26 +73,8 @@ export const limitExamples = [
     prompt:'The marked point is (1,2,−63). Shrink the disk to watch nearby graph heights approach it.'
   }
 ];
-for (const example of limitExamples) example.paths.forEach((p,i)=>{p.color=colors[i];});
+const teachingOrder = ['polynomial','radial-sinc','squeeze','infinite','two-paths','curved-path'];
+limitExamples.sort((a,b)=>teachingOrder.indexOf(a.id)-teachingOrder.indexOf(b.id));
+for (const example of limitExamples) example.paths.forEach((p,i)=>{p.color=colors[i];p.renderColor=renderColors[i];});
 export const limitById = Object.fromEntries(limitExamples.map(e=>[e.id,e]));
 export function pathSamples(example,t){return example.paths.map(p=>{const [x,y]=p.point(t);return {name:p.name,x,y,value:example.evaluate(x,y)};});}
-export function graphSamples(example,radius,n=48){
-  // Sample concentric rings in the punctured disk, with extra radial detail near
-  // the missing point. Every vertex is an original function value.
-  const rings=25,points=[],faces=[];
-  for(let j=0;j<=rings;j++){
-    const r=radius*Math.exp(Math.log(.003)*(1-j/rings));
-    for(let i=0;i<n;i++){
-      const angle=2*Math.PI*i/n,dx=r*Math.cos(angle),dy=r*Math.sin(angle);
-      const z=example.evaluate(example.target[0]+dx,example.target[1]+dy);
-      points.push([dx/radius,dy/radius,(z-example.zCenter)/example.zScale,z]);
-    }
-  }
-  for(let j=0;j<rings;j++)for(let i=0;i<n;i++){
-    const next=(i+1)%n;
-    for(const indices of [[j*n+i,j*n+next,(j+1)*n+i],[j*n+next,(j+1)*n+next,(j+1)*n+i]]){
-      if(indices.every(k=>Number.isFinite(points[k][2])&&Math.abs(points[k][2])<=1))faces.push(indices);
-    }
-  }
-  return {points,faces};
-}

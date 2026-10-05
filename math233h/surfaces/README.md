@@ -16,10 +16,23 @@ The translated-hyperboloid preset uses (x−1)²/4+(y+1)²−(z−2)²/4=1, cent
 
 ## Lecture 9 limits
 
-The `#limits` section adds all six computed examples from Lecture 9 (October 6, 2026): two different axis limits, agreement along every line but failure along a parabola, an infinite limit, a squeeze estimate, a radial sine quotient, and a polynomial limit at (1,2). A `?limit=curved-path#limits` URL selects an example; all IDs are in `limits-math.mjs`. These are lecture examples, not homework solutions.
+The `#limits` section presents all six computed examples from Lecture 9 (October 6, 2026), in order of difficulty:
 
-`limits-math.mjs` contains the original-domain function evaluators, exact approach paths, worked calculations, and graph sampler. `limits.mjs` draws their graphs on a shrinking disk using a native Canvas 2D projection with pointer/keyboard rotation. The horizontal disk is rescaled but each example's vertical range remains fixed and labeled. Out-of-range values are omitted, never clamped into a false plateau. The five excluded origins stay undefined; the polynomial's center is included and marked. Curved paths are evaluated directly so the parabola remains visible even when its narrow ridge escapes the sampled mesh.
+1. Polynomial continuity and substitution at (1,2): −63.
+2. Radial sine quotient and one-variable substitution: 1.
+3. A uniform squeeze estimate: 0.
+4. A radial infinite limit: +∞, with no finite limit.
+5. Two incompatible axis limits: does not exist.
+6. Every line agrees, but a curved path disagrees: does not exist.
 
-The data table evaluates actual function values at t=r/2, r/10, r/100, independently of graph clipping. Proofs distinguish path counterexamples from uniform bounds and continuity arguments. A numerical mesh or agreement on sampled paths does not establish a limit.
+The polynomial opens by default. The numbered selector and Previous/Next buttons expose the sequence; existing `?limit=curved-path#limits` links still work. These are lecture examples, not homework solutions.
 
-Run `node math233h/surfaces/test-limits.mjs` alongside the original `test-math.mjs`. It checks all six examples, excluded domains, exact path identities, uniform bounds, disk containment, fixed scales, and omission of the graph when the infinite-limit example rises wholly above its z=20 window. The addition has no runtime dependencies.
+`limits-math.mjs` contains original-domain function evaluators, exact approach paths, and worked calculations. `limits-mesh.mjs` builds approximately 30,000 triangles per graph with analytic unit normals corrected for the horizontal/vertical display scales. The hardest graph uses x=tan(α)y² to resolve both narrow ±1/2 ridges even at radius 0.01. Its y>0 and y<0 patches meet only on the actual x-axis graph, never across the excluded origin. Infinite-limit clipping circles are exact; other clipping intersections are solved on the original graph. There are no false horizontal caps.
+
+`limits-renderer.mjs` uses native antialiased WebGL, depth testing, smooth lighting, blue upper surfaces and amber undersides (one consistent blue palette on both sides of the thin curved-path graph to avoid unstable color speckling), optional height contours/surface grid, and contrasting 3D approach-path tubes. The tubes retain depth and can be hidden behind the surface. Pointer/keyboard orbit, wheel/pinch/button zoom, reset, and fullscreen help reveal the geometry. The graph appears immediately after its equation on phones. No external dependencies are used.
+
+The horizontal disk expands to fill the view as it shrinks; each example's vertical range stays fixed and labeled. Out-of-range heights are omitted, never flattened. A tiny disk of radius 0.001r is omitted from each punctured mesh; exact paths and numerical values still approach the target. The five excluded origins remain undefined. The polynomial's center is included; its solid marker is distinguished from hollow missing-limit markers. Markers remain visible through the mesh as annotations.
+
+The table evaluates actual function values at t=r/2, r/10, r/100 independently of clipping. Proofs distinguish path counterexamples from uniform bounds and continuity. A numerical mesh or agreement on sampled paths does not establish a limit.
+
+Run `node math233h/surfaces/test-limits.mjs` and `node math233h/surfaces/test-limits-mesh.mjs` alongside the original `test-math.mjs`. The mesh tests check all six graphs at four radii, graph residuals, 4,168 independent finite-difference normal comparisons, upward winding, excluded origins, polynomial center, exact ridge extrema, absence of false walls, and clipping without caps. Browser validation covers all six graphs, ordered navigation, rendering/zoom controls, direct links, desktop/mobile layouts, and regression checks on the original surface gallery.
