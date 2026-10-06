@@ -39,6 +39,26 @@ for(const [name,C] of Object.entries(D.codes)){
  const low=words.find(w=>M.weight(w)===C.minimum_distance),bad=Array(C.n).fill(0);low.flatMap((x,i)=>x?[i]:[]).slice(0,radius+1).forEach(i=>bad[i]=low[i]);const beyond=M.decode(bad,words);check(beyond.winners.length>1||beyond.winners[0]!==0,'beyond-radius ambiguity or wrong unique answer demonstrated');
  report.codes[name]={words:words.length,distance:C.minimum_distance,weights:hist};
 }
+report.quaternionStabilizers={};
+for(const n of [11,12]){
+ const Q=M.quaternionStabilizer(D.groups[n],D.groups[11]);
+ check(Q.pass,`M${n} quaternion stabilizer: every certificate check`);
+ assert.deepEqual(Q.fixed,n===12?[11,0,1,2]:[0,1,2]);report.checks++;
+ assert.deepEqual(Q.chain.map(L=>L.base),n===12?[11,0,1,2,3]:[0,1,2,3]);report.checks++;
+ assert.deepEqual(Q.entries.map(e=>e.image),[3,4,5,10,6,8,9,7]);report.checks++;
+ assert.deepEqual(M.histogram(Q.entries.map(e=>e.order)),{1:1,2:1,4:6});report.checks++;
+ check(Q.entries.filter(e=>e.permutation[3]===3).length===1,'one more fixed point gives the identity');
+ const last=Q.chain.at(-1),fullStabilizer=M.groupClosure(last.generators,n,8);
+ check(fullStabilizer.length===8&&fullStabilizer.every(p=>Q.entries.some(e=>M.same(p,e.permutation))),'enumerated final strong generators give precisely the quaternion words');
+ check(M.same(M.compose(Q.i,Q.j),M.compose(Q.z,M.compose(Q.j,Q.i))),'ij = zji: quaternion anticommutation');
+ for(const [k,L] of Q.chain.entries())for(const [a,t] of Object.entries(L.transversals)){
+  check(t[L.base]===+a&&Q.chain.slice(0,k).every(K=>t[K.base]===K.base),'lecture-base transversals');
+  check(M.sift(t,D.groups[n].chain).member,'lecture-base transversals belong to the original ambient group');
+ }
+ report.quaternionStabilizers[n]={fixed:Q.fixed,imagesOf3:Q.entries.map(e=>e.image),elementOrders:M.histogram(Q.entries.map(e=>e.order)),order:Q.stabilizerOrder,nextOrder:Q.nextOrder};
+}
+const badQuaternion={...D.groups[11],generators:[...D.groups[11].generators]};badQuaternion.generators[2]=badQuaternion.generators[1];
+check(!M.quaternionStabilizer(D.groups[11],badQuaternion).pass,'a cyclic order-four replacement is not misidentified as Q8');
 const W=D.small_witnesses.simplicity,G=D.groups[11];
 check(M.same(M.parseWord(W.iota_word,['a','b'],[W.a,W.b],11).permutation,G.generators[1]),'simplicity word iota');
 check(M.same(M.parseWord(W.jmath_word,['a','b'],[W.a,W.b],11).permutation,G.generators[2]),'simplicity word jmath');

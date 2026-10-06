@@ -1,0 +1,367 @@
+{
+  "description": "Exact quaternion certificates for the lecture point stabilizers",
+  "groups": {
+    "11": {
+      "fixedPoints": [
+        0,
+        1,
+        2
+      ],
+      "base": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "checks": {
+        "commonSquare": true,
+        "conjugation": true,
+        "eightWords": true,
+        "regularOrbit": true,
+        "frame": true,
+        "ambientMembership": true,
+        "finalMembership": true,
+        "chainMembership": true,
+        "schreier": true,
+        "chainOrders": true
+      },
+      "order": 8,
+      "nextOrder": 1,
+      "elements": [
+        {
+          "word": "1",
+          "imageOf3": 3,
+          "order": 1,
+          "permutation": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ]
+        },
+        {
+          "word": "i",
+          "imageOf3": 4,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            4,
+            5,
+            10,
+            8,
+            6,
+            9,
+            7,
+            3
+          ]
+        },
+        {
+          "word": "i²",
+          "imageOf3": 5,
+          "order": 2,
+          "permutation": [
+            0,
+            1,
+            2,
+            5,
+            10,
+            3,
+            9,
+            8,
+            7,
+            6,
+            4
+          ]
+        },
+        {
+          "word": "i³",
+          "imageOf3": 10,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            10,
+            3,
+            4,
+            7,
+            9,
+            6,
+            8,
+            5
+          ]
+        },
+        {
+          "word": "j",
+          "imageOf3": 6,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            6,
+            7,
+            9,
+            5,
+            10,
+            4,
+            3,
+            8
+          ]
+        },
+        {
+          "word": "ij",
+          "imageOf3": 8,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            8,
+            6,
+            7,
+            10,
+            3,
+            5,
+            4,
+            9
+          ]
+        },
+        {
+          "word": "i²j",
+          "imageOf3": 9,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            9,
+            8,
+            6,
+            3,
+            4,
+            10,
+            5,
+            7
+          ]
+        },
+        {
+          "word": "i³j",
+          "imageOf3": 7,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            7,
+            9,
+            8,
+            4,
+            5,
+            3,
+            10,
+            6
+          ]
+        }
+      ]
+    },
+    "12": {
+      "fixedPoints": [
+        11,
+        0,
+        1,
+        2
+      ],
+      "base": [
+        11,
+        0,
+        1,
+        2,
+        3
+      ],
+      "checks": {
+        "commonSquare": true,
+        "conjugation": true,
+        "eightWords": true,
+        "regularOrbit": true,
+        "frame": true,
+        "ambientMembership": true,
+        "finalMembership": true,
+        "chainMembership": true,
+        "schreier": true,
+        "chainOrders": true
+      },
+      "order": 8,
+      "nextOrder": 1,
+      "elements": [
+        {
+          "word": "1",
+          "imageOf3": 3,
+          "order": 1,
+          "permutation": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "word": "i",
+          "imageOf3": 4,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            4,
+            5,
+            10,
+            8,
+            6,
+            9,
+            7,
+            3,
+            11
+          ]
+        },
+        {
+          "word": "i²",
+          "imageOf3": 5,
+          "order": 2,
+          "permutation": [
+            0,
+            1,
+            2,
+            5,
+            10,
+            3,
+            9,
+            8,
+            7,
+            6,
+            4,
+            11
+          ]
+        },
+        {
+          "word": "i³",
+          "imageOf3": 10,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            10,
+            3,
+            4,
+            7,
+            9,
+            6,
+            8,
+            5,
+            11
+          ]
+        },
+        {
+          "word": "j",
+          "imageOf3": 6,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            6,
+            7,
+            9,
+            5,
+            10,
+            4,
+            3,
+            8,
+            11
+          ]
+        },
+        {
+          "word": "ij",
+          "imageOf3": 8,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            8,
+            6,
+            7,
+            10,
+            3,
+            5,
+            4,
+            9,
+            11
+          ]
+        },
+        {
+          "word": "i²j",
+          "imageOf3": 9,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            9,
+            8,
+            6,
+            3,
+            4,
+            10,
+            5,
+            7,
+            11
+          ]
+        },
+        {
+          "word": "i³j",
+          "imageOf3": 7,
+          "order": 4,
+          "permutation": [
+            0,
+            1,
+            2,
+            7,
+            9,
+            8,
+            4,
+            5,
+            3,
+            10,
+            6,
+            11
+          ]
+        }
+      ]
+    }
+  },
+  "validation": {
+    "exactSuiteChecks": 12163,
+    "browserGroups": 5,
+    "browserChapters": 9,
+    "desktopAndMobile": true
+  }
+}

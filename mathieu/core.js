@@ -40,5 +40,35 @@
  function histogram(xs){const h={};for(const x of xs)h[x]=(h[x]||0)+1;return h;}
  function decode(received,words){let minimum=Infinity,winners=[];words.forEach((w,i)=>{const d=distance(w,received);if(d<minimum){minimum=d;winners=[i];}else if(d===minimum)winners.push(i);});return {minimum,winners};}
  function schreierAudit(chain){let count=0;for(let i=0;i<chain.length;i++){const L=chain[i];for(const [a,ta] of Object.entries(L.transversals))for(const s of L.generators){const h=compose(inverse(L.transversals[s[Number(a)]]),compose(s,ta));if(!sift(h,chain.slice(i+1)).member)return {pass:false,count};count++;}}return {pass:true,count};}
- return {identity,compose,inverse,same,cycles,order,power,image,cycleText,parseWord,sift,combinations,choose,auditDesign,blockOrbit,groupClosure,rref,inRowSpace,codewords,weight,distance,histogram,decode,schreierAudit};
+ // The stored M12 base starts at 0. The lecture instead fixes infinity first,
+ // so construct that orbit by BFS and use the compatible M11 chain below it.
+ // Each extended permutation fixes infinity (array index 11).
+ function lectureChain(G,smallGroup){
+   if(G.n!==12)return G.chain;
+   const extend=p=>[...p,11],base=11,orbit=[base],transversals={[base]:identity(12)},tree=[];
+   for(let a=0;a<orbit.length;a++)G.generators.forEach((g,index)=>{const from=orbit[a],to=g[from];if(!transversals[to]){transversals[to]=compose(g,transversals[from]);orbit.push(to);tree.push([from,to,index]);}});
+   const tail=smallGroup.chain.map(L=>({...L,generators:L.generators.map(extend),transversals:Object.fromEntries(Object.entries(L.transversals).map(([a,t])=>[a,extend(t)]))}));
+   return [{base,orbit,transversals,tree,generators:G.generators,order:G.order,next_order:smallGroup.order},...tail];
+ }
+ function quaternionStabilizer(G,smallGroup){
+   if(![11,12].includes(G.n))throw Error('This quaternion witness is for the small Mathieu family.');
+   const chain=lectureChain(G,smallGroup),last=chain[chain.length-1],fixed=chain.slice(0,-1).map(L=>L.base),extend=p=>G.n===12?[...p,11]:[...p];
+   const i=extend(smallGroup.generators[1]),j=extend(smallGroup.generators[2]),one=identity(G.n),z=power(i,2);
+   const names=['1','i','i²','i³','j','ij','i²j','i³j'],words=[0,1,2,3].map(k=>power(i,k)).concat([0,1,2,3].map(k=>compose(power(i,k),j)));
+   const entries=words.map((permutation,k)=>({name:names[k],permutation,image:permutation[3],order:order(permutation)})),closure=groupClosure([i,j],G.n,8);
+   const checks={
+     commonSquare:same(z,power(j,2))&&!same(z,one)&&same(power(z,2),one),
+     conjugation:same(compose(inverse(j),compose(i,j)),inverse(i)),
+     eightWords:new Set(words.map(p=>p.join(','))).size===8&&closure.length===8&&closure.every(p=>words.some(w=>same(p,w))),
+     regularOrbit:new Set(entries.map(e=>e.image)).size===8&&entries.every(e=>last.orbit.includes(e.image)),
+     frame:words.every(p=>fixed.every(a=>p[a]===a)),
+     ambientMembership:words.every(p=>sift(p,G.chain).member),
+     finalMembership:words.every(p=>sift(p,[last]).member),
+     chainMembership:chain.every((L,k)=>L.generators.every(p=>sift(p,G.chain).member&&chain.slice(0,k).every(K=>p[K.base]===K.base))),
+     schreier:schreierAudit(chain).pass,
+     chainOrders:chain.every((L,k)=>L.order===L.orbit.length*L.next_order&&L.next_order===(chain[k+1]?.order||1))&&last.order===8&&last.next_order===1&&last.base===3
+   };
+   return {pass:Object.values(checks).every(Boolean),checks,chain,fixed,i,j,z,entries,stabilizerOrder:last.order,nextOrder:last.next_order};
+ }
+ return {identity,compose,inverse,same,cycles,order,power,image,cycleText,parseWord,sift,combinations,choose,auditDesign,blockOrbit,groupClosure,rref,inRowSpace,codewords,weight,distance,histogram,decode,schreierAudit,lectureChain,quaternionStabilizer};
 });
