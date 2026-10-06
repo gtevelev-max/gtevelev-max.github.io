@@ -6,25 +6,47 @@ const hex=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16)/255);
 function multiply(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o;}
 
 const vertex=`attribute vec3 aPosition;attribute vec3 aNormal;uniform mat4 uMatrix;varying vec3 vPosition;varying vec3 vNormal;void main(){vPosition=aPosition;vNormal=aNormal;gl_Position=uMatrix*vec4(aPosition,1.0);}`;
-const fragment=`precision highp float;
-varying vec3 vPosition;varying vec3 vNormal;uniform vec3 uEye;uniform bool uPath;uniform bool uContours;uniform bool uUnified;uniform vec3 uColor;
+const fragment=derivatives=>`${derivatives?'#extension GL_OES_standard_derivatives : enable\n':''}precision highp float;
+varying vec3 vPosition;varying vec3 vNormal;uniform vec3 uEye;uniform bool uPath;uniform bool uContours;uniform bool uGrid;uniform bool uCurved;uniform float uRadius;uniform vec3 uColor;
 void main(){
- vec3 n=normalize(vNormal);if(!gl_FrontFacing)n=-n;
- vec3 view=normalize(uEye-vPosition),key=normalize(vec3(-1.4,-1.8,3.0)),fill=normalize(vec3(2.5,1.2,1.5));
+ vec3 view=normalize(uEye-vPosition),n=normalize(vNormal);
+ // Orient the smooth analytic normal toward the viewer. Using a single
+ // material on both sides avoids color flicker on almost vertical ridges.
+ if(dot(n,view)<0.0)n=-n;
+ vec3 key=normalize(normalize(uEye)+vec3(-0.6,-0.4,1.3));
+ vec3 fill=normalize(vec3(1.8,0.8,1.2));
  float h=clamp((vPosition.z+1.0)*0.5,0.0,1.0);
- vec3 front=mix(vec3(0.035,0.30,0.51),vec3(0.20,0.72,0.79),h);
- vec3 back=mix(vec3(0.63,0.30,0.16),vec3(0.93,0.69,0.37),h);
- vec3 base=uPath?uColor:((uUnified||gl_FrontFacing)?front:back);
- float light=0.52+0.45*max(dot(n,key),0.0)+0.18*max(dot(n,fill),0.0);
+ vec3 base=uPath?uColor:mix(vec3(0.055,0.32,0.66),vec3(0.20,0.73,0.86),h);
+ float light=0.40+0.48*max(dot(n,key),0.0)+0.18*max(dot(n,fill),0.0);
  vec3 color=base*light;
- float rim=pow(1.0-max(dot(n,view),0.0),3.0);color+=vec3(0.12,0.18,0.20)*rim;
- vec3 halfdir=normalize(key+view);color+=vec3(0.25)*pow(max(dot(n,halfdir),0.0),35.0);
- if(uContours&&!uPath){float d=abs(fract(vPosition.z*4.0+0.5)-0.5);color*=1.0-0.20*(1.0-smoothstep(0.014,0.032,d));}
+ float rim=pow(1.0-max(dot(n,view),0.0),3.0);color+=vec3(0.10,0.16,0.20)*rim;
+ float shine=max(dot(n,normalize(key+view)),0.0);
+ color+=vec3(0.78,0.90,1.0)*(0.33*pow(shine,16.0)+0.75*pow(shine,72.0));
+ if(uContours&&!uPath){float d=abs(fract(vPosition.z*4.0+0.5)-0.5);color*=1.0-0.18*(1.0-smoothstep(0.014,0.032,d));}
+ ${derivatives?`if(uGrid&&!uPath){
+  float rho=length(vPosition.xy);
+  float angle=uCurved?atan(vPosition.x,max(uRadius*vPosition.y*vPosition.y,1.0e-20)):atan(vPosition.y,vPosition.x);
+  vec2 coordinates=vec2(rho*8.0,angle*1.9098593);
+  vec2 width=max(fwidth(coordinates),vec2(1.0e-6));
+  vec2 distance=abs(fract(coordinates+0.5)-0.5);
+  vec2 ink=(1.0-smoothstep(width*0.40,width*1.05,distance))*(1.0-smoothstep(vec2(0.30),vec2(0.65),width));
+  color=mix(color,vec3(0.025,0.105,0.18),0.78*max(ink.x,ink.y));
+ }`:''}
  if(uPath)color=mix(uColor,vec3(1.0),0.10+0.35*rim);
  gl_FragColor=vec4(color,1.0);
 }`;
 const lineVertex=`attribute vec3 aPosition;uniform mat4 uMatrix;uniform float uPointSize;void main(){gl_Position=uMatrix*vec4(aPosition,1.0);gl_PointSize=uPointSize;}`;
 const lineFragment=`precision mediump float;uniform vec4 uColor;void main(){gl_FragColor=uColor;}`;
+// Screen-space ribbons give the surface mesh a stable, readable line width
+// on WebGL implementations whose native lines are restricted to one pixel.
+const ribbonVertex=`attribute vec3 aPosition;attribute vec3 aOther;attribute float aSide;
+uniform mat4 uMatrix;uniform vec2 uResolution;uniform float uWidth;uniform float uBias;varying float vSide;
+void main(){vec4 p=uMatrix*vec4(aPosition,1.0),q=uMatrix*vec4(aOther,1.0);
+vec2 delta=(q.xy/q.w-p.xy/p.w)*uResolution;
+vec2 tangent=delta/max(length(delta),0.001),perp=vec2(-tangent.y,tangent.x);
+p.xy+=perp*aSide*uWidth/uResolution*p.w;p.z-=uBias*p.w;gl_Position=p;vSide=aSide;}`;
+const ribbonFragment=`precision mediump float;uniform vec4 uColor;varying float vSide;
+void main(){float alpha=1.0-smoothstep(0.60,1.0,abs(vSide));gl_FragColor=vec4(uColor.rgb,uColor.a*alpha);}`;
 const pointFragment=`precision mediump float;uniform vec4 uColor;uniform bool uHollow;void main(){float d=length(gl_PointCoord-vec2(0.5));if(d>0.5)discard;if(uHollow&&d<0.27)gl_FragColor=vec4(0.97,0.98,0.97,1.0);else gl_FragColor=uColor;}`;
 
 function tube(points,radius=.013,sides=10){
@@ -46,15 +68,29 @@ export function createLimitRenderer(canvas,labels,errorBox){
  const gl=canvas.getContext('webgl',{antialias:true,alpha:false,preserveDrawingBuffer:true});
  if(!gl){errorBox.hidden=false;errorBox.textContent='The 3D graph needs WebGL. The equations, computed values, and proofs below remain available.';return null;}
  function program(v,f){const p=gl.createProgram();for(const [type,source] of [[gl.VERTEX_SHADER,v],[gl.FRAGMENT_SHADER,f]]){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));gl.attachShader(p,s);gl.deleteShader(s);}gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;}
- let surface,line,point;
- try{surface=program(vertex,fragment);line=program(lineVertex,lineFragment);point=program(lineVertex,pointFragment);}catch(e){errorBox.hidden=false;errorBox.textContent='The 3D renderer could not start: '+e.message;return null;}
- const position=gl.createBuffer(),normal=gl.createBuffer(),scratch=gl.createBuffer();
+ const derivatives=!!gl.getExtension('OES_standard_derivatives');
+ let surface,line,point,ribbon;
+ try{surface=program(vertex,fragment(derivatives));line=program(lineVertex,lineFragment);point=program(lineVertex,pointFragment);ribbon=program(ribbonVertex,ribbonFragment);}catch(e){errorBox.hidden=false;errorBox.textContent='The 3D renderer could not start: '+e.message;return null;}
+ const position=gl.createBuffer(),normal=gl.createBuffer(),scratch=gl.createBuffer(),ribbonBuffer=gl.createBuffer();
+ const ribbonCache=new WeakMap();
  let mesh=null,example=null,radius=1,paths=[],matrix,eye;
  gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(.951,.969,.973,1);
  const attribute=(p,name,b,size=3)=>{gl.bindBuffer(gl.ARRAY_BUFFER,b);const l=gl.getAttribLocation(p,name);if(l>=0){gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,size,gl.FLOAT,false,0,0);}};
  const uniform=(p,name,type,...args)=>{const l=gl.getUniformLocation(p,name);if(type==='matrix')gl.uniformMatrix4fv(l,false,args[0]);else gl['uniform'+type](l,...args);};
  function lines(points,color){if(!points.length)return;gl.useProgram(line);gl.bindBuffer(gl.ARRAY_BUFFER,scratch);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(points),gl.DYNAMIC_DRAW);attribute(line,'aPosition',scratch);uniform(line,'uMatrix','matrix',matrix);uniform(line,'uColor','4fv',color);gl.drawArrays(gl.LINES,0,points.length/3);}
- function triangles(data,color=null,contours=false){if(!data.positions.length)return;gl.useProgram(surface);gl.bindBuffer(gl.ARRAY_BUFFER,position);gl.bufferData(gl.ARRAY_BUFFER,data.positions,gl.DYNAMIC_DRAW);attribute(surface,'aPosition',position);gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,data.normals,gl.DYNAMIC_DRAW);attribute(surface,'aNormal',normal);uniform(surface,'uMatrix','matrix',matrix);uniform(surface,'uEye','3fv',eye);uniform(surface,'uPath','1i',color?1:0);uniform(surface,'uColor','3fv',color||[0,0,0]);uniform(surface,'uContours','1i',contours?1:0);uniform(surface,'uUnified','1i',example.id==='curved-path'?1:0);gl.drawArrays(gl.TRIANGLES,0,data.positions.length/3);}
+ function meshLines(points,color,width,bias){
+  if(!points.length)return;
+  let data=ribbonCache.get(points);
+  if(!data){const values=[];for(let i=0;i<points.length;i+=6){const p=points.subarray(i,i+3),q=points.subarray(i+3,i+6);
+   // The segment direction reverses at q, so its side signs reverse too.
+   for(const [a,b,side] of [[p,q,-1],[q,p,1],[p,q,1],[p,q,1],[q,p,1],[q,p,-1]])values.push(...a,...b,side);
+  }data=new Float32Array(values);ribbonCache.set(points,data);}
+  gl.useProgram(ribbon);gl.bindBuffer(gl.ARRAY_BUFFER,ribbonBuffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);
+  for(const [name,size,offset] of [['aPosition',3,0],['aOther',3,12],['aSide',1,24]]){const location=gl.getAttribLocation(ribbon,name);gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,size,gl.FLOAT,false,28,offset);}
+  uniform(ribbon,'uMatrix','matrix',matrix);uniform(ribbon,'uResolution','2fv',[canvas.width,canvas.height]);uniform(ribbon,'uWidth','1f',width*Math.min(devicePixelRatio||1,2));uniform(ribbon,'uBias','1f',bias);uniform(ribbon,'uColor','4fv',color);
+  gl.depthMask(false);gl.drawArrays(gl.TRIANGLES,0,data.length/7);gl.depthMask(true);
+ }
+ function triangles(data,color=null,contours=false,grid=false){if(!data.positions.length)return;gl.useProgram(surface);gl.bindBuffer(gl.ARRAY_BUFFER,position);gl.bufferData(gl.ARRAY_BUFFER,data.positions,gl.DYNAMIC_DRAW);attribute(surface,'aPosition',position);gl.bindBuffer(gl.ARRAY_BUFFER,normal);gl.bufferData(gl.ARRAY_BUFFER,data.normals,gl.DYNAMIC_DRAW);attribute(surface,'aNormal',normal);uniform(surface,'uMatrix','matrix',matrix);uniform(surface,'uEye','3fv',eye);uniform(surface,'uPath','1i',color?1:0);uniform(surface,'uColor','3fv',color||[0,0,0]);uniform(surface,'uContours','1i',contours?1:0);uniform(surface,'uGrid','1i',grid?1:0);uniform(surface,'uCurved','1i',example.id==='curved-path'?1:0);uniform(surface,'uRadius','1f',radius);gl.drawArrays(gl.TRIANGLES,0,data.positions.length/3);}
  function setGraph(next,e,r){
   mesh=next;example=e;radius=r;paths=[];
   for(const path of e.paths)for(const sign of [-1,1]){
@@ -87,8 +123,9 @@ export function createLimitRenderer(canvas,labels,errorBox){
   camera(state);gl.viewport(0,0,width,height);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   const grid=[];for(let i=-5;i<=5;i++){const t=i/5;grid.push(-1,t,-1.03,1,t,-1.03,t,-1,-1.03,t,1,-1.03);}lines(grid,[.53,.65,.69,.27]);
   const rim=[];for(let i=0;i<144;i++){const a=i*Math.PI/72,b=(i+1)*Math.PI/72;rim.push(Math.cos(a),Math.sin(a),-1.025,Math.cos(b),Math.sin(b),-1.025);}lines(rim,[.36,.51,.58,.65]);
-  triangles(mesh,null,options.contours);
-  if(options.grid)lines(mesh.gridPositions,[.05,.24,.32,.34]);
+  triangles(mesh,null,options.contours,options.grid);
+  if(options.grid&&!derivatives)meshLines(mesh.gridPositions,[.025,.11,.20,.80],1.5,.000012);
+  meshLines(mesh.boundaryPositions,[.05,.20,.31,.60],1.0,.000025);
   if(options.paths)for(const p of paths)triangles(p.mesh,p.color);
   // Display axes belong to the bottom of the fixed-height window, not z=0.
   const corner=[[-1,-1],[1,-1],[1,1],[-1,1]].sort((a,b)=>screen([...a,-1])[0]-screen([...b,-1])[0])[0];
@@ -103,5 +140,5 @@ export function createLimitRenderer(canvas,labels,errorBox){
   for(const item of items){const [x,y]=screen(item.p),span=document.createElement('span');span.textContent=item.text;span.style.left=Math.max(4,Math.min(canvas.clientWidth-86,x+6))+'px';span.style.top=Math.max(4,Math.min(canvas.clientHeight-22,y-11))+'px';labels.append(span);}
  }
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();errorBox.hidden=false;errorBox.textContent='Graphics were interrupted. Reload this page to restore the graph.';});
- return {setGraph,draw,info:()=>({renderer:'WebGL',antialias:gl.getContextAttributes().antialias,depth:true,material:example?.id==='curved-path'?'two-sided-blue':'blue-and-amber',triangles:mesh?.positions.length/9||0})};
+ return {setGraph,draw,info:()=>({renderer:'WebGL',antialias:gl.getContextAttributes().antialias,depth:true,material:'glossy-blue',meshStyle:derivatives?'antialiased-surface-shader':'screen-space-lines',triangles:mesh?.positions.length/9||0})};
 }

@@ -107,8 +107,15 @@ export function buildLimitMesh(example, radius) {
     for (let i = 1; i + 1 < polygon.length; i++) {
       let left = polygon[i], right = polygon[i + 1];
       const first = polygon[0];
-      const area = (left.u - first.u) * (right.v - first.v) - (left.v - first.v) * (right.u - first.u);
-      if (Math.abs(area) < 1e-28) continue;
+      // Orient the coordinates actually sent to WebGL. A clipping sliver can
+      // have positive area in doubles but collapse after Float32 upload; such a
+      // triangle must not acquire an arbitrary front/back material or a spike.
+      const au = Math.fround(left.u) - Math.fround(first.u);
+      const av = Math.fround(left.v) - Math.fround(first.v);
+      const bu = Math.fround(right.u) - Math.fround(first.u);
+      const bv = Math.fround(right.v) - Math.fround(first.v);
+      const area = au * bv - av * bu;
+      if (area === 0) continue;
       if (area < 0) [left, right] = [right, left];
       for (const point of [first, left, right]) {
         positions.push(point.u, point.v, point.w);
@@ -129,19 +136,19 @@ export function buildLimitMesh(example, radius) {
     destination.push(p.u, p.v, p.w, q.u, q.v, q.w);
   }
 
-  function connectRings(rings, closed, gridStride = 12, includeInnerBoundary = true) {
+  function connectRings(rings, closed, gridStride = 12, includeInnerBoundary = true, gridRings = null, gridAngles = null) {
     const count = rings[0].length, segments = closed ? count : count - 1;
     for (let j = 0; j < rings.length; j++) {
       const ring = rings[j];
       for (let i = 0; i < segments; i++) {
         const next = (i + 1) % count;
-        if (j % 8 === 0 || j === rings.length - 1) addLine(ring[i], ring[next]);
+        if ((gridRings ? gridRings.has(j) : j % 8 === 0) || j === rings.length - 1) addLine(ring[i], ring[next]);
         if ((j === 0 && includeInnerBoundary) || j === rings.length - 1) addLine(ring[i], ring[next], boundaryPositions);
         if (j + 1 < rings.length) {
           const outer = rings[j + 1];
           addTriangle(ring[i], outer[i], ring[next]);
           addTriangle(ring[next], outer[i], outer[next]);
-          if (i % gridStride === 0) addLine(ring[i], outer[i]);
+          if (gridAngles ? gridAngles.has(i) : i % gridStride === 0) addLine(ring[i], outer[i]);
         }
       }
     }
@@ -151,6 +158,15 @@ export function buildLimitMesh(example, radius) {
     // alpha = atan(x / y²) turns the height into sin(alpha) cos(alpha).
     // Uniform alpha resolves both ±1/2 ridges at every radius. Extra samples
     // chosen by outer-circle angle keep the broad, nearly flat wings smooth.
+    function pointAt(alpha, rho, sign = 1) {
+      if (Math.abs(Math.abs(alpha) - Math.PI / 2) < 1e-12) return vertex(Math.sign(alpha) * rho, 0);
+      const r = radius * rho, s = Math.sin(alpha), c = Math.cos(alpha);
+      // Stable solution of x = tan(alpha)y² and x²+y² = r².
+      const denominator = c + Math.hypot(c, 2 * r * s);
+      const x = 2 * r * r * s / denominator;
+      const y = sign * Math.sqrt(2 * r * r * c / denominator);
+      return vertex(x / radius, y / radius);
+    }
     const values = [];
     for (let i = 0; i <= 96; i++) values.push(-Math.PI / 2 + Math.PI * i / 96);
     for (let i = 0; i <= 64; i++) {
@@ -158,24 +174,35 @@ export function buildLimitMesh(example, radius) {
       values.push(Math.atan2(Math.cos(theta), radius * Math.sin(theta) ** 2));
     }
     values.sort((x, y) => x - y);
-    const angles = values.filter((value, index) => index === 0 || value - values[index - 1] > 1e-12);
+    const distinct = values.filter((value, index) => index === 0 || value - values[index - 1] > 1e-12);
+    const angles = [];
+    const landmark = alpha => Math.abs(alpha * 12 / Math.PI - Math.round(alpha * 12 / Math.PI)) < 1e-10;
+    for (const alpha of distinct) {
+      if (angles.length) {
+        const previous = angles[angles.length - 1];
+        const p = pointAt(previous, 1), q = pointAt(alpha, 1);
+        // The two angular grids occasionally almost coincide as the radius
+        // changes. Merge only points indistinguishable in displayed 3D space;
+        // comparing angles alone would erase the flat wings at small radii.
+        if (Math.hypot(p.u - q.u, p.v - q.v, p.w - q.w) < .002) {
+          if (landmark(alpha)) angles[angles.length - 1] = alpha;
+          continue;
+        }
+      }
+      angles.push(alpha);
+    }
+    const radii = Array.from({length: 49}, (_, j) => INNER_RADIUS ** (1 - j / 48));
+    // Put visible mesh rings at regular distances. Pure logarithmic rings
+    // crowded the puncture and left the outer two-thirds almost unmeshed.
+    radii.push(.2, .4, .6, .8);
+    radii.sort((x, y) => x - y);
+    const gridRings = new Set(radii.flatMap((rho, j) => Math.abs(rho * 5 - Math.round(rho * 5)) < 1e-9 ? [j] : []));
+    const gridAngles = new Set(angles.flatMap((alpha, i) => landmark(alpha) ? [i] : []));
     // Two patches preserve the separation of y>0 and y<0. Their endpoints meet
     // only on the actual x-axis graph (height zero), never across the puncture.
     for (const sign of [1, -1]) {
-      const rings = [];
-      for (let j = 0; j <= 48; j++) {
-        const rho = INNER_RADIUS ** (1 - j / 48), r = radius * rho;
-        rings.push(angles.map(alpha => {
-          if (Math.abs(Math.abs(alpha) - Math.PI / 2) < 1e-12) return vertex(Math.sign(alpha) * rho, 0);
-          const s = Math.sin(alpha), c = Math.cos(alpha);
-          // Stable solution of x = tan(alpha)y² and x²+y² = r².
-          const denominator = c + Math.hypot(c, 2 * r * s);
-          const x = 2 * r * r * s / denominator;
-          const y = sign * Math.sqrt(2 * r * r * c / denominator);
-          return vertex(x / radius, y / radius);
-        }));
-      }
-      connectRings(rings, false);
+      const rings = radii.map(rho => angles.map(alpha => pointAt(alpha, rho, sign)));
+      connectRings(rings, false, 12, true, gridRings, gridAngles);
     }
   }
 
@@ -197,7 +224,11 @@ export function buildLimitMesh(example, radius) {
       const rho = inner + (outer - inner) * (j / radialCount) ** 1.4;
       rings.push(Array.from({length: angularCount}, (_, i) => {
         const theta = TAU * i / angularCount;
-        return vertex(rho * Math.cos(theta), rho * Math.sin(theta));
+        // Exact axis coordinates prevent microscopic seams between reflected
+        // patches and make the two axis limits exact in the uploaded mesh.
+        const u = i === angularCount / 4 || i === 3 * angularCount / 4 ? 0 : rho * Math.cos(theta);
+        const v = i === 0 || i === angularCount / 2 ? 0 : rho * Math.sin(theta);
+        return vertex(u, v);
       }));
     }
     connectRings(rings, true, 16, inner !== 0);

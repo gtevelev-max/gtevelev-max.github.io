@@ -33,11 +33,11 @@ export const limitExamples = [
     equation:'f(x,y) = 1/(x² + y²)',target:[0,0],
     evaluate:(x,y)=>punctured(x,y)?1/(x*x+y*y):NaN,
     result:'The function tends to +∞; it has no finite limit.',shortResult:'+∞',
-    domain:'All (x,y) except (0,0). Values above the displayed height range are omitted, not flattened.',
+    domain:'All (x,y) except (0,0). The height window grows as the disk shrinks; the axis labels show actual function values.',
     zCenter:10,zScale:10,radius:1,
     paths:[path('x-axis: (t,0)',t=>[t,0],'+∞'),path('diagonal: (t,t)',t=>[t,t],'+∞')],
-    proof:'<p>Write r = √(x² + y²). Then <b>f = 1/r²</b>, regardless of direction.</p><p>Given any M > 0, choose δ = 1/√M. If 0 < r < δ, then <b>f = 1/r² > M</b>. This proves the infinite limit using every point of the punctured disk.</p><p>The graph window stops at z = 20. When the whole graph rises beyond the window, it disappears from the picture; the numerical values continue to increase.</p>',
-    prompt:'Shrink the disk until the entire graph lies above z = 20. The table still reports the actual values.'
+    proof:'<p>Write ρ = √(x² + y²). Then <b>f = 1/ρ²</b>, regardless of direction.</p><p>Given any M > 0, choose δ = 1/√M. If 0 < ρ < δ, then <b>f = 1/ρ² > M</b>. This proves the infinite limit using every point of the punctured disk.</p><p>On the disk of radius r, the smallest height is <b>1/r²</b>, at its boundary. The height window automatically grows in proportion to 1/r² so the rising graph remains visible. Read the axis labels and table for the actual values; increase the height ceiling to reveal more of the unbounded rise.</p>',
+    prompt:'Shrink the disk and watch the actual height labels grow. Raise the height ceiling to see farther up the graph; its open top continues without bound.'
   },
   {
     id:'squeeze',name:'One estimate controls every path',
@@ -73,8 +73,18 @@ export const limitExamples = [
     prompt:'The marked point is (1,2,−63). Shrink the disk to watch nearby graph heights approach it.'
   }
 ];
-const teachingOrder = ['polynomial','radial-sinc','squeeze','infinite','two-paths','curved-path'];
+const teachingOrder = ['polynomial','infinite','radial-sinc','squeeze','two-paths','curved-path'];
 limitExamples.sort((a,b)=>teachingOrder.indexOf(a.id)-teachingOrder.indexOf(b.id));
 for (const example of limitExamples) example.paths.forEach((p,i)=>{p.color=colors[i];p.renderColor=renderColors[i];});
 export const limitById = Object.fromEntries(limitExamples.map(e=>[e.id,e]));
 export function pathSamples(example,t){return example.paths.map(p=>{const [x,y]=p.point(t);return {name:p.name,x,y,value:example.evaluate(x,y)};});}
+
+// Only the displayed coordinate window changes. The original function, domain,
+// exact path values, and fixed-height windows of finite limits stay untouched.
+export function limitViewExample(example,radius,heightMultiplier=32){
+  if(!Number.isFinite(radius)||radius<=0)throw new RangeError('Radius must be positive and finite.');
+  if(!Number.isFinite(heightMultiplier)||heightMultiplier<=1)throw new RangeError('Height multiplier must be finite and greater than one.');
+  if(example.id!=='infinite')return {...example};
+  const zMax=heightMultiplier/(radius*radius);
+  return {...example,zCenter:zMax/2,zScale:zMax/2};
+}

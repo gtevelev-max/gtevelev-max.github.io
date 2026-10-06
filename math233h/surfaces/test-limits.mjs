@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
-import {limitExamples,limitById,pathSamples} from './limits-math.mjs';
+import {limitExamples,limitById,pathSamples,limitViewExample} from './limits-math.mjs';
 const close=(a,b,tol=1e-12)=>assert.ok(Math.abs(a-b)<=tol,`${a} != ${b}`);
-assert.deepEqual(limitExamples.map(e=>e.id),['polynomial','radial-sinc','squeeze','infinite','two-paths','curved-path']);
+assert.deepEqual(limitExamples.map(e=>e.id),['polynomial','infinite','radial-sinc','squeeze','two-paths','curved-path']);
 for(const e of limitExamples){
   if(e.id!=='polynomial')assert.ok(Number.isNaN(e.evaluate(0,0)),`${e.id} must preserve the excluded origin`);
   for(const radius of [1,.5,.1,.01]){
@@ -24,4 +24,24 @@ for(const radius of [1,.5,.1,.01,.0001])for(let i=0;i<37;i++){
   close(limitById['radial-sinc'].evaluate(x,y),Math.sin(radius*radius)/(radius*radius));
 }
 close(limitById.polynomial.evaluate(1,2),-63);
-console.log('PASS: all six limits in teaching order; domains, exact paths, uniform estimates, and numerical tables.');
+// The infinite graph's changing scale must reveal a nonempty annulus at every
+// radius, label genuine z values, and leave the mathematical example untouched.
+const originalWindow=[limitById.infinite.zCenter,limitById.infinite.zScale];
+for(const r of [1,.5,.1,.01])for(const multiplier of [8,16,32,64,128]){
+  const example=limitViewExample(limitById.infinite,r,multiplier);
+  const zMin=example.zCenter-example.zScale,zMax=example.zCenter+example.zScale;
+  close(zMin,0);close(zMax,multiplier/(r*r));
+  assert.ok(zMax>example.evaluate(r,0),'The outer boundary must remain visible.');
+  close(example.evaluate(r,0),1/(r*r));
+  close(example.evaluate(r/Math.sqrt(multiplier),0)/zMax,1);
+  assert.equal(example.evaluate,limitById.infinite.evaluate);
+  assert.equal(example.paths,limitById.infinite.paths);
+}
+assert.deepEqual([limitById.infinite.zCenter,limitById.infinite.zScale],originalWindow);
+for(const example of limitExamples.filter(e=>e.id!=='infinite')){
+  const view=limitViewExample(example,.01,128);
+  assert.equal(view.zCenter,example.zCenter);assert.equal(view.zScale,example.zScale);
+}
+for(const badRadius of [0,-1,Infinity,NaN])assert.throws(()=>limitViewExample(limitById.infinite,badRadius),RangeError);
+for(const badMultiplier of [0,1,-1,Infinity,NaN])assert.throws(()=>limitViewExample(limitById.infinite,1,badMultiplier),RangeError);
+console.log('PASS: all six limits in teaching order; domains, exact paths, uniform estimates, numerical tables, and dynamic infinite-height windows.');
