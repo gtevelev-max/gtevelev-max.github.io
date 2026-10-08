@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d1d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080d1d'/%3E%3Ctext x='8' y='25' font-size='27' fill='%235af0df'%3E∂%3C/text%3E%3C/svg%3E">
+<title>PDE Field Lab · Math 233H</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead"><a class="brand" href="#"><span class="brand-icon">∂</span><span>PDE <strong>FIELD LAB</strong><small>MATH 233H · JENIA TEVELEV</small></span></a><span class="header-note">Exact mathematics.<br>Visible motion.</span></header>
+<main>
+<div class="intro"><div><p class="eyebrow">THREE EQUATIONS. THREE WAYS A FIELD CAN BEHAVE.</p><h1>Watch an equation<br><span>come alive.</span></h1></div><p class="intro-note">Send a wave across a surface. Explore perfect curvature balance. Watch heat smooth a sharp peak.</p></div>
+<nav class="families" aria-label="Choose a partial differential equation">
+<button data-kind="wave" class="selected" aria-pressed="true"><span class="tab-icon">∿</span><span><strong>Wave</strong><small>Motion without decay</small></span><span class="tab-equation">u<sub>tt</sub> = c² Δu</span></button>
+<button data-kind="laplace" aria-pressed="false"><span class="tab-icon">◇</span><span><strong>Laplace</strong><small>Curvature in balance</small></span><span class="tab-equation">Δu = 0</span></button>
+<button data-kind="heat" aria-pressed="false"><span class="tab-icon">☀</span><span><strong>Heat</strong><small>Diffusion and smoothing</small></span><span class="tab-equation">u<sub>t</sub> = κ Δu</span></button>
+</nav>
+<section class="workspace" aria-label="Interactive PDE explorer">
+<div class="scene-shell" id="scene-shell">
+<div class="scene-heading"><div><span class="mini-label" id="scene-label">WAVE EQUATION</span><h2 id="scene-title">A traveling wave</h2></div><div class="view-controls"><button id="view" aria-pressed="false" title="Switch to an overhead view">Top view</button><button id="fullscreen" title="Enlarge the demonstration">⤢ <span>Present</span></button></div></div>
+<div class="stage" id="stage"><canvas id="surface" tabindex="0" aria-label="Animated PDE surface. Drag to orbit, scroll to zoom; arrow keys rotate, plus and minus zoom, Home resets the view."></canvas><canvas id="overlay" aria-hidden="true"></canvas><div id="render-error" class="render-error" hidden></div><div class="height-key"><span>HIGH</span><i></i><span>LOW</span></div><div class="stage-hint">DRAG TO ORBIT · SCROLL TO ZOOM</div><div class="stage-stamp"><i></i><span id="motion-status">EXACT SOLUTION · LIVE</span></div></div>
+<div class="scene-options"><label><input id="mesh" type="checkbox" checked><span>Mesh</span></label><label><input id="contours" type="checkbox" checked><span>Contours</span></label><label><input id="flux" type="checkbox"><span id="flux-label">Energy flow</span></label><button id="camera-reset">↺ View</button></div>
+<div class="transport"><button id="play" class="play-button" aria-label="Pause animation">Ⅱ</button><div class="timeline"><div class="timeline-label"><span id="timeline-title">TIME</span><output id="time-output">0.00</output></div><input id="time" type="range" min="0" max="12" value="0" step=".01" aria-label="Time"></div><button id="restart" title="Restart from time zero">↺</button></div>
+</div>
+<aside class="controls">
+<section class="law-card"><p class="mini-label">THE LAW</p><div class="law" id="law">u<sub>tt</sub> = c²(u<sub>xx</sub> + u<sub>yy</sub>)</div><p id="law-description">Acceleration follows spatial curvature.</p></section>
+<div class="control-block"><label class="control-title" for="preset">EXACT SOLUTION</label><select id="preset"></select><div class="solution-formula" id="solution-formula"></div><p class="domain-note" id="domain-note"></p></div>
+<div class="parameter" id="speed-control"><label for="speed">Wave speed <span>c = <output id="speed-value">1.00</output></span></label><input id="speed" type="range" min=".3" max="2" value="1" step=".05"></div>
+<div class="parameter" id="frequency-control"><label for="frequency">Spatial frequency <span>k = <output id="frequency-value">1</output></span></label><input id="frequency" type="range" min="1" max="4" value="1" step="1"></div>
+<div class="parameter" id="diffusion-control" hidden><label for="diffusion">Diffusivity <span>κ = <output id="diffusion-value">0.25</output></span></label><input id="diffusion" type="range" min=".05" max=".8" value=".25" step=".025"></div>
+<div class="parameter" id="sigma-control" hidden><label for="sigma">Initial pulse width <span>σ = <output id="sigma-value">0.85</output></span></label><input id="sigma" type="range" min=".4" max="1.6" value=".85" step=".05"></div>
+<div class="probe-card"><p class="mini-label">PROBE THE FIELD <span class="probe-dot"></span></p><div class="probe-sliders"><label for="probe-x">x <output id="probe-x-value">0.70</output></label><input id="probe-x" type="range" min="-2" max="2" step=".01" value=".7"><label for="probe-y">y <output id="probe-y-value">0.40</output></label><input id="probe-y" type="range" min="-2" max="2" step=".01" value=".4"></div><div class="probe-readouts"><div><small>HEIGHT u</small><output id="probe-u">0.000</output></div><div><small id="rate-label">ACCELERATION u<sub>tt</sub></small><output id="probe-rate">0.000</output></div></div><div class="residual"><span>PDE balance <small id="residual-formula">u<sub>tt</sub> − c²Δu</small></span><output id="residual">0.000</output></div></div>
+</aside>
+</section>
+<section class="insights">
+<article class="plot-card"><div class="card-heading"><div><p class="mini-label" id="plot-kicker">A SLICE THROUGH THE SURFACE</p><h2 id="plot-title">Follow one row of the wave</h2></div><span class="plot-legend"><i></i><span id="plot-legend">u(x, y₀, t)</span></span></div><canvas id="slice" aria-label="Function values along a horizontal slice"></canvas><p id="plot-description">The highlighted trace follows the selected y coordinate. Its vertical scale stays fixed as time changes.</p><div class="mean-value" id="mean-value" hidden><span>Circle average <output id="circle-average">0.000</output></span><span>Center value <output id="center-value">0.000</output></span><span>Difference <output id="mean-error">0.000</output></span></div></article>
+<article class="explanation-card"><p class="mini-label">WHAT TO NOTICE</p><h2 id="lesson-title">The pattern moves. Its shape stays.</h2><p id="lesson"></p><div class="curvature"><div><span>u<sub>xx</sub></span><i id="bar-xx"></i><output id="xx">0.000</output></div><div><span>u<sub>yy</sub></span><i id="bar-yy"></i><output id="yy">0.000</output></div><div class="sum"><span>Δu</span><i id="bar-sum"></i><output id="laplacian">0.000</output></div></div><p class="curvature-caption" id="curvature-caption">The sum of the two spatial curvatures determines the acceleration.</p><details><summary>Why this solves the equation</summary><div id="derivation"></div></details></article>
+</section>
+<section class="challenge"><div><p class="mini-label">TRY A PREDICTION</p><p id="question">Double c. What happens to the speed of the pattern?</p></div><button id="answer-toggle" aria-expanded="false">Reveal the explanation <span>↗</span></button><p id="answer" hidden></p></section>
+<footer>Built for Math 233H · Exact solutions, with heights and derivatives evaluated from their formulas.<span>Δu = u<sub>xx</sub> + u<sub>yy</sub></span></footer>
+</main>
+<script type="module" src="app.mjs"></script>
+</body></html>
