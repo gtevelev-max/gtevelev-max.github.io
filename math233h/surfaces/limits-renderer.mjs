@@ -99,7 +99,7 @@ export function createLimitRenderer(canvas,labels,errorBox){
    const maxT=low,points=[];let pieces=[];
    const flush=()=>{if(pieces.length>1)points.push(pieces);pieces=[];};
    for(let j=0;j<=320;j++){
-    const t=sign*maxT*Math.exp(Math.log(.0001)*(1-j/320)),[x,y]=path.point(t),z=e.evaluate(x,y);
+    const t=j===0&&e.includesTarget?0:sign*maxT*Math.exp(Math.log(.0001)*(1-j/320)),[x,y]=path.point(t),z=e.evaluate(x,y);
     const p=[(x-e.target[0])/r,(y-e.target[1])/r,(z-e.zCenter)/e.zScale];
     if(Number.isFinite(z)&&Math.abs(p[2])<=1)pieces.push(p);else flush();
    }
@@ -130,8 +130,8 @@ export function createLimitRenderer(canvas,labels,errorBox){
   // Display axes belong to the bottom of the fixed-height window, not z=0.
   const corner=[[-1,-1],[1,-1],[1,1],[-1,1]].sort((a,b)=>screen([...a,-1])[0]-screen([...b,-1])[0])[0];
   const axes=[...corner,-1,...corner,1,-1.12,0,-1.02,1.12,0,-1.02,0,-1.12,-1.02,0,1.12,-1.02];lines(axes,[.28,.40,.48,.82]);
-  if(['squeeze','radial-sinc','polynomial'].includes(example.id)){
-   gl.useProgram(point);gl.bindBuffer(gl.ARRAY_BUFFER,scratch);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,0,0]),gl.DYNAMIC_DRAW);attribute(point,'aPosition',scratch);uniform(point,'uMatrix','matrix',matrix);uniform(point,'uColor','4fv',[.07,.14,.21,1]);uniform(point,'uPointSize','1f',11*dpr);uniform(point,'uHollow','1i',example.id!=='polynomial'?1:0);gl.disable(gl.DEPTH_TEST);gl.drawArrays(gl.POINTS,0,1);gl.enable(gl.DEPTH_TEST);
+  if(['squeeze','radial-sinc','polynomial','continuous-not-differentiable'].includes(example.id)){
+   gl.useProgram(point);gl.bindBuffer(gl.ARRAY_BUFFER,scratch);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([0,0,0]),gl.DYNAMIC_DRAW);attribute(point,'aPosition',scratch);uniform(point,'uMatrix','matrix',matrix);uniform(point,'uColor','4fv',[.07,.14,.21,1]);uniform(point,'uPointSize','1f',11*dpr);uniform(point,'uHollow','1i',example.includesTarget?0:1);gl.disable(gl.DEPTH_TEST);gl.drawArrays(gl.POINTS,0,1);gl.enable(gl.DEPTH_TEST);
   }
   labels.replaceChildren();
   const short=n=>Number(n.toPrecision(4)).toLocaleString('en-US',{maximumFractionDigits:4});

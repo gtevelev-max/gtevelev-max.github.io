@@ -14,18 +14,19 @@ Controls: drag or arrows rotate; wheel/pinch or +/− zoom; Home resets view; Sp
 
 The translated-hyperboloid preset uses (x−1)²/4+(y+1)²−(z−2)²/4=1, centered at (1,−1,2); it opens with the waist slice z=2 and view bound4. Quadric classification is lecture exploration outside Midterm1.
 
-## Lecture 9 limits
+## Limits, continuity, and differentiability
 
-The `#limits` section presents all six computed examples from Lecture 9 (October 6, 2026), in order of difficulty:
+The `#limits` section presents seven worked examples for Lectures 9-11, in order of difficulty:
 
 1. Polynomial continuity and substitution at (1,2): −63.
 2. A radial infinite limit: +∞, with no finite limit.
 3. Radial sine quotient and one-variable substitution: 1.
 4. A uniform squeeze estimate: 0.
-5. Two incompatible axis limits: does not exist.
-6. Every line agrees, but a curved path disagrees: does not exist.
+5. q(x,y)=xy/sqrt(x²+y²), with q(0,0)=0: continuous at the origin but not differentiable.
+6. Two incompatible axis limits: does not exist.
+7. Every line agrees, but a curved path disagrees: does not exist.
 
-The polynomial opens by default. The numbered selector and Previous/Next buttons expose the sequence; existing `?limit=curved-path#limits` links still work. These are lecture examples, not homework solutions.
+The polynomial opens by default. The numbered selector and Previous/Next buttons expose the sequence; existing `?limit=curved-path#limits` links still work. The new example opens directly at `?limit=continuous-not-differentiable#limits`. These are lecture examples, not homework solutions.
 
 `limits-math.mjs` contains original-domain function evaluators, exact approach paths, and worked calculations. `limits-mesh.mjs` builds approximately 30,000 triangles per graph with analytic unit normals corrected for the horizontal/vertical display scales. The hardest graph uses x=tan(α)y² to resolve both narrow ±1/2 ridges even at radius 0.01. Its y>0 and y<0 patches meet only on the actual x-axis graph, never across the excluded origin. Infinite-limit clipping circles are exact; other clipping intersections are solved on the original graph. There are no false horizontal caps.
 
@@ -33,8 +34,10 @@ The polynomial opens by default. The numbered selector and Previous/Next buttons
 
 The horizontal disk expands to fill the view as it shrinks. Finite examples retain fixed, labeled vertical ranges, so collapse toward a finite limit remains visible. For the infinite example, the vertical window is automatically 0 ≤ z ≤ H/r², with H=32 by default. Its height-ceiling control varies H from 8 to 128. The window therefore follows the unbounded rise without losing the graph; all axis labels and the caption give actual, untransformed function heights. Raising the ceiling reveals a smaller inner circle, not a cap. The mathematical evaluator and numerical table never use display-normalized heights.
 
-A tiny disk of radius 0.001r is omitted from each punctured mesh; exact paths and numerical values still approach the target. The five excluded origins remain undefined. The polynomial's center is included; its solid marker is distinguished from hollow missing-limit markers. Markers remain visible through the mesh as annotations. Original-function clipping is open and introduces no horizontal caps. The curved-path sampler preserves the exact ±1/2 ridges and merges only near-coincident angular samples; winding is checked using the Float32 coordinates actually uploaded to WebGL.
+A tiny disk of radius 0.001r is omitted from each punctured mesh; exact paths and numerical values still approach the target. The five excluded origins remain undefined. The polynomial's center and q's origin are included; solid markers distinguish actual function values from hollow missing-limit markers. The q mesh closes at the exact origin, with a separate limiting normal for each of its 192 fan sectors because the conical saddle has no unique tangent plane. Markers remain visible through the mesh as annotations. Original-function clipping is open and introduces no horizontal caps. The curved-path sampler preserves the exact ±1/2 ridges and merges only near-coincident angular samples; winding is checked using the Float32 coordinates actually uploaded to WebGL.
 
 The table evaluates actual function values at t=r/2, r/10, r/100 independently of clipping. Proofs distinguish path counterexamples from uniform bounds and continuity. A numerical mesh or agreement on sampled paths does not establish a limit.
 
-Run `node math233h/surfaces/test-limits.mjs` and `node math233h/surfaces/test-limits-mesh.mjs` alongside the original `test-math.mjs`. The mesh tests check all six graphs at four radii, graph residuals, 4,241 independent finite-difference normal comparisons, upward winding, excluded origins, polynomial center, exact ridge extrema, absence of false walls, clipping without caps, 51 intermediate curved-path radii, and 12 dynamically rescaled infinity windows. Browser validation covers all six graphs, ordered navigation, rendering/zoom controls, direct links, desktop/mobile layouts, and regression checks on the original surface gallery.
+Run `node math233h/surfaces/test-limits.mjs` and `node math233h/surfaces/test-limits-mesh.mjs` alongside the original `test-math.mjs`. The mesh tests check all seven graphs at four radii, graph residuals, 5,077 independent finite-difference normal comparisons, upward winding, excluded origins, included polynomial and conical centers, exact ridge extrema, absence of false walls, clipping without caps, 51 intermediate curved-path radii, and 12 dynamically rescaled infinity windows. Browser validation covers all seven graphs, ordered navigation, rendering/zoom controls, direct links, desktop/mobile layouts, and regression checks on the original surface gallery.
+
+For q, the coordinate-axis traces are zero and the diagonal trace is q(t,t)=|t|/sqrt(2). Its uniform estimate |q|<=sqrt(x²+y²)/2 proves continuity. The coordinate partial derivatives at the origin vanish, but the diagonal relative error is 1/2, ruling out differentiability. The two-sided diagonal directional derivative does not exist. Tests check the exact diagonal values, the uniform bound, the included vertex, and the direction-dependent limiting normals.

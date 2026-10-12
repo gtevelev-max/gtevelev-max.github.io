@@ -25,7 +25,7 @@ for (const example of limitExamples) {
       assert.ok(Math.abs(Math.hypot(n[i], n[i + 1], n[i + 2]) - 1) < 1e-6, `${context}: unit normal`);
       assert.ok(n[i + 2] > 0, `${context}: upward normal`);
       includesCenter ||= u === 0 && v === 0;
-      if (example.id !== 'polynomial') assert.ok(Math.hypot(u, v) > .00099, `${context}: original punctured domain`);
+      if (!example.includesTarget) assert.ok(Math.hypot(u, v) > .00099, `${context}: original punctured domain`);
       const actual = (example.evaluate(example.target[0] + radius * u, example.target[1] + radius * v) - example.zCenter) / example.zScale;
       const error = Math.abs(actual - w);
       worstVertexError = Math.max(worstVertexError, error);
@@ -73,6 +73,32 @@ for (const example of limitExamples) {
       assert.ok(Math.abs(minimumHeight * example.zScale + .5) < 1e-6, `${context}: negative ridge`);
     }
     if (example.id === 'polynomial') assert.ok(includesCenter, 'The polynomial includes its value at (1,2).');
+    if (example.id === 'continuous-not-differentiable') {
+      assert.ok(includesCenter, 'The conical saddle includes its defined center.');
+      assert.ok(Math.abs(maximumHeight * example.zScale - radius / 2) < 1e-6, 'Positive diagonal reaches the sharp squeeze bound.');
+      assert.ok(Math.abs(minimumHeight * example.zScale + radius / 2) < 1e-6, 'Negative diagonal reaches the sharp squeeze bound.');
+      let fanTriangles = 0, diskArea = 0;
+      const centerNormals = new Set();
+      for (let i = 0; i < p.length; i += 9) {
+        diskArea += ((p[i + 3] - p[i]) * (p[i + 7] - p[i + 1]) - (p[i + 4] - p[i + 1]) * (p[i + 6] - p[i])) / 2;
+        if (p[i] === 0 && p[i + 1] === 0) {
+          fanTriangles++;
+          assert.equal(p[i + 2], 0, 'Every sector closes at the exact defined value.');
+          const u = p[i + 3] + p[i + 6], v = p[i + 4] + p[i + 7], rho = Math.hypot(u, v);
+          const nx = -radius / example.zScale * (v / rho) ** 3, ny = -radius / example.zScale * (u / rho) ** 3;
+          const length = Math.hypot(nx, ny, 1);
+          assert.ok(Math.hypot(n[i] - nx / length, n[i + 1] - ny / length, n[i + 2] - 1 / length) < 1e-6, 'Center shading uses the sector limiting normal.');
+          centerNormals.add(`${n[i].toFixed(7)},${n[i + 1].toFixed(7)}`);
+        }
+        const u = (p[i] + p[i + 3] + p[i + 6]) / 3, v = (p[i + 1] + p[i + 4] + p[i + 7]) / 3;
+        const w = (p[i + 2] + p[i + 5] + p[i + 8]) / 3;
+        assert.ok(Math.abs(example.evaluate(radius * u, radius * v) / example.zScale - w) < .001, 'Conical saddle interiors stay close to the true graph.');
+      }
+      assert.equal(fanTriangles, 192, 'Every angular sector reaches the center.');
+      assert.equal(centerNormals.size, 192, 'There is no single artificial flat normal at the conical vertex.');
+      assert.ok(Math.abs(diskArea - 96 * Math.sin(2 * Math.PI / 192)) < 1e-6, 'Mesh covers the entire polygonal disk without a central hole.');
+      for (let i = 0; i < mesh.boundaryPositions.length; i += 3) assert.ok(Math.abs(Math.hypot(mesh.boundaryPositions[i], mesh.boundaryPositions[i + 1]) - 1) < 1e-6, 'Only the outer circle is a mesh boundary.');
+    }
     if (example.id === 'infinite' && radius <= .1) assert.equal(mesh.triangleCount, 0, 'The entire graph lies above the fixed window.');
     else assert.ok(mesh.triangleCount > 20000 && mesh.triangleCount < 40000, `${context}: sufficient smooth mesh density`);
   }
@@ -139,4 +165,4 @@ for (const multiplier of [8, 32, 128]) {
 assert.throws(() => buildLimitMesh(limitById.squeeze, 0), RangeError);
 assert.throws(() => buildLimitMesh(limitById.squeeze, NaN), RangeError);
 assert.throws(() => buildLimitMesh({...limitById.squeeze, zScale: 0}, 1), RangeError);
-console.log(`PASS: six meshes at four radii; graph residual ≤ ${worstVertexError.toExponential(2)}; ridge/directional interior error ≤ ${worstRidgeInteriorError.toExponential(2)}/${worstDirectionalInteriorError.toExponential(2)}; ${normalChecks} independent normal checks; 51 intermediate ridge radii (conditioning ≥ ${worstRidgeCondition.toExponential(2)}); ${dynamicWindowChecks} dynamic infinity windows; correct winding, punctures, center inclusion, ridge extrema, and open clipping.`);
+console.log(`PASS: seven meshes at four radii; graph residual ≤ ${worstVertexError.toExponential(2)}; ridge/directional interior error ≤ ${worstRidgeInteriorError.toExponential(2)}/${worstDirectionalInteriorError.toExponential(2)}; ${normalChecks} independent normal checks; 51 intermediate ridge radii (conditioning ≥ ${worstRidgeCondition.toExponential(2)}); ${dynamicWindowChecks} dynamic infinity windows; correct winding, punctures, conical center closure and sector normals, ridge extrema, and open clipping.`);

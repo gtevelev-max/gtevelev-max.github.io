@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {limitExamples,limitById,pathSamples,limitViewExample} from './limits-math.mjs';
 const close=(a,b,tol=1e-12)=>assert.ok(Math.abs(a-b)<=tol,`${a} != ${b}`);
-assert.deepEqual(limitExamples.map(e=>e.id),['polynomial','infinite','radial-sinc','squeeze','two-paths','curved-path']);
+assert.deepEqual(limitExamples.map(e=>e.id),['polynomial','infinite','radial-sinc','squeeze','continuous-not-differentiable','two-paths','curved-path']);
 for(const e of limitExamples){
-  if(e.id!=='polynomial')assert.ok(Number.isNaN(e.evaluate(0,0)),`${e.id} must preserve the excluded origin`);
+  if(!e.includesTarget)assert.ok(Number.isNaN(e.evaluate(0,0)),`${e.id} must preserve the excluded origin`);
   for(const radius of [1,.5,.1,.01]){
     for(const t of [radius/2,radius/10,radius/100])for(const p of pathSamples(e,t)){
       assert.ok(Math.hypot(p.x-e.target[0],p.y-e.target[1])<radius+1e-12);
@@ -24,6 +24,24 @@ for(const radius of [1,.5,.1,.01,.0001])for(let i=0;i<37;i++){
   close(limitById['radial-sinc'].evaluate(x,y),Math.sin(radius*radius)/(radius*radius));
 }
 close(limitById.polynomial.evaluate(1,2),-63);
+// The defined center is continuous, and both axis partials vanish, yet the
+// relative linearization error stays exactly 1/2 along the diagonal.
+const conical=limitById['continuous-not-differentiable'];
+assert.equal(conical.includesTarget,true);assert.equal(conical.evaluate(0,0),0);
+for(const t of [-1,-.2,-.001,-1e-8,1e-8,.001,.2,1]){
+  close(conical.evaluate(t,0),0);close(conical.evaluate(0,t),0);
+  close(conical.evaluate(t,t),Math.abs(t)/Math.SQRT2);
+  close(conical.evaluate(t,t)/Math.hypot(t,t),.5);
+  close(conical.evaluate(t,t)/t,Math.sign(t)/Math.SQRT2);
+  const samples=pathSamples(conical,t);
+  close(samples[0].value,0);close(samples[1].value,0);
+  close(samples[2].value,Math.abs(t)/Math.SQRT2);
+}
+for(const radius of [1,.5,.01,1e-8])for(let i=0;i<360;i++){
+  const angle=2*Math.PI*i/360,x=radius*Math.cos(angle),y=radius*Math.sin(angle);
+  assert.ok(Math.abs(conical.evaluate(x,y))<=radius/2+1e-15,'The squeeze bound holds in all sampled directions.');
+  close(conical.evaluate(x,y),radius*Math.sin(2*angle)/2);
+}
 // The infinite graph's changing scale must reveal a nonempty annulus at every
 // radius, label genuine z values, and leave the mathematical example untouched.
 const originalWindow=[limitById.infinite.zCenter,limitById.infinite.zScale];
@@ -44,4 +62,4 @@ for(const example of limitExamples.filter(e=>e.id!=='infinite')){
 }
 for(const badRadius of [0,-1,Infinity,NaN])assert.throws(()=>limitViewExample(limitById.infinite,badRadius),RangeError);
 for(const badMultiplier of [0,1,-1,Infinity,NaN])assert.throws(()=>limitViewExample(limitById.infinite,1,badMultiplier),RangeError);
-console.log('PASS: all six limits in teaching order; domains, exact paths, uniform estimates, numerical tables, and dynamic infinite-height windows.');
+console.log('PASS: all seven examples in teaching order; domains, exact paths, uniform estimates, continuous conical center, nonzero diagonal linearization error, and dynamic infinite-height windows.');

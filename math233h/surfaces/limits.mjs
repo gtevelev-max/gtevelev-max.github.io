@@ -3,8 +3,8 @@ import {buildLimitMesh} from './limits-mesh.mjs';
 import {createLimitRenderer} from './limits-renderer.mjs';
 
 const $=id=>document.getElementById(id),canvas=$('limit-graph');
-const cameras={polynomial:[-.8,.57], 'radial-sinc':[-.8,.58],squeeze:[-.9,.48],infinite:[-.8,.48],'two-paths':[-.75,.46],'curved-path':[-.65,.5]};
-const methods={polynomial:'Direct substitution',infinite:'An infinite limit','radial-sinc':'One-variable substitution',squeeze:'Uniform squeeze estimate','two-paths':'Two incompatible paths','curved-path':'The subtle curved-path test'};
+const cameras={polynomial:[-.8,.57], 'radial-sinc':[-.8,.58],squeeze:[-.9,.48],'continuous-not-differentiable':[-.85,.52],infinite:[-.8,.48],'two-paths':[-.75,.46],'curved-path':[-.65,.5]};
+const methods={polynomial:'Direct substitution',infinite:'An infinite limit','radial-sinc':'One-variable substitution',squeeze:'Uniform squeeze estimate','continuous-not-differentiable':'Continuity versus differentiability','two-paths':'Two incompatible paths','curved-path':'The subtle curved-path test'};
 const state={id:'polynomial',radius:.5,azimuth:-.8,elevation:.57,zoom:1,paths:true,grid:true,contours:true,heightMultiplier:32,zMin:-213,zMax:87,autoHeight:false};
 const renderer=createLimitRenderer(canvas,$('limit-axis-labels'),$('limit-canvas-error'));
 let graph,frame=0,updateFrame=0;

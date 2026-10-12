@@ -1,4 +1,4 @@
-// Smooth triangle meshes for the six Lecture 9 graphs. Coordinates and normals
+// Triangle meshes for the seven Math 233H graphs. Coordinates and normals
 // are in the renderer's normalized space: (dx / radius, dy / radius,
 // (f(x,y) - zCenter) / zScale). Normals therefore include both axis scales.
 // The punctured graphs keep a small open inner boundary; no triangles bridge it.
@@ -21,6 +21,11 @@ function gradient(id, x, y) {
     case 'squeeze':
       return [2 * x * y * y * y / (r2 * r2),
         x * x * (x * x - y * y) / (r2 * r2)];
+    case 'continuous-not-differentiable': {
+      const r = Math.hypot(x, y);
+      if (r === 0) throw new RangeError('The conical vertex has no unique normal; provide a sector direction.');
+      return [(y / r) ** 3, (x / r) ** 3];
+    }
     case 'radial-sinc': {
       // Avoid cancellation in u cos(u) - sin(u) near the missing point.
       const u = r2;
@@ -52,13 +57,13 @@ export function buildLimitMesh(example, radius) {
   const edgeIntersections = new Map();
   let nextId = 0;
 
-  function vertex(u, v) {
+  function vertex(u, v, normalAt = null) {
     const x = a + radius * u, y = b + radius * v;
     let w = (example.evaluate(x, y) - example.zCenter) / example.zScale;
     // Correct only roundoff at exact clipping intersections.
     if (Math.abs(w - 1) < 1e-12) w = 1;
     if (Math.abs(w + 1) < 1e-12) w = -1;
-    const [fx, fy] = gradient(example.id, x, y);
+    const [fx, fy] = gradient(example.id, ...(normalAt || [x, y]));
     const nx = -normalScale * fx, ny = -normalScale * fy;
     const length = Math.hypot(nx, ny, 1);
     return {id: nextId++, u, v, w, nx: nx / length, ny: ny / length, nz: 1 / length};
@@ -208,7 +213,7 @@ export function buildLimitMesh(example, radius) {
 
   function polarMesh() {
     const angularCount = 192, radialCount = 80;
-    let inner = example.id === 'polynomial' ? 0 : INNER_RADIUS;
+    let inner = example.includesTarget ? 0 : INNER_RADIUS;
     let outer = 1;
     if (example.id === 'infinite') {
       // Solve clipping circles exactly. The graph above the window is omitted,
@@ -233,9 +238,14 @@ export function buildLimitMesh(example, radius) {
     }
     connectRings(rings, true, 16, inner !== 0);
     if (inner === 0) {
-      // The polynomial alone includes its target point in the original domain.
-      const center = vertex(0, 0), ring = rings[0];
+      // Included target points close the disk. At the conical saddle vertex,
+      // each fan sector uses its own limiting normal, never an invented flat
+      // tangent plane. The infinitesimal fan meets at the exact value q(0,0)=0.
+      const conical = example.id === 'continuous-not-differentiable';
+      const commonCenter = conical ? null : vertex(0, 0), ring = rings[0];
       for (let i = 0; i < angularCount; i++) {
+        const theta = TAU * (i + .5) / angularCount;
+        const center = commonCenter || vertex(0, 0, [Math.cos(theta), Math.sin(theta)]);
         addTriangle(center, ring[i], ring[(i + 1) % angularCount]);
         if (i % 16 === 0) addLine(center, ring[i]);
       }

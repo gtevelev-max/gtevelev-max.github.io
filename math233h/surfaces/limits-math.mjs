@@ -1,6 +1,6 @@
-// The six computed limits in Math 233H Lecture 9 (October 6, 2026).
-// These are graphs of functions on their original domains. We never clear a
-// denominator to draw an implicit surface or assign a value at a missing point.
+// Seven computed examples for Math 233H Lectures 9–11.
+// Graph each function on its stated domain. An assigned value is included only
+// when it is part of that example's definition; missing points stay missing.
 const punctured = (x,y) => x !== 0 || y !== 0;
 const colors = ['#ad5805','#c62850','#783bcc'];
 const renderColors = ['#ffb339','#ff5584','#c779ff'];
@@ -51,6 +51,17 @@ export const limitExamples = [
     prompt:'The height scale stays fixed while the disk shrinks. Every graph height is trapped between −r and r.'
   },
   {
+    id:'continuous-not-differentiable',name:'Continuous, but not differentiable',
+    equation:'q(x,y) = xy/√(x² + y²) for (x,y) ≠ (0,0); q(0,0) = 0',target:[0,0],includesTarget:true,
+    evaluate:(x,y)=>punctured(x,y)?x*y/Math.hypot(x,y):0,
+    result:'The limit is 0. The function is continuous, but not differentiable at the origin.',shortResult:'0',
+    domain:'All of ℝ², with q(0,0) defined to be 0. The solid dot is the graph’s actual value at the origin.',
+    zCenter:0,zScale:.65,radius:1,
+    paths:[path('x-axis: (t,0)',t=>[t,0],'0'),path('y-axis: (0,t)',t=>[0,t],'0'),path('diagonal y = x: (t,t)',t=>[t,t],'0')],
+    proof:'<p>Since 2|xy| ≤ x² + y², <b>|q(x,y)| ≤ ½√(x² + y²) = r/2</b>. Hence q → 0 uniformly over all approaches. The assigned value q(0,0) = 0 makes q continuous; for an ε–δ proof, take δ = 2ε.</p><p>On both coordinate axes q is identically zero, so <b>q<sub>x</sub>(0,0) = q<sub>y</sub>(0,0) = 0</b>. If q were differentiable, its linear approximation at the origin would therefore be zero.</p><p>But on the diagonal, <b>q(t,t) = |t|/√2</b>, and for every t ≠ 0, <b>q(t,t)/√(t² + t²) = 1/2</b>. This relative error does not tend to zero, so q is not differentiable at the origin.</p><p>The diagonal trace is V-shaped: q(t,t)/t = sign(t)/√2 has different one-sided limits. Thus even the two-sided directional derivative along this diagonal fails to exist. The graph has a conical saddle vertex, with no tangent plane there.</p>',
+    prompt:'Both axis traces are flat, but the purple diagonal has a corner. Continuity and the existence of both partial derivatives do not imply differentiability.'
+  },
+  {
     id:'radial-sinc',name:'Reduce to a one-variable limit',
     equation:'f(x,y) = sin(x² + y²)/(x² + y²)',target:[0,0],
     evaluate:(x,y)=>{const u=x*x+y*y;return u===0?NaN:Math.sin(u)/u;},
@@ -63,7 +74,7 @@ export const limitExamples = [
   },
   {
     id:'polynomial',name:'Continuity at a nonzero point',
-    equation:'f(x,y) = x³ − x²y⁶',target:[1,2],
+    equation:'f(x,y) = x³ − x²y⁶',target:[1,2],includesTarget:true,
     evaluate:(x,y)=>x**3-x*x*y**6,
     result:'The limit at (1,2) is −63.',shortResult:'−63',
     domain:'All of ℝ². The graph includes the point (1,2,−63).',
@@ -73,7 +84,7 @@ export const limitExamples = [
     prompt:'The marked point is (1,2,−63). Shrink the disk to watch nearby graph heights approach it.'
   }
 ];
-const teachingOrder = ['polynomial','infinite','radial-sinc','squeeze','two-paths','curved-path'];
+const teachingOrder = ['polynomial','infinite','radial-sinc','squeeze','continuous-not-differentiable','two-paths','curved-path'];
 limitExamples.sort((a,b)=>teachingOrder.indexOf(a.id)-teachingOrder.indexOf(b.id));
 for (const example of limitExamples) example.paths.forEach((p,i)=>{p.color=colors[i];p.renderColor=renderColors[i];});
 export const limitById = Object.fromEntries(limitExamples.map(e=>[e.id,e]));
